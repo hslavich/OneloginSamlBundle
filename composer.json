@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "onelogin/php-saml": "master-dev",
+        "onelogin/php-saml": "master-dev"
     },
     "autoload": {
         "psr-4": { "Hslavich\\OneloginSamlBundle\\": "" }
