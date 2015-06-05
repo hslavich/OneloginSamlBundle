@@ -1,0 +1,31 @@
+parameters:
+
+services:
+    onelogin_auth:
+        class: OneLogin_Saml2_Auth
+        arguments: [ "%hslavich_onelogin_saml.settings%"]
+
+    hslavich_onelogin_saml.user_provider:
+        class: Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider
+        arguments: ["%hslavich_onelogin_saml.user_class%"]
+
+    hslavich_onelogin_saml.saml_provider:
+        class: Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider
+        arguments: ["", "%kernel.cache_dir%/security/nonces"]
+
+    hslavich_onelogin_saml.saml_listener:
+        class: Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener
+        parent: security.authentication.listener.abstract
+        abstract: true
+        calls:
+            - [setOneLoginAuth, [@onelogin_auth]]
+
+    hslavich_onelogin_saml.saml_entrypoint:
+        class: Hslavich\OneloginSamlBundle\Security\EntryPoint\SamlEntryPoint
+        arguments:
+            - @onelogin_auth
+
+    hslavich_onelogin_saml.saml_logout:
+        class: Hslavich\OneloginSamlBundle\Security\Logout\SamlLogoutHandler
+        arguments:
+            - @onelogin_auth

@@ -1,0 +1,15 @@
+hslavich_onelogin_saml_metadata:
+    path:     /saml/metadata
+    defaults: { _controller: HslavichOneloginSamlBundle:Saml:metadata }
+
+hslavich_onelogin_saml_acs:
+    path:     /saml/acs
+    defaults: { _controller: HslavichOneloginSamlBundle:Saml:acs }
+
+hslavich_onelogin_saml_login:
+    path:     /saml/login
+    defaults: { _controller: HslavichOneloginSamlBundle:Saml:login }
+
+hslavich_onelogin_saml_sls:
+    path:     /saml/logout
+    defaults: { _controller: HslavichOneloginSamlBundle:Saml:singleLogoutService }

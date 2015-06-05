@@ -1,0 +1,18 @@
+{
+    "name": "hslavich/oneloginsaml-bundle",
+    "type": "symfony-bundle",
+    "description": "OneLogin SAML Bundle for Symfony2",
+    "keywords": ["onelogin", "saml"],
+    "authors": [
+        {
+            "name": "hslavich",
+            "email": "hernan.slavich@gmail.com"
+        }
+    ],
+    "require": {
+        "onelogin/php-saml": "master-dev",
+    },
+    "autoload": {
+        "psr-4": { "Hslavich\\OneloginSamlBundle\\": "" }
+    }
+}
