@@ -22,7 +22,8 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->scalarNode('userClass')->defaultNull()->end()
+                ->scalarNode('username_attribute')->defaultValue('uid')->end()
+                ->scalarNode('user_class')->defaultNull()->end()
                 ->arrayNode('idp')
                     ->children()
                         ->scalarNode('entityId')->end()

@@ -9,6 +9,12 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class SamlFactory extends AbstractFactory
 {
+    public function __construct()
+    {
+        $this->addOption('username_attribute', 'uid');
+        $this->addOption('login_check', '/saml/acs');
+    }
+
     /**
      * Defines the position at which the provider is called.
      * Possible values: pre_auth, form, http, and remember_me.

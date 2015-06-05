@@ -14,16 +14,16 @@ class SamlListener extends AbstractAuthenticationListener
     protected $oneLoginAuth;
 
     /**
-     * @param mixed $oneLoginAuth
+     * @param \OneLogin_Saml2_Auth $oneLoginAuth
      */
-    public function setOneLoginAuth($oneLoginAuth)
+    public function setOneLoginAuth(\OneLogin_Saml2_Auth $oneLoginAuth)
     {
         $this->oneLoginAuth = $oneLoginAuth;
     }
 
     protected function requiresAuthentication(Request $request)
     {
-        return '/saml/acs' === $request->getPathInfo();
+        return $this->options['check_path'] === $request->getPathInfo();
     }
 
     /**
@@ -46,7 +46,7 @@ class SamlListener extends AbstractAuthenticationListener
         $attributes = $this->oneLoginAuth->getAttributes();
         $token = new SamlToken();
         $token->setAttributes($attributes);
-        $token->setUser($attributes['uid'][0]);
+        $token->setUser($attributes[$this->options['username_attribute']][0]);
 
         return  $this->authenticationManager->authenticate($token);
     }

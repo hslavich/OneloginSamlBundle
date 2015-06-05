@@ -25,7 +25,8 @@ class HslavichOneloginSamlExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
-        $container->setParameter('hslavich_onelogin_saml.user_class', $config['userClass']);
         $container->setParameter('hslavich_onelogin_saml.settings', $config);
+        $container->setParameter('hslavich_onelogin_saml.user_class', $config['user_class']);
+        $container->setParameter('hslavich_onelogin_saml.username_attribute', $config['username_attribute']);
     }
 }
