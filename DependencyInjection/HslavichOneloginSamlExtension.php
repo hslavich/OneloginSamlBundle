@@ -27,6 +27,5 @@ class HslavichOneloginSamlExtension extends Extension
 
         $container->setParameter('hslavich_onelogin_saml.settings', $config);
         $container->setParameter('hslavich_onelogin_saml.user_class', $config['user_class']);
-        $container->setParameter('hslavich_onelogin_saml.username_attribute', $config['username_attribute']);
     }
 }
