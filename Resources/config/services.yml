@@ -7,7 +7,6 @@ services:
 
     hslavich_onelogin_saml.user_provider:
         class: Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider
-        arguments: ["%hslavich_onelogin_saml.user_class%"]
 
     hslavich_onelogin_saml.saml_provider:
         class: Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider

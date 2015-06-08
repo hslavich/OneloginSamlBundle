@@ -8,15 +8,17 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class SamlUserProvider implements UserProviderInterface
 {
     protected $userClass;
+    protected $defaultRoles;
 
-    public function __construct($userClass)
+    public function __construct($userClass, array $defaultRoles)
     {
         $this->userClass = $userClass;
+        $this->defaultRoles = $defaultRoles;
     }
 
     public function loadUserByUsername($username)
     {
-        return new $this->userClass($username, array('ROLE_USER'));
+        return new $this->userClass($username, $this->defaultRoles);
     }
 
     public function refreshUser(UserInterface $user)
