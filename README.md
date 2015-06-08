@@ -74,6 +74,12 @@ security:
         - { path: ^/, roles: ROLE_USER }
 ```
 
+Edit your `app/config/routing`
+``` yml
+hslavich_saml_sp:
+    resource: "@HslavichOneloginSamlBundle/Resources/config/routing.yml"
+```
+
 Inject SAML attributes into User object
 ---------------------------------------
 Your user class must implement `SamlUserInterface`
