@@ -10,7 +10,7 @@ services:
 
     hslavich_onelogin_saml.saml_provider:
         class: Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider
-        arguments: ["", "%kernel.cache_dir%/security/nonces"]
+        arguments: [""]
 
     hslavich_onelogin_saml.saml_listener:
         class: Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener

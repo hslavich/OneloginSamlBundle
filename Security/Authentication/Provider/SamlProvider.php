@@ -11,12 +11,10 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class SamlProvider implements AuthenticationProviderInterface
 {
     private $userProvider;
-    private $cacheDir;
 
-    public function __construct(UserProviderInterface $userProvider, $cacheDir)
+    public function __construct(UserProviderInterface $userProvider)
     {
         $this->userProvider = $userProvider;
-        $this->cacheDir     = $cacheDir;
     }
 
     public function authenticate(TokenInterface $token)
