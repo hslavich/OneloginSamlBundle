@@ -3,6 +3,7 @@
 namespace Hslavich\OneloginSamlBundle\Security\Authentication\Provider;
 
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
+use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -25,6 +26,10 @@ class SamlProvider implements AuthenticationProviderInterface
             $authenticatedToken = new SamlToken($user->getRoles());
             $authenticatedToken->setUser($user);
             $authenticatedToken->setAuthenticated(true);
+
+            if ($user instanceof SamlUserInterface) {
+                $user->setSamlAttributes($token->getAttributes());
+            }
 
             return $authenticatedToken;
         }
