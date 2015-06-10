@@ -23,7 +23,7 @@ class SamlController extends Controller
         return $response;
     }
 
-    public function acsAction()
+    public function assertionConsumerServiceAction()
     {
         throw new \RuntimeException('You must configure the check path to be handled by the firewall.');
     }
