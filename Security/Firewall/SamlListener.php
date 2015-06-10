@@ -21,11 +21,6 @@ class SamlListener extends AbstractAuthenticationListener
         $this->oneLoginAuth = $oneLoginAuth;
     }
 
-    protected function requiresAuthentication(Request $request)
-    {
-        return $this->options['check_path'] === $request->getPathInfo();
-    }
-
     /**
      * Performs authentication.
      *
@@ -40,7 +35,7 @@ class SamlListener extends AbstractAuthenticationListener
         $auth = $this->oneLoginAuth;
         $auth->processResponse();
         if (!$auth->isAuthenticated()) {
-            //error
+            throw new AuthenticationException('The SAML authentication failed.');
         }
 
         $attributes = $this->oneLoginAuth->getAttributes();
@@ -48,6 +43,6 @@ class SamlListener extends AbstractAuthenticationListener
         $token->setAttributes($attributes);
         $token->setUser($attributes[$this->options['username_attribute']][0]);
 
-        return  $this->authenticationManager->authenticate($token);
+        return $this->authenticationManager->authenticate($token);
     }
 }
