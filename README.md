@@ -27,7 +27,7 @@ $bundles = array(
 Configuration
 -------------
 
-Configure SAML metadata in `app/config/config.yml`
+Configure SAML metadata in `app/config/config.yml`. Check https://github.com/onelogin/php-saml#settings for more info.
 ``` yml
 hslavich_onelogin_saml:
     idp:
@@ -80,8 +80,8 @@ hslavich_saml_sp:
     resource: "@HslavichOneloginSamlBundle/Resources/config/routing.yml"
 ```
 
-Inject SAML attributes into User object
----------------------------------------
+Inject SAML attributes into User object (Optional)
+--------------------------------------------------
 Your user class must implement `SamlUserInterface`
 
 ``` php
