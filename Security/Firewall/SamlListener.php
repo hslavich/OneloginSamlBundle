@@ -32,9 +32,8 @@ class SamlListener extends AbstractAuthenticationListener
      */
     protected function attemptAuthentication(Request $request)
     {
-        $auth = $this->oneLoginAuth;
-        $auth->processResponse();
-        if (!$auth->isAuthenticated()) {
+        $this->oneLoginAuth->processResponse();
+        if (!$this->oneLoginAuth->isAuthenticated()) {
             throw new AuthenticationException('The SAML authentication failed.');
         }
 
