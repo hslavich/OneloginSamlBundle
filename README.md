@@ -7,7 +7,7 @@ Installation
 Install with composer
 ``` json
 "require": {
-    "hslavich/oneloginsaml-bundle": "master-dev"
+    "hslavich/oneloginsaml-bundle": "dev-master"
 }
 ```
 
