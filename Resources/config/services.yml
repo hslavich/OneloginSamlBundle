@@ -19,11 +19,6 @@ services:
         calls:
             - [setOneLoginAuth, [@onelogin_auth]]
 
-    hslavich_onelogin_saml.saml_entrypoint:
-        class: Hslavich\OneloginSamlBundle\Security\EntryPoint\SamlEntryPoint
-        arguments:
-            - @onelogin_auth
-
     hslavich_onelogin_saml.saml_logout:
         class: Hslavich\OneloginSamlBundle\Security\Logout\SamlLogoutHandler
         arguments:

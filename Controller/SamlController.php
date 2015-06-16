@@ -9,7 +9,7 @@ class SamlController extends Controller
 {
     public function loginAction()
     {
-        throw new \RuntimeException('Login must be handled by the firewall.');
+        $this->get('onelogin_auth')->login();
     }
 
     public function metadataAction()

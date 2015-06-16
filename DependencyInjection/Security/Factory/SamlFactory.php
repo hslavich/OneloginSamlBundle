@@ -57,11 +57,6 @@ class SamlFactory extends AbstractFactory
         return $providerId;
     }
 
-    protected function createEntryPoint($container, $id, $config, $defaultEntryPoint)
-    {
-        return 'hslavich_onelogin_saml.saml_entrypoint';
-    }
-
     protected function createListener($container, $id, $config, $userProvider)
     {
         $listenerId = parent::createListener($container, $id, $config, $userProvider);
