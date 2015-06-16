@@ -44,7 +44,30 @@ hslavich_onelogin_saml:
         assertionConsumerService:
             url: 'http://myapp.com/app_dev.php/saml/acs'
             binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+    security:
+        nameIdEncrypted:       false
+        authnRequestsSigned:   false
+        logoutRequestSigned:   false
+        logoutResponseSigned:  false
+        wantMessagesSigned:    false
+        wantAssertionsSigned:  false
+        wantNameIdEncrypted:   false
+        requestedAuthnContext: true
+    contactPerson:
+        technical:
+            givenName: 'Tech User'
+            emailAddress: 'techuser@example.com'
+        support:
+            givenName: 'Support User'
+            emailAddress: 'supportuser@example.com'
+    organization:
+        en:
+            name: 'Example'
+            displayname: 'Example'
+            url: 'http://example.com'
 ```
+
+If you don't want to set contactPerson or organization, don't add those parameters instead of leaving them blank. 
 
 Configure firewall and user provider in `app/config/security.yml`
 ``` yml
