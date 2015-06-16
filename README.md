@@ -89,10 +89,12 @@ security:
                 # Match SAML attribute 'uid' with username
                 username_attribute: uid
                 check_path: /saml/acs
+                login_path: /saml/login
             logout:
                 path: /saml/logout
 
     access_control:
+        - { path: ^/saml/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/saml/metadata, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/, roles: ROLE_USER }
 ```
@@ -132,4 +134,36 @@ class User implements UserInterface, SamlUserInterface
 Then you can get attributes from user object
 ``` php
 $email = $this->getUser()->getEmail();
+```
+
+Integration with classic login form
+-----------------------------------
+
+You can integrate SAML authentication with traditional login form by editing your `security.yml`:
+
+``` yml
+providers:
+    user_provider:
+        # Loads user from user repository
+        entity:
+            class: AppBundle:User
+            property: username
+
+    firewalls:
+        default:
+            anonymous: ~
+            saml:
+                username_attribute: uid
+                check_path: /saml/acs
+                login_path: /saml/login
+                failure_path: /login
+                always_use_default_target_path: true
+                
+            # Traditional login form
+            form_login:
+                login_path: /login
+                check_path: /login_check
+                
+            logout:
+                path: /saml/logout
 ```
