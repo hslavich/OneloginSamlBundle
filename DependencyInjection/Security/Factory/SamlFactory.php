@@ -13,6 +13,7 @@ class SamlFactory extends AbstractFactory
     {
         $this->addOption('username_attribute', 'uid');
         $this->addOption('login_check', '/saml/acs');
+        $this->addOption('login_path', '/saml/login');
     }
 
     /**
@@ -57,11 +58,6 @@ class SamlFactory extends AbstractFactory
         return $providerId;
     }
 
-    protected function createEntryPoint($container, $id, $config, $defaultEntryPoint)
-    {
-        return 'hslavich_onelogin_saml.saml_entrypoint';
-    }
-
     protected function createListener($container, $id, $config, $userProvider)
     {
         $listenerId = parent::createListener($container, $id, $config, $userProvider);
@@ -70,9 +66,22 @@ class SamlFactory extends AbstractFactory
         return $listenerId;
     }
 
+    protected function createEntryPoint($container, $id, $config, $defaultEntryPoint)
+    {
+        $entryPointId = 'security.authentication.form_entry_point.'.$id;
+        $container
+            ->setDefinition($entryPointId, new DefinitionDecorator('security.authentication.form_entry_point'))
+            ->addArgument(new Reference('security.http_utils'))
+            ->addArgument($config['login_path'])
+            ->addArgument($config['use_forward'])
+        ;
+
+        return $entryPointId;
+    }
+
     protected function createLogoutHandler($container, $id, $config)
     {
-        if($container->hasDefinition('security.logout_listener.'.$id)) {
+        if ($container->hasDefinition('security.logout_listener.'.$id)) {
             $logoutListener = $container->getDefinition('security.logout_listener.'.$id);
             $samlListenerId = 'hslavich_onelogin_saml.saml_logout';
             $container
