@@ -30,6 +30,7 @@ Configuration
 Configure SAML metadata in `app/config/config.yml`. Check https://github.com/onelogin/php-saml#settings for more info.
 ``` yml
 hslavich_onelogin_saml:
+    # Basic settings
     idp:
         entityId: 'http://id.example.com/saml2/idp/metadata.php'
         singleSignOnService:
@@ -44,6 +45,7 @@ hslavich_onelogin_saml:
         assertionConsumerService:
             url: 'http://myapp.com/app_dev.php/saml/acs'
             binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+    # Optional settings
     security:
         nameIdEncrypted:       false
         authnRequestsSigned:   false
@@ -163,7 +165,14 @@ providers:
             form_login:
                 login_path: /login
                 check_path: /login_check
+                always_use_default_target_path: true
                 
             logout:
                 path: /saml/logout
+```
+
+Then you can add a link to route `saml_login` in your login page in order to start SAML sign on.
+
+``` html
+    <a href="{{ path('saml_login') }}">SAML Login</a></div>
 ```
