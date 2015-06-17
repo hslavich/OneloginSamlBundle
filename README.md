@@ -1,6 +1,10 @@
 # OneloginSamlBundle
 OneLogin SAML Bundle for Symfony2. (https://github.com/onelogin/php-saml)
 
+[![Latest Stable Version](https://poser.pugx.org/hslavich/oneloginsaml-bundle/v/stable)](https://packagist.org/packages/hslavich/oneloginsaml-bundle)  [![Latest Unstable Version](https://poser.pugx.org/hslavich/oneloginsaml-bundle/v/unstable)](https://packagist.org/packages/hslavich/oneloginsaml-bundle) [![Total Downloads](https://poser.pugx.org/hslavich/oneloginsaml-bundle/downloads)](https://packagist.org/packages/hslavich/oneloginsaml-bundle)
+
+[![SensioLabsInsight](https://insight.sensiolabs.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa/big.png)](https://insight.sensiolabs.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa)
+
 Installation
 ------------
 
