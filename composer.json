@@ -13,7 +13,7 @@
     "require": {
         "symfony/framework-bundle": ">=2.2",
         "symfony/security-bundle": ">=2.2",
-        "onelogin/php-saml": "dev-master"
+        "onelogin/php-saml": "~2.5"
     },
     "minimum-stability": "dev",
     "autoload": {
