@@ -13,6 +13,7 @@ class SamlFactory extends AbstractFactory
     {
         $this->addOption('username_attribute', 'uid');
         $this->addOption('login_check', '/saml/acs');
+        $this->addOption('login_path', '/saml/login');
     }
 
     /**
