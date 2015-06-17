@@ -2,7 +2,8 @@
     "name": "hslavich/oneloginsaml-bundle",
     "type": "symfony-bundle",
     "description": "OneLogin SAML Bundle for Symfony2",
-    "keywords": ["onelogin", "saml"],
+    "keywords": ["onelogin", "saml", "sso"],
+    "license": "MIT",
     "authors": [
         {
             "name": "hslavich",
@@ -14,6 +15,7 @@
         "symfony/security-bundle": ">=2.2",
         "onelogin/php-saml": "dev-master"
     },
+    "minimum-stability": "dev",
     "autoload": {
         "psr-4": { "Hslavich\\OneloginSamlBundle\\": "" }
     }
