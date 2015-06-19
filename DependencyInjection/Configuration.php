@@ -72,6 +72,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('wantAssertionsSigned')->end()
                         ->booleanNode('wantNameIdEncrypted')->end()
                         ->booleanNode('requestedAuthnContext')->end()
+                        ->booleanNode('signMetadata')->end()
                     ->end()
                 ->end()
                 ->arrayNode('contactPerson')
