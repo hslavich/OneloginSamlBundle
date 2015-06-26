@@ -2,6 +2,7 @@
 
 namespace Hslavich\OneloginSamlBundle;
 
+use Hslavich\OneloginSamlBundle\DependencyInjection\Compiler\SecurityCompilerPass;
 use Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory\SamlFactory;
 use Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory\SamlUserProviderFactory;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -16,5 +17,7 @@ class HslavichOneloginSamlBundle extends Bundle
         $extension = $container->getExtension('security');
         $extension->addSecurityListenerFactory(new SamlFactory());
         $extension->addUserProviderFactory(new SamlUserProviderFactory());
+
+        $container->addCompilerPass(new SecurityCompilerPass());
     }
 }
