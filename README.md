@@ -180,3 +180,51 @@ Then you can add a link to route `saml_login` in your login page in order to sta
 ``` html
     <a href="{{ path('saml_login') }}">SAML Login</a></div>
 ```
+
+Just-in-time user provisioning (optional)
+-----------------------------------------
+
+``` php
+namespace AppBundle\Security;
+
+use AppBundle\Entity\User;
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
+use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
+
+class UserFactory implements SamlUserFactoryInterface
+{
+    public function createUser(SamlToken $token)
+    {
+        $attributes = $token->getAttributes();
+        $user = new User();
+        $user->setRoles(array('ROLE_USER'));
+        $user->setUsername($token->getUsername());
+        $user->setPassword('notused');
+        $user->setEmail($attributes['mail'][0]);
+        $user->setName($attributes['cn'][0]);
+
+        return $user;
+    }
+}
+
+```
+
+``` yml
+services:
+    my_user_factory:
+        class: AppBundle\Security\UserFactory
+```
+
+``` yml
+firewalls:
+    default:
+        anonymous: ~
+        saml:
+            username_attribute: uid
+            # User factory service
+            user_factory: my_user_factory
+            # Persist new user. Doctrine is required.
+            persist_user: true
+        logout:
+            path: /saml/logout
+```
