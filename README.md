@@ -73,13 +73,13 @@ hslavich_onelogin_saml:
             url: 'http://example.com'
 ```
 
-If you don't want to set contactPerson or organization, don't add those parameters instead of leaving them blank. 
+If you don't want to set contactPerson or organization, don't add those parameters instead of leaving them blank.
 
 Configure firewall and user provider in `app/config/security.yml`
 ``` yml
 security:
     # ...
-    
+
     providers:
         saml_provider:
             # Basic provider instantiates a user with default roles
@@ -127,9 +127,9 @@ class User implements UserInterface, SamlUserInterface
 {
     protected $username;
     protected $email;
-    
+
     // ...
-    
+
     public function setSamlAttributes(array $attributes)
     {
         $this->email = $attributes['mail'][0];
@@ -164,13 +164,13 @@ providers:
                 login_path: /saml/login
                 failure_path: /login
                 always_use_default_target_path: true
-                
+
             # Traditional login form
             form_login:
                 login_path: /login
                 check_path: /login_check
                 always_use_default_target_path: true
-                
+
             logout:
                 path: /saml/logout
 ```
@@ -179,4 +179,78 @@ Then you can add a link to route `saml_login` in your login page in order to sta
 
 ``` html
     <a href="{{ path('saml_login') }}">SAML Login</a></div>
+```
+
+Just-in-time user provisioning (optional)
+-----------------------------------------
+
+When user is not found by user provider, you can set a user factory to create a new user mapping SAML attributes.
+
+Edit firewall settings in `security.yml`:
+
+``` yml
+firewalls:
+    default:
+        anonymous: ~
+        saml:
+            username_attribute: uid
+            # User factory service
+            user_factory: my_user_factory
+            # Persist new user. Doctrine is required.
+            persist_user: true
+        logout:
+            path: /saml/logout
+```
+
+Create the user factory service editing `services.yml`:
+
+``` yml
+services:
+    my_user_factory:
+        class: Hslavich\OneloginSamlBundle\Security\User\SamlUserFactory
+        arguments:
+            # User class
+            - AppBundle\Entity\User
+            # Attribute mapping.
+            - password: 'notused'
+              email: $mail
+              name: $cn
+              lastname: $sn
+              roles: ['ROLE_USER']
+```
+
+Fields with '$' references to SAML attribute value.
+
+Or you can create your own User Factory that implements `SamlUserFactoryInterface`
+
+``` php
+<?php
+
+namespace AppBundle\Security;
+
+use AppBundle\Entity\User;
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
+use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
+
+class UserFactory implements SamlUserFactoryInterface
+{
+    public function createUser(SamlToken $token)
+    {
+        $attributes = $token->getAttributes();
+        $user = new User();
+        $user->setRoles(array('ROLE_USER'));
+        $user->setUsername($token->getUsername());
+        $user->setPassword('notused');
+        $user->setEmail($attributes['mail'][0]);
+        $user->setName($attributes['cn'][0]);
+
+        return $user;
+    }
+}
+```
+
+``` yml
+services:
+    my_user_factory:
+        class: AppBundle\Security\UserFactory
 ```

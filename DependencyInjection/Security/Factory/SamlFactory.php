@@ -14,6 +14,8 @@ class SamlFactory extends AbstractFactory
         $this->addOption('username_attribute', 'uid');
         $this->addOption('login_check', '/saml/acs');
         $this->addOption('login_path', '/saml/login');
+        $this->addOption('user_factory');
+        $this->addOption('persist_user', false);
     }
 
     /**
@@ -51,9 +53,14 @@ class SamlFactory extends AbstractFactory
     protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId)
     {
         $providerId = 'security.authentication.provider.saml.'.$id;
-        $container
-            ->setDefinition($providerId, new DefinitionDecorator('hslavich_onelogin_saml.saml_provider'))
-            ->replaceArgument(0, new Reference($userProviderId));
+        $container->setDefinition($providerId, new DefinitionDecorator('hslavich_onelogin_saml.saml_provider'))
+            ->replaceArgument(0, new Reference($userProviderId))
+            ->addArgument(array(
+                'persist_user' => $config['persist_user']
+            ))
+            ->addMethodCall('setUserFactory', array(new Reference($config['user_factory'])))
+            ->addTag('hslavich.saml_provider')
+        ;
 
         return $providerId;
     }
