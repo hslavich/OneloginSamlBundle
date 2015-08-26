@@ -53,17 +53,20 @@ class SamlFactory extends AbstractFactory
     protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId)
     {
         $providerId = 'security.authentication.provider.saml.'.$id;
-        $container->setDefinition($providerId, new DefinitionDecorator('hslavich_onelogin_saml.saml_provider'))
+        $definition = $container->setDefinition($providerId, new DefinitionDecorator('hslavich_onelogin_saml.saml_provider'))
             ->replaceArgument(0, new Reference($userProviderId))
             ->addArgument(array(
-                'persist_user' => $config['persist_user']
+                 'persist_user' => $config['persist_user']
             ))
-            ->addMethodCall('setUserFactory', array(new Reference($config['user_factory'])))
             ->addTag('hslavich.saml_provider')
         ;
 
+        if ($config['user_factory']) {
+            $definition->addMethodCall('setUserFactory', array(new Reference($config['user_factory'])));
+        }
+
         return $providerId;
-    }
+     }
 
     protected function createListener($container, $id, $config, $userProvider)
     {
