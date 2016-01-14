@@ -17,9 +17,9 @@ services:
         parent: security.authentication.listener.abstract
         abstract: true
         calls:
-            - [setOneLoginAuth, [@onelogin_auth]]
+            - [setOneLoginAuth, ["@onelogin_auth"]]
 
     hslavich_onelogin_saml.saml_logout:
         class: Hslavich\OneloginSamlBundle\Security\Logout\SamlLogoutHandler
         arguments:
-            - @onelogin_auth
+            - "@onelogin_auth"
