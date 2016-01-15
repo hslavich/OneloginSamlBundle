@@ -2,7 +2,7 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\User;
 
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 interface SamlUserFactoryInterface
@@ -10,8 +10,8 @@ interface SamlUserFactoryInterface
     /**
      * Creates a new User object from SAML Token.
      *
-     * @param SamlToken $token SAML token
+     * @param SamlTokenInterface $token SAML token
      * @return UserInterface
      */
-    public function createUser(SamlToken $token);
+    public function createUser(SamlTokenInterface $token);
 }

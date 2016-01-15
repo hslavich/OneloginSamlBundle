@@ -3,12 +3,10 @@
 namespace Hslavich\OneloginSamlBundle\Security\Authentication\Token;
 
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 
-class SamlToken extends AbstractToken implements SamlTokenInterface
+interface SamlTokenInterface extends TokenInterface
 {
-    public function getCredentials()
-    {
-        return null;
-    }
+
 }

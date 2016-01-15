@@ -3,6 +3,8 @@
 namespace Hslavich\OneloginSamlBundle\Security\Authentication\Provider;
 
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactoryInterface;
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
@@ -15,6 +17,7 @@ class SamlProvider implements AuthenticationProviderInterface
 {
     private $userProvider;
     private $userFactory;
+    private $tokenFactory;
     private $entityManager;
     private $options;
 
@@ -31,6 +34,11 @@ class SamlProvider implements AuthenticationProviderInterface
         $this->userFactory = $userFactory;
     }
 
+    public function setTokenFactory(SamlTokenFactoryInterface $tokenFactory)
+    {
+        $this->tokenFactory = $tokenFactory;
+    }
+
     public function setEntityManager($entityManager)
     {
         $this->entityManager = $entityManager;
@@ -41,8 +49,7 @@ class SamlProvider implements AuthenticationProviderInterface
         $user = $this->retrieveUser($token);
 
         if ($user) {
-            $authenticatedToken = new SamlToken($user->getRoles());
-            $authenticatedToken->setUser($user);
+            $authenticatedToken = $this->tokenFactory->createToken($user, $token->getAttributes(), $user->getRoles());
             $authenticatedToken->setAuthenticated(true);
 
             if ($user instanceof SamlUserInterface) {
@@ -57,7 +64,7 @@ class SamlProvider implements AuthenticationProviderInterface
 
     public function supports(TokenInterface $token)
     {
-        return $token instanceof SamlToken;
+        return $token instanceof SamlTokenInterface;
     }
 
     protected function retrieveUser($token)

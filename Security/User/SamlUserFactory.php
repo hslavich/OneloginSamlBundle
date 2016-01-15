@@ -2,7 +2,7 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\User;
 
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 
 class SamlUserFactory implements SamlUserFactoryInterface
 {
@@ -15,7 +15,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
         $this->mapping = $mapping;
     }
 
-    public function createUser(SamlToken $token)
+    public function createUser(SamlTokenInterface $token)
     {
         $user = new $this->userClass();
         $user->setUsername($token->getUsername());

@@ -15,6 +15,7 @@ class SamlFactory extends AbstractFactory
         $this->addOption('login_check', '/saml/acs');
         $this->addOption('login_path', '/saml/login');
         $this->addOption('user_factory');
+        $this->addOption('token_factory');
         $this->addOption('persist_user', false);
     }
 
@@ -65,12 +66,19 @@ class SamlFactory extends AbstractFactory
             $definition->addMethodCall('setUserFactory', array(new Reference($config['user_factory'])));
         }
 
+        $factoryId = $config['token_factory'] ?: 'hslavich_onelogin_saml.saml_token_factory';
+        $definition->addMethodCall('setTokenFactory', array(new Reference($factoryId)));
+
         return $providerId;
      }
 
     protected function createListener($container, $id, $config, $userProvider)
     {
         $listenerId = parent::createListener($container, $id, $config, $userProvider);
+        $factoryId = $config['token_factory'] ?: 'hslavich_onelogin_saml.saml_token_factory';
+        $definition = $container->getDefinition($listenerId);
+        $definition->addMethodCall('setTokenFactory', array(new Reference($factoryId)));
+
         $this->createLogoutHandler($container, $id, $config);
 
         return $listenerId;

@@ -12,6 +12,9 @@ services:
         class: Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider
         arguments: [""]
 
+    hslavich_onelogin_saml.saml_token_factory:
+        class: Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactory
+
     hslavich_onelogin_saml.saml_listener:
         class: Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener
         parent: security.authentication.listener.abstract
