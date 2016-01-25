@@ -2,11 +2,8 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\Authentication\Token;
 
-use Symfony\Component\Security\Core\User\UserInterface;
-
 class SamlTokenFactory implements SamlTokenFactoryInterface
 {
-
     /**
      * @inheritdoc
      */
