@@ -232,12 +232,12 @@ Or you can create your own User Factory that implements `SamlUserFactoryInterfac
 namespace AppBundle\Security;
 
 use AppBundle\Entity\User;
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 
 class UserFactory implements SamlUserFactoryInterface
 {
-    public function createUser(SamlToken $token)
+    public function createUser(SamlTokenInterface $token)
     {
         $attributes = $token->getAttributes();
         $user = new User();
