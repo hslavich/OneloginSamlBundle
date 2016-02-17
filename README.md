@@ -124,10 +124,9 @@ Your user class must implement `SamlUserInterface`
 
 namespace AppBundle\Entity;
 
-use Symfony\Component\Security\Core\User\UserInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
 
-class User implements UserInterface, SamlUserInterface
+class User implements SamlUserInterface
 {
     protected $username;
     protected $email;

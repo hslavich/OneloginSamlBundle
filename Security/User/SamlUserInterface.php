@@ -2,7 +2,9 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\User;
 
-interface SamlUserInterface
+use Symfony\Component\Security\Core\User\UserInterface;
+
+interface SamlUserInterface extends UserInterface
 {
     /**
      * Set SAML attributes in user object.
