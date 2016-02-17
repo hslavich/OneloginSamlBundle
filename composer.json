@@ -11,9 +11,12 @@
         }
     ],
     "require": {
-        "symfony/framework-bundle": ">=2.2",
-        "symfony/security-bundle": ">=2.2",
-        "onelogin/php-saml": "~2.5"
+        "symfony/framework-bundle": "~2.3|~3.0",
+        "symfony/security-bundle": "~2.3|~3.0",
+        "onelogin/php-saml": "~2.7"
+    },
+    "require-dev": {
+        "symfony/phpunit-bridge": "~2.7|~3.0"
     },
     "autoload": {
         "psr-4": { "Hslavich\\OneloginSamlBundle\\": "" }
