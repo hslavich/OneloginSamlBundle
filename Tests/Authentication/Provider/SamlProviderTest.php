@@ -51,6 +51,22 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
         $provider->authenticate($this->getSamlToken());
     }
 
+    public function testPersistUser()
+    {
+        $user = $this->getMock('Symfony\Component\Security\Core\User\UserInterface');
+        $user->expects($this->once())->method('getRoles')->will($this->returnValue(array()));
+
+        $userFactory = $this->getMock('Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface');
+        $userFactory->expects($this->once())->method('createUser')->will($this->returnValue($user));
+
+        $entityManager = $this->getMock('Doctrine\ORM\EntityManagerInterface', array('persist', 'flush'));
+        $entityManager->expects($this->once())->method('persist')->with($this->equalTo($user));
+
+        $provider = $this->getProvider(null, $userFactory, $entityManager, true);
+        $provider->authenticate($this->getSamlToken());
+
+    }
+
     protected function getSamlToken()
     {
         $token = $this->getMock('Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken', array('getUsername'), array(), '', false);
@@ -60,7 +76,7 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
         return $token;
     }
 
-    protected function getProvider($user = null, $userFactory = null)
+    protected function getProvider($user = null, $userFactory = null, $entityManager = null, $persist = false)
     {
         $userProvider = $this->getMock('Symfony\Component\Security\Core\User\UserProviderInterface');
         if ($user) {
@@ -69,11 +85,15 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
             $userProvider->expects($this->once())->method('loadUserByUsername')->will($this->throwException(new UsernameNotFoundException()));
         }
 
-        $provider = new SamlProvider($userProvider);
+        $provider = new SamlProvider($userProvider, array('persist_user' => $persist));
         $provider->setTokenFactory(new SamlTokenFactory());
 
         if ($userFactory) {
             $provider->setUserFactory($userFactory);
+        }
+
+        if ($entityManager) {
+            $provider->setEntityManager($entityManager);
         }
 
         return $provider;
