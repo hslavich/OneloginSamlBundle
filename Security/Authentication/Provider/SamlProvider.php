@@ -73,16 +73,22 @@ class SamlProvider implements AuthenticationProviderInterface
             return $this->userProvider->loadUserByUsername($token->getUsername());
         } catch (UsernameNotFoundException $e) {
             if ($this->userFactory instanceof SamlUserFactoryInterface) {
-                $user = $this->userFactory->createUser($token);
-
-                if ($this->options['persist_user'] && $this->entityManager) {
-                    $this->entityManager->persist($user);
-                    $this->entityManager->flush();
-                }
-
-                return $user;
+                return $this->generateUser($token);
             }
+            
             throw $e;
         }
+    }
+
+    protected function generateUser($token)
+    {
+        $user = $this->userFactory->createUser($token);
+
+        if ($this->options['persist_user'] && $this->entityManager) {
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        }
+
+        return $user;
     }
 }
