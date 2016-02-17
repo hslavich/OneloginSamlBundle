@@ -8,11 +8,11 @@ class SamlUserProviderTest extends \PHPUnit_Framework_TestCase
 {
     public function testLoadByUsername()
     {
-        $provider = $this->getUserProvider(['ROLE_ADMIN']);
+        $provider = $this->getUserProvider(array('ROLE_ADMIN'));
         $user = $provider->loadUserByUsername('admin');
 
         $this->assertEquals('admin', $user->getUsername());
-        $this->assertEquals(['ROLE_ADMIN'], $user->getRoles());
+        $this->assertEquals(array('ROLE_ADMIN'), $user->getRoles());
     }
 
     protected function getUserProvider($roles)
