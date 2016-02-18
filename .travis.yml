@@ -28,10 +28,14 @@ cache:
     - $HOME/.composer/cache
 
 before_install:
+  - mkdir -p build/logs
   - composer selfupdate
   - if [ "$SYMFONY_VERSION" != "" ]; then composer require "symfony/symfony:${SYMFONY_VERSION}" --no-update; fi;
 
 install: composer update --prefer-dist --no-interaction $COMPOSER_FLAGS
 
 script:
-  - phpunit --coverage-text
+  - phpunit
+
+after_script:
+  - php vendor/bin/coveralls -v
