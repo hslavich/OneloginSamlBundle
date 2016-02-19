@@ -8,6 +8,14 @@ use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 class SamlProviderTest extends \PHPUnit_Framework_TestCase
 {
+    public function testSupports()
+    {
+        $provider = $this->getProvider();
+
+        $this->assertTrue($provider->supports($this->getMock('Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken')));
+        $this->assertFalse($provider->supports($this->getMock('Symfony\Component\Security\Core\Authentication\Token\TokenInterface')));
+    }
+
     public function testAuthenticate()
     {
         $user = $this->getMock('Symfony\Component\Security\Core\User\UserInterface');
@@ -21,6 +29,15 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $token->getRoles());
         $this->assertTrue($token->isAuthenticated());
         $this->assertSame($user, $token->getUser());
+    }
+
+    /**
+     * @expectedException Symfony\Component\Security\Core\Exception\UsernameNotFoundException
+     */
+    public function testAuthenticateInvalidUser()
+    {
+        $provider = $this->getProvider();
+        $provider->authenticate($this->getSamlToken());
     }
 
     public function testAuthenticateWithUserFactory()
@@ -80,9 +97,9 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
     {
         $userProvider = $this->getMock('Symfony\Component\Security\Core\User\UserProviderInterface');
         if ($user) {
-            $userProvider->expects($this->once())->method('loadUserByUsername')->will($this->returnValue($user));
+            $userProvider->expects($this->any())->method('loadUserByUsername')->will($this->returnValue($user));
         } else {
-            $userProvider->expects($this->once())->method('loadUserByUsername')->will($this->throwException(new UsernameNotFoundException()));
+            $userProvider->expects($this->any())->method('loadUserByUsername')->will($this->throwException(new UsernameNotFoundException()));
         }
 
         $provider = new SamlProvider($userProvider, array('persist_user' => $persist));

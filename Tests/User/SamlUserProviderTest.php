@@ -15,7 +15,23 @@ class SamlUserProviderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('ROLE_ADMIN'), $user->getRoles());
     }
 
-    protected function getUserProvider($roles)
+    public function testRefreshUser()
+    {
+        $user = $this->getMock('Symfony\Component\Security\Core\User\UserInterface');
+        $provider = $this->getUserProvider();
+
+        $this->assertSame($user, $provider->refreshUser($user));
+    }
+
+    public function testSupportsClass()
+    {
+        $provider = $this->getUserProvider();
+
+        $this->assertTrue($provider->supportsClass('Hslavich\OneloginSamlBundle\Tests\TestUser'));
+        $this->assertFalse($provider->supportsClass('Symfony\Component\Security\Core\User\UserInterface'));
+    }
+
+    protected function getUserProvider($roles = array())
     {
         return new SamlUserProvider('Hslavich\OneloginSamlBundle\Tests\TestUser', $roles);
     }
