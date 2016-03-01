@@ -97,7 +97,8 @@ security:
             pattern:    ^/
             anonymous: true
             saml:
-                # Match SAML attribute 'uid' with username
+                # Match SAML attribute 'uid' with username.
+                # Uses getNameId() method by default.
                 username_attribute: uid
                 check_path: /saml/acs
                 login_path: /saml/login
