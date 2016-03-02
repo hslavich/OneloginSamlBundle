@@ -99,7 +99,11 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
             ->method('checkRequestPath')
             ->will($this->returnValue(true))
         ;
-        $this->tokenStorage = $this->getMock('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface');
+
+        $reflection = new \ReflectionClass('Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener');
+        $params = $reflection->getConstructor()->getParameters();
+        $param = $params[0];
+        $this->tokenStorage = $this->getMock($param->getClass()->name);
     }
 
     protected function tearDown()
