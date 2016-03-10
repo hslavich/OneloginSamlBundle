@@ -3,7 +3,6 @@
 namespace Hslavich\OneloginSamlBundle\Security\Firewall;
 
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
