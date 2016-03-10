@@ -13,7 +13,6 @@ use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
 class SamlListener extends AbstractAuthenticationListener
 {
     protected $oneLoginAuth;
-    protected $tokenFactory;
 
     /**
      * @param \OneLogin_Saml2_Auth $oneLoginAuth
@@ -21,14 +20,6 @@ class SamlListener extends AbstractAuthenticationListener
     public function setOneLoginAuth(\OneLogin_Saml2_Auth $oneLoginAuth)
     {
         $this->oneLoginAuth = $oneLoginAuth;
-    }
-
-    /**
-     * @param SamlTokenFactoryInterface $tokenFactory
-     */
-    public function setTokenFactory(SamlTokenFactoryInterface $tokenFactory)
-    {
-        $this->tokenFactory = $tokenFactory;
     }
 
     /**
