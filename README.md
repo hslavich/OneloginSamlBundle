@@ -64,6 +64,9 @@ hslavich_onelogin_saml:
         wantAssertionsSigned:  false
         wantNameIdEncrypted:   false
         requestedAuthnContext: true
+        signMetadata: false
+        wantXMLValidation: true
+        signatureAlgorithm: 'http://www.w3.org/2000/09/xmldsig#rsa-sha1'
     contactPerson:
         technical:
             givenName: 'Tech User'

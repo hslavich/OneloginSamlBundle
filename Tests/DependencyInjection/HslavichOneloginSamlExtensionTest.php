@@ -52,6 +52,8 @@ class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($settings['security']['wantNameIdEncrypted']);
         $this->assertTrue($settings['security']['requestedAuthnContext']);
         $this->assertFalse($settings['security']['signMetadata']);
+        $this->assertFalse($settings['security']['wantXMLValidation']);
+        $this->assertEquals('http://www.w3.org/2000/09/xmldsig#rsa-sha1', $settings['security']['signatureAlgorithm']);
     }
 
     public function testLoadBasicSettings()
@@ -127,6 +129,8 @@ security:
     wantNameIdEncrypted:   false
     requestedAuthnContext: true
     signMetadata: false
+    wantXMLValidation: false
+    signatureAlgorithm: 'http://www.w3.org/2000/09/xmldsig#rsa-sha1'
 contactPerson:
     technical:
         givenName: 'Tech User'

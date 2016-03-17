@@ -73,6 +73,8 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('wantNameIdEncrypted')->end()
                         ->booleanNode('requestedAuthnContext')->end()
                         ->booleanNode('signMetadata')->end()
+                        ->booleanNode('wantXMLValidation')->end()
+                        ->scalarNode('signatureAlgorithm')->end()
                     ->end()
                 ->end()
                 ->arrayNode('contactPerson')
