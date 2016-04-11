@@ -43,6 +43,7 @@ class SamlListener extends AbstractAuthenticationListener
 
         if (isset($this->options['username_attribute'])) {
             if (!array_key_exists($this->options['username_attribute'], $attributes)) {
+                $this->logger->error(sprintf("Found attributes: %s", print_r($attributes, true)));
                 throw new \Exception(sprintf("Attribute '%s' not found in SAML data", $this->options['username_attribute']));
             }
 
