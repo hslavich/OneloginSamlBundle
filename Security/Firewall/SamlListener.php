@@ -42,6 +42,12 @@ class SamlListener extends AbstractAuthenticationListener
         $token->setAttributes($attributes);
 
         if (isset($this->options['username_attribute'])) {
+            if (array_key_exists($this->options['username_attribute'],$attributes)===false){
+                $this->logger->error(sprintf("Expected Attribute: %s Is not found in SAML data"));
+                $this->logger->error(sprintf("Found Attributes: %s",print_r($attributes,true)));
+                throw new \Exception(sprintf("Expected Attribute: %s Is not found in SAML data"));
+
+            }
             $username = $attributes[$this->options['username_attribute']][0];
         } else {
             $username = $this->oneLoginAuth->getNameId();
