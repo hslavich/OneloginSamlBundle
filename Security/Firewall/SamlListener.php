@@ -34,6 +34,7 @@ class SamlListener extends AbstractAuthenticationListener
     {
         $this->oneLoginAuth->processResponse();
         if ($this->oneLoginAuth->getErrors()) {
+            $this->logger->error($this->oneLoginAuth->getLastErrorReason());
             throw new AuthenticationException($this->oneLoginAuth->getLastErrorReason());
         }
 
