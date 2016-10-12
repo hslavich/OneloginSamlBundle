@@ -11,6 +11,9 @@ use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
 
 class SamlListener extends AbstractAuthenticationListener
 {
+    /**
+     * @var \OneLogin_Saml2_Auth
+     */
     protected $oneLoginAuth;
 
     /**
@@ -25,10 +28,10 @@ class SamlListener extends AbstractAuthenticationListener
      * Performs authentication.
      *
      * @param Request $request A Request instance
-     *
      * @return TokenInterface|Response|null The authenticated token, null if full authentication is not possible, or a Response
      *
      * @throws AuthenticationException if the authentication fails
+     * @throws \Exception if attribute set by "username_attribute" option not found
      */
     protected function attemptAuthentication(Request $request)
     {
@@ -39,6 +42,7 @@ class SamlListener extends AbstractAuthenticationListener
         }
 
         $attributes = $this->oneLoginAuth->getAttributes();
+        $attributes['sessionIndex'] = $this->oneLoginAuth->getSessionIndex();
         $token = new SamlToken();
         $token->setAttributes($attributes);
 
