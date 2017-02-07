@@ -1,28 +1,36 @@
 parameters:
+    onelogin_saml2_auth: 'OneLogin_Saml2_Auth'
+    onelogin_saml.bundle.namespace: 'Hslavich\OneloginSamlBundle'
+    onelogin_saml.security.namespace: '%onelogin_saml.bundle.namespace%\Security'
+    onelogin_saml.user_provider.class: '%onelogin_saml.security.namespace%\User\SamlUserProvider'
+    onelogin_saml.saml_provider.class: '%onelogin_saml.security.namespace%\Authentication\Provider\SamlProvider'
+    onelogin_saml.saml_token_factory.class: '%onelogin_saml.security.namespace%\Authentication\Token\SamlTokenFactory'
+    onelogin_saml.saml_listener.class: '%onelogin_saml.security.namespace%\Firewall\SamlListener'
+    onelogin_saml.saml_logout.class: '%onelogin_saml.security.namespace%\Logout\SamlLogoutHandler'
 
 services:
     onelogin_auth:
-        class: OneLogin_Saml2_Auth
+        class: '%onelogin_saml2_auth%'
         arguments: [ "%hslavich_onelogin_saml.settings%"]
 
     hslavich_onelogin_saml.user_provider:
-        class: Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider
+        class: '%onelogin_saml.user_provider.class%'
 
     hslavich_onelogin_saml.saml_provider:
-        class: Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider
+        class: '%onelogin_saml.saml_provider.class%'
         arguments: [""]
 
     hslavich_onelogin_saml.saml_token_factory:
-        class: Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactory
+        class: '%onelogin_saml.saml_token_factory.class%'
 
     hslavich_onelogin_saml.saml_listener:
-        class: Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener
+        class: '%onelogin_saml.saml_listener.class%'
         parent: security.authentication.listener.abstract
         abstract: true
         calls:
             - [setOneLoginAuth, ["@onelogin_auth"]]
 
     hslavich_onelogin_saml.saml_logout:
-        class: Hslavich\OneloginSamlBundle\Security\Logout\SamlLogoutHandler
+        class: '%onelogin_saml.security.namespace%\Logout\SamlLogoutHandler'
         arguments:
             - "@onelogin_auth"
