@@ -49,12 +49,12 @@ class SamlProvider implements AuthenticationProviderInterface
         $user = $this->retrieveUser($token);
 
         if ($user) {
-            $authenticatedToken = $this->tokenFactory->createToken($user, $token->getAttributes(), $user->getRoles());
-            $authenticatedToken->setAuthenticated(true);
-
             if ($user instanceof SamlUserInterface) {
                 $user->setSamlAttributes($token->getAttributes());
             }
+            
+            $authenticatedToken = $this->tokenFactory->createToken($user, $token->getAttributes(), $user->getRoles());
+            $authenticatedToken->setAuthenticated(true);
 
             return $authenticatedToken;
         }
