@@ -21,6 +21,10 @@ class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('http://id.example.com/saml2/idp/SingleLogoutService.php', $settings['idp']['singleLogoutService']['url']);
         $this->assertEquals('urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect', $settings['idp']['singleLogoutService']['binding']);
         $this->assertEquals('idp_x509certdata', $settings['idp']['x509cert']);
+        $this->assertEquals('43:51:43:a1:b5:fc:8b:b7:0a:3a:a9:b1:0f:66:73:a8', $settings['idp']['certFingerprint']);
+        $this->assertEquals('sha1', $settings['idp']['certFingerprintAlgorithm']);
+        $this->assertEquals(array('<cert1-string>'), $settings['idp']['x509certMulti']['signing']);
+        $this->assertEquals(array('<cert2-string>'), $settings['idp']['x509certMulti']['encryption']);
     }
 
     public function testLoadSpSettings()
@@ -106,6 +110,11 @@ idp:
         url: 'http://id.example.com/saml2/idp/SingleLogoutService.php'
         binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
     x509cert: 'idp_x509certdata'
+    certFingerprint: '43:51:43:a1:b5:fc:8b:b7:0a:3a:a9:b1:0f:66:73:a8'
+    certFingerprintAlgorithm: 'sha1'
+    x509certMulti:
+        signing: ['<cert1-string>']
+        encryption: ['<cert2-string>']
 sp:
     entityId: 'http://myapp.com/app_dev.php/saml/metadata'
     privateKey: 'sp_privateKeyData'
