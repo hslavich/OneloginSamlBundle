@@ -61,8 +61,8 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
             $this->sessionStrategy,
             $this->httpUtils,
             'secured_area',
-            $this->getMock('Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface'),
-            $this->getMock('Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface'),
+            $this->createMock('Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface'),
+            $this->createMock('Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface'),
             $options
         );
     }
@@ -73,8 +73,8 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock()
         ;
-        $this->dispatcher = $this->getMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
-        $this->request = $this->getMock('Symfony\Component\HttpFoundation\Request');
+        $this->dispatcher = $this->createMock('Symfony\Component\EventDispatcher\EventDispatcherInterface');
+        $this->request = $this->createMock('Symfony\Component\HttpFoundation\Request');
         $this->request
             ->expects($this->any())
             ->method('hasSession')
@@ -86,14 +86,14 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(true))
         ;
 
-        $this->event = $this->getMock('Symfony\Component\HttpKernel\Event\GetResponseEvent', array(), array(), '', false);
+        $this->event = $this->createMock('Symfony\Component\HttpKernel\Event\GetResponseEvent', array(), array(), '', false);
         $this->event
             ->expects($this->any())
             ->method('getRequest')
             ->will($this->returnValue($this->request))
         ;
-        $this->sessionStrategy = $this->getMock('Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterface');
-        $this->httpUtils = $this->getMock('Symfony\Component\Security\Http\HttpUtils');
+        $this->sessionStrategy = $this->createMock('Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterface');
+        $this->httpUtils = $this->createMock('Symfony\Component\Security\Http\HttpUtils');
         $this->httpUtils
             ->expects($this->any())
             ->method('checkRequestPath')
@@ -103,7 +103,7 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener');
         $params = $reflection->getConstructor()->getParameters();
         $param = $params[0];
-        $this->tokenStorage = $this->getMock($param->getClass()->name);
+        $this->tokenStorage = $this->createMock($param->getClass()->name);
     }
 
     protected function tearDown()

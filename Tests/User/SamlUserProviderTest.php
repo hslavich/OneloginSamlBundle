@@ -17,7 +17,7 @@ class SamlUserProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testRefreshUser()
     {
-        $user = $this->getMock('Symfony\Component\Security\Core\User\UserInterface');
+        $user = $this->createMock('Symfony\Component\Security\Core\User\UserInterface');
         $provider = $this->getUserProvider();
 
         $this->assertSame($user, $provider->refreshUser($user));
