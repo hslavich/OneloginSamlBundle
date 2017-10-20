@@ -1,6 +1,6 @@
 <?php
 
-namespace Hslavich\Hslavich\OneloginSamlBundle\Tests\Tests\DependencyInjection;
+namespace Hslavich\OneloginSamlBundle\Tests\DependencyInjection;
 
 use Hslavich\OneloginSamlBundle\DependencyInjection\HslavichOneloginSamlExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
