@@ -12,11 +12,12 @@ class SamlFactory extends AbstractFactory
     public function __construct()
     {
         $this->addOption('username_attribute');
-        $this->addOption('login_check', '/saml/acs');
-        $this->addOption('login_path', '/saml/login');
+        $this->addOption('check_path', '/saml/acs');
         $this->addOption('user_factory');
         $this->addOption('token_factory');
         $this->addOption('persist_user', false);
+
+        $this->defaultFailureHandlerOptions['login_path'] = '/saml/login';
     }
 
     /**
