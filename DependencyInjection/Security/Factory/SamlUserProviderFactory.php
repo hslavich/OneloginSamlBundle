@@ -6,6 +6,7 @@ use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\UserProvider\User
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
+use Symfony\Component\DependencyInjection\ChildDefinition;
 
 class SamlUserProviderFactory implements UserProviderFactoryInterface
 {
@@ -13,8 +14,9 @@ class SamlUserProviderFactory implements UserProviderFactoryInterface
 
     public function create(ContainerBuilder $container, $id, $config)
     {
+        $definitionClassname = $this->getDefinitionClassname();
         $container
-            ->setDefinition($id, new DefinitionDecorator('hslavich_onelogin_saml.user_provider'))
+            ->setDefinition($id, new $definitionClassname('hslavich_onelogin_saml.user_provider'))
             ->addArgument($config['user_class'])
             ->addArgument($config['default_roles'])
         ;
@@ -36,5 +38,10 @@ class SamlUserProviderFactory implements UserProviderFactoryInterface
                 ->end()
             ->end()
         ;
+    }
+
+    private function getDefinitionClassname()
+    {
+        return class_exists(ChildDefinition::class) ? ChildDefinition::class : DefinitionDecorator::class;
     }
 }
