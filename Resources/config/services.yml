@@ -4,6 +4,7 @@ services:
     onelogin_auth:
         class: OneLogin_Saml2_Auth
         arguments: [ "%hslavich_onelogin_saml.settings%"]
+        public: true
 
     hslavich_onelogin_saml.user_provider:
         class: Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider

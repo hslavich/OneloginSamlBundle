@@ -4,8 +4,10 @@ namespace Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory;
 
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AbstractFactory;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\DefinitionDecorator;
+
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\DependencyInjection\ChildDefinition;
+
 
 class SamlFactory extends AbstractFactory
 {
@@ -55,7 +57,7 @@ class SamlFactory extends AbstractFactory
     protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId)
     {
         $providerId = 'security.authentication.provider.saml.'.$id;
-        $definition = $container->setDefinition($providerId, new DefinitionDecorator('hslavich_onelogin_saml.saml_provider'))
+        $definition = $container->setDefinition($providerId, new ChildDefinition('hslavich_onelogin_saml.saml_provider'))
             ->replaceArgument(0, new Reference($userProviderId))
             ->addArgument(array(
                  'persist_user' => $config['persist_user']
@@ -85,7 +87,7 @@ class SamlFactory extends AbstractFactory
     {
         $entryPointId = 'security.authentication.form_entry_point.'.$id;
         $container
-            ->setDefinition($entryPointId, new DefinitionDecorator('security.authentication.form_entry_point'))
+            ->setDefinition($entryPointId, new ChildDefinition('security.authentication.form_entry_point'))
             ->addArgument(new Reference('security.http_utils'))
             ->addArgument($config['login_path'])
             ->addArgument($config['use_forward'])
@@ -100,7 +102,7 @@ class SamlFactory extends AbstractFactory
             $logoutListener = $container->getDefinition('security.logout_listener.'.$id);
             $samlListenerId = 'hslavich_onelogin_saml.saml_logout';
             $container
-                ->setDefinition($samlListenerId, new DefinitionDecorator('saml.security.http.logout'))
+                ->setDefinition($samlListenerId, new ChildDefinition('saml.security.http.logout'))
                 ->replaceArgument(2, array_intersect_key($config, $this->options));
             $logoutListener->addMethodCall('addHandler', array(new Reference($samlListenerId)));
         }
