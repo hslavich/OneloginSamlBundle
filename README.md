@@ -186,7 +186,7 @@ providers:
 Then you can add a link to route `saml_login` in your login page in order to start SAML sign on.
 
 ``` html
-    <a href="{{ path('saml_login') }}">SAML Login</a></div>
+    <a href="{{ path('saml_login') }}">SAML Login</a>
 ```
 
 Just-in-time user provisioning (optional)
