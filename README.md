@@ -156,12 +156,13 @@ Integration with classic login form
 You can integrate SAML authentication with traditional login form by editing your `security.yml`:
 
 ``` yml
-providers:
-    user_provider:
-        # Loads user from user repository
-        entity:
-            class: AppBundle:User
-            property: username
+security:
+    providers:
+        user_provider:
+            # Loads user from user repository
+            entity:
+                class: AppBundle:User
+                property: username
 
     firewalls:
         default:
