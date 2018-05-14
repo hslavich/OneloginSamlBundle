@@ -99,6 +99,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('logoutResponseSigned')->end()
                         ->booleanNode('wantMessagesSigned')->end()
                         ->booleanNode('wantAssertionsSigned')->end()
+                        ->booleanNode('wantAssertionsEncrypted')->end()
                         ->booleanNode('wantNameId')->end()
                         ->booleanNode('wantNameIdEncrypted')->end()
                         ->booleanNode('requestedAuthnContext')->end()
