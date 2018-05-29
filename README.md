@@ -7,6 +7,11 @@ OneLogin SAML Bundle for Symfony2. (https://github.com/onelogin/php-saml)
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa/big.png)](https://insight.sensiolabs.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa)
 
+Features
+------------
+
+This version is compatible with PHP 7.X and does not include xmlseclibs and onelogin/php-saml version 3.0.0.x-dev
+
 Installation
 ------------
 

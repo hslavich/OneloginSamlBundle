@@ -7,12 +7,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Logout\LogoutHandlerInterface;
+use OneLogin\Saml2\Auth;
 
 class SamlLogoutHandler implements LogoutHandlerInterface
 {
     protected $samlAuth;
 
-    public function __construct(\OneLogin_Saml2_Auth $samlAuth)
+    public function __construct(Auth $samlAuth)
     {
         $this->samlAuth = $samlAuth;
     }
