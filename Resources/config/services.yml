@@ -2,7 +2,7 @@ parameters:
 
 services:
     onelogin_auth:
-        class: OneLogin\Saml2\Auth
+        class: OneLogin_Saml2_Auth
         arguments: [ "%hslavich_onelogin_saml.settings%"]
         public: true
 

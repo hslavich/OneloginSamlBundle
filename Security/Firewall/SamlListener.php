@@ -8,19 +8,18 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
-use OneLogin\Saml2\Auth;
 
 class SamlListener extends AbstractAuthenticationListener
 {
     /**
-     * @var Auth
+     * @var \OneLogin_Saml2_Auth
      */
     protected $oneLoginAuth;
 
     /**
-     * @param Auth $oneLoginAuth
+     * @param \OneLogin_Saml2_Auth $oneLoginAuth
      */
-    public function setOneLoginAuth(Auth $oneLoginAuth)
+    public function setOneLoginAuth(\OneLogin_Saml2_Auth $oneLoginAuth)
     {
         $this->oneLoginAuth = $oneLoginAuth;
     }
