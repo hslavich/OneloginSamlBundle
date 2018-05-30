@@ -13,7 +13,7 @@
     "require": {
         "symfony/framework-bundle": "~2.3|~3.0|^4.0",
         "symfony/security-bundle": "~2.3|~3.0|^4.0",
-        "onelogin/php-saml": "~2.10|~dev-3.0"
+        "onelogin/php-saml": "~2.10|3.0.0-namespaceless-dev"
     },
     "require-dev": {
         "symfony/phpunit-bridge": "~2.7|~3.0|^4.0",
