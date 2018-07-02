@@ -24,6 +24,7 @@ cache:
 before_install:
   - mkdir -p build/logs
   - if [ "$SYMFONY_VERSION" != "" ]; then composer require "symfony/symfony:${SYMFONY_VERSION}" --no-update; fi;
+  - echo "memory_limit=2G" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 
 install: composer update --prefer-dist --no-interaction
 
