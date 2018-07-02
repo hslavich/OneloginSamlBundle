@@ -107,6 +107,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('wantXMLValidation')->end()
                         ->booleanNode('lowercaseUrlencoding')->end()
                         ->scalarNode('signatureAlgorithm')->end()
+                        ->scalarNode('digestAlgorithm')->end()
                     ->end()
                 ->end()
                 ->arrayNode('contactPerson')
