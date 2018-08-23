@@ -104,6 +104,8 @@ security:
                 # Match SAML attribute 'uid' with username.
                 # Uses getNameId() method by default.
                 username_attribute: uid
+                # Use the attribute's friendlyName instead of the name 
+                use_attribute_friendly_name: true
                 check_path: /saml/acs
                 login_path: /saml/login
             logout:
