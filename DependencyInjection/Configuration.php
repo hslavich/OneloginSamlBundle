@@ -108,6 +108,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('lowercaseUrlencoding')->end()
                         ->scalarNode('signatureAlgorithm')->end()
                         ->scalarNode('digestAlgorithm')->end()
+                        ->scalarNode('entityManagerName')->end()
                     ->end()
                 ->end()
                 ->arrayNode('contactPerson')
