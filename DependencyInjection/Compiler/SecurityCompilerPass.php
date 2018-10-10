@@ -26,7 +26,6 @@ class SecurityCompilerPass implements CompilerPassInterface
                 $container->getDefinition($id)->addMethodCall('setEntityManager', array(new Reference($emDefinition)));
             }
         }
-        throw new \Exception($emDefinition);
     }
 
     private function processConfiguration(ConfigurationInterface $configuration, array $configs)
