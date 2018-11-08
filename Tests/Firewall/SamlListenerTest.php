@@ -20,7 +20,7 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
 
         $attributes = array('uid' => array('username_uid'));
 
-        $onelogin = $this->getMockBuilder('OneLogin_Saml2_Auth')->disableOriginalConstructor()->getMock();
+        $onelogin = $this->getMockBuilder('OneLogin\Saml2\Auth')->disableOriginalConstructor()->getMock();
         $onelogin->expects($this->once())->method('processResponse');
         $onelogin
             ->expects($this->once())
@@ -36,7 +36,7 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
     {
         $listener = $this->getListener(array());
 
-        $onelogin = $this->getMockBuilder('OneLogin_Saml2_Auth')->disableOriginalConstructor()->getMock();
+        $onelogin = $this->getMockBuilder('OneLogin\Saml2\Auth')->disableOriginalConstructor()->getMock();
         $onelogin->expects($this->once())->method('processResponse');
         $onelogin
             ->expects($this->once())

@@ -12,14 +12,14 @@ use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
 class SamlListener extends AbstractAuthenticationListener
 {
     /**
-     * @var \OneLogin_Saml2_Auth
+     * @var \OneLogin\Saml2\Auth
      */
     protected $oneLoginAuth;
 
     /**
-     * @param \OneLogin_Saml2_Auth $oneLoginAuth
+     * @param \OneLogin\Saml2\Auth $oneLoginAuth
      */
-    public function setOneLoginAuth(\OneLogin_Saml2_Auth $oneLoginAuth)
+    public function setOneLoginAuth(\OneLogin\Saml2\Auth $oneLoginAuth)
     {
         $this->oneLoginAuth = $oneLoginAuth;
     }
