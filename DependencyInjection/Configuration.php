@@ -4,6 +4,8 @@ namespace Hslavich\OneloginSamlBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use function is_array;
+use function is_bool;
 
 /**
  * This is the class that validates and merges configuration from your app/config files
@@ -102,7 +104,14 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('wantAssertionsEncrypted')->end()
                         ->booleanNode('wantNameId')->end()
                         ->booleanNode('wantNameIdEncrypted')->end()
-                        ->booleanNode('requestedAuthnContext')->end()
+                        ->variableNode('requestedAuthnContext')
+                            ->validate()
+                                ->ifTrue(function ($v) {
+                                    return !is_bool($v) && !is_array($v);
+                                })
+                                ->thenInvalid('Must be an array or a bool.')
+                            ->end()
+                        ->end()
                         ->booleanNode('signMetadata')->end()
                         ->booleanNode('wantXMLValidation')->end()
                         ->booleanNode('lowercaseUrlencoding')->end()

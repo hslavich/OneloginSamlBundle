@@ -1,0 +1,40 @@
+hslavich_onelogin_saml:
+    idp:
+        entityId: 'http://id.example.com/saml2/idp/metadata.php'
+        singleSignOnService:
+            url: 'http://id.example.com/saml2/idp/SSOService.php'
+            binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+        singleLogoutService:
+            url: 'http://id.example.com/saml2/idp/SingleLogoutService.php'
+            binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+        x509cert: 'idp_x509certdata'
+        certFingerprint: '43:51:43:a1:b5:fc:8b:b7:0a:3a:a9:b1:0f:66:73:a8'
+        certFingerprintAlgorithm: 'sha1'
+        x509certMulti:
+            signing: ['<cert1-string>']
+            encryption: ['<cert2-string>']
+    sp:
+        entityId: 'http://myapp.com/app_dev.php/saml/metadata'
+        privateKey: 'sp_privateKeyData'
+        x509cert: 'sp_x509certdata'
+        NameIDFormat: 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
+        assertionConsumerService:
+            url: 'http://myapp.com/app_dev.php/saml/acs'
+            binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+        singleLogoutService:
+            url: 'http://myapp.com/app_dev.php/saml/logout'
+            binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+    security:
+        nameIdEncrypted:       false
+        authnRequestsSigned:   false
+        logoutRequestSigned:   false
+        logoutResponseSigned:  false
+        wantMessagesSigned:    false
+        wantAssertionsSigned:  false
+        wantNameIdEncrypted:   false
+        requestedAuthnContext:
+            - foo
+            - bar
+        signMetadata: false
+        wantXMLValidation: false
+        signatureAlgorithm: 'http://www.w3.org/2000/09/xmldsig#rsa-sha1'
