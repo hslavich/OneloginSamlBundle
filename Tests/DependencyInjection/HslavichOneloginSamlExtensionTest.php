@@ -3,17 +3,19 @@
 namespace Hslavich\OneloginSamlBundle\Tests\DependencyInjection;
 
 use Hslavich\OneloginSamlBundle\DependencyInjection\HslavichOneloginSamlExtension;
+use Hslavich\OneloginSamlBundle\HslavichOneloginSamlBundle;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\Yaml\Parser;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
 {
-    protected $config;
+    private static $containerCache = array();
 
     public function testLoadIdpSettings()
     {
-        $this->createConfig();
-        $settings = $this->config->getParameter('hslavich_onelogin_saml.settings');
+        $settings = $this->createContainerFromFile('full')->getParameter('hslavich_onelogin_saml.settings');
 
         $this->assertEquals('http://id.example.com/saml2/idp/metadata.php', $settings['idp']['entityId']);
         $this->assertEquals('http://id.example.com/saml2/idp/SSOService.php', $settings['idp']['singleSignOnService']['url']);
@@ -29,8 +31,7 @@ class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadSpSettings()
     {
-        $this->createConfig();
-        $settings = $this->config->getParameter('hslavich_onelogin_saml.settings');
+        $settings = $this->createContainerFromFile('full')->getParameter('hslavich_onelogin_saml.settings');
 
         $this->assertEquals('http://myapp.com/app_dev.php/saml/metadata', $settings['sp']['entityId']);
         $this->assertEquals('sp_privateKeyData', $settings['sp']['privateKey']);
@@ -44,8 +45,7 @@ class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadSecuritySettings()
     {
-        $this->createConfig();
-        $settings = $this->config->getParameter('hslavich_onelogin_saml.settings');
+        $settings = $this->createContainerFromFile('full')->getParameter('hslavich_onelogin_saml.settings');
 
         $this->assertFalse($settings['security']['nameIdEncrypted']);
         $this->assertFalse($settings['security']['authnRequestsSigned']);
@@ -62,8 +62,7 @@ class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadBasicSettings()
     {
-        $this->createConfig();
-        $settings = $this->config->getParameter('hslavich_onelogin_saml.settings');
+        $settings = $this->createContainerFromFile('full')->getParameter('hslavich_onelogin_saml.settings');
 
         $this->assertTrue($settings['strict']);
         $this->assertFalse($settings['debug']);
@@ -71,8 +70,7 @@ class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadOrganizationSettings()
     {
-        $this->createConfig();
-        $settings = $this->config->getParameter('hslavich_onelogin_saml.settings');
+        $settings = $this->createContainerFromFile('full')->getParameter('hslavich_onelogin_saml.settings');
 
         $this->assertEquals('Example', $settings['organization']['en']['name']);
         $this->assertEquals('Example', $settings['organization']['en']['displayname']);
@@ -81,8 +79,7 @@ class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
 
     public function testLoadContactSettings()
     {
-        $this->createConfig();
-        $settings = $this->config->getParameter('hslavich_onelogin_saml.settings');
+        $settings = $this->createContainerFromFile('full')->getParameter('hslavich_onelogin_saml.settings');
 
         $this->assertEquals('Tech User', $settings['contactPerson']['technical']['givenName']);
         $this->assertEquals('techuser@example.com', $settings['contactPerson']['technical']['emailAddress']);
@@ -90,76 +87,52 @@ class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('supportuser@example.com', $settings['contactPerson']['support']['emailAddress']);
     }
 
-    protected function createConfig()
+    public function testLoadArrayRequestedAuthnContext()
     {
-        $this->config = new ContainerBuilder();
-        $loader = new HslavichOneloginSamlExtension();
-        $config = $this->getConfig();
-        $loader->load(array($config), $this->config);
+        $settings = $this->createContainerFromFile('requestedAuthnContext_as_array')->getParameter('hslavich_onelogin_saml.settings');
+
+        $this->assertSame(['foo', 'bar'], $settings['security']['requestedAuthnContext']);
     }
 
-    protected function getConfig()
+    protected function createContainer()
     {
-        $yaml = <<<EOF
-idp:
-    entityId: 'http://id.example.com/saml2/idp/metadata.php'
-    singleSignOnService:
-        url: 'http://id.example.com/saml2/idp/SSOService.php'
-        binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-    singleLogoutService:
-        url: 'http://id.example.com/saml2/idp/SingleLogoutService.php'
-        binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-    x509cert: 'idp_x509certdata'
-    certFingerprint: '43:51:43:a1:b5:fc:8b:b7:0a:3a:a9:b1:0f:66:73:a8'
-    certFingerprintAlgorithm: 'sha1'
-    x509certMulti:
-        signing: ['<cert1-string>']
-        encryption: ['<cert2-string>']
-sp:
-    entityId: 'http://myapp.com/app_dev.php/saml/metadata'
-    privateKey: 'sp_privateKeyData'
-    x509cert: 'sp_x509certdata'
-    NameIDFormat: 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'
-    assertionConsumerService:
-        url: 'http://myapp.com/app_dev.php/saml/acs'
-        binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
-    singleLogoutService:
-        url: 'http://myapp.com/app_dev.php/saml/logout'
-        binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-strict: true
-debug: false
-security:
-    nameIdEncrypted:       false
-    authnRequestsSigned:   false
-    logoutRequestSigned:   false
-    logoutResponseSigned:  false
-    wantMessagesSigned:    false
-    wantAssertionsSigned:  false
-    wantNameIdEncrypted:   false
-    requestedAuthnContext: true
-    signMetadata: false
-    wantXMLValidation: false
-    signatureAlgorithm: 'http://www.w3.org/2000/09/xmldsig#rsa-sha1'
-contactPerson:
-    technical:
-        givenName: 'Tech User'
-        emailAddress: 'techuser@example.com'
-    support:
-        givenName: 'Support User'
-        emailAddress: 'supportuser@example.com'
-organization:
-    en:
-        name: 'Example'
-        displayname: 'Example'
-        url: 'http://example.com'
-EOF;
-        $parser = new Parser();
-
-        return $parser->parse($yaml);
+        return new ContainerBuilder(new ParameterBag(array(
+            'kernel.bundles' => array('FrameworkBundle' => HslavichOneloginSamlBundle::class),
+            'kernel.bundles_metadata' => array('HslavichOneloginSamlBundle' => array('namespace' => 'Hslavich\\OneloginSamlBundle\\HslavichOneloginSamlBundle', 'path' => __DIR__.'/../..')),
+            'kernel.cache_dir' => __DIR__,
+            'kernel.project_dir' => __DIR__,
+            'kernel.debug' => false,
+            'kernel.environment' => 'test',
+            'kernel.name' => 'kernel',
+            'kernel.root_dir' => __DIR__,
+            'kernel.container_class' => 'testContainer',
+            'container.build_hash' => 'Abc1234',
+            'container.build_id' => hash('crc32', 'Abc123423456789'),
+            'container.build_time' => 23456789,
+        )));
     }
 
-    protected function tearDown()
+    protected function createContainerFromFile($file)
     {
-        unset($this->config);
+        $cacheKey = md5(\get_class($this).$file);
+        if (isset(self::$containerCache[$cacheKey])) {
+            return self::$containerCache[$cacheKey];
+        }
+        $container = $this->createContainer();
+        $container->registerExtension(new HslavichOneloginSamlExtension());
+        $this->loadFromFile($container, $file);
+
+        $container->getCompilerPassConfig()->setOptimizationPasses(array());
+        $container->getCompilerPassConfig()->setRemovingPasses(array());
+
+        $container->compile();
+
+        return self::$containerCache[$cacheKey] = $container;
+    }
+
+    protected function loadFromFile(ContainerBuilder $container, $file)
+    {
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/Fixtures'));
+        $loader->load($file.'.yaml');
     }
 }
