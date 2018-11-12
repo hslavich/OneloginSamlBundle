@@ -12,7 +12,7 @@ class SamlLogoutHandler implements LogoutHandlerInterface
 {
     protected $samlAuth;
 
-    public function __construct(\OneLogin_Saml2_Auth $samlAuth)
+    public function __construct(\OneLogin\Saml2\Auth $samlAuth)
     {
         $this->samlAuth = $samlAuth;
     }
@@ -34,7 +34,7 @@ class SamlLogoutHandler implements LogoutHandlerInterface
 
         try {
             $this->samlAuth->processSLO();
-        } catch (\OneLogin_Saml2_Error $e) {
+        } catch (\OneLogin\Saml2\Error $e) {
             $sessionIndex = $token->hasAttribute('sessionIndex') ? $token->getAttribute('sessionIndex') : null;
             $this->samlAuth->logout(null, array(), $token->getUsername(), $sessionIndex);
         }
