@@ -55,6 +55,8 @@ hslavich_onelogin_saml:
             url: 'http://myapp.com/app_dev.php/saml/logout'
             binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
     # Optional settings
+    strict: true
+    debug: true    
     security:
         nameIdEncrypted:       false
         authnRequestsSigned:   false
@@ -66,8 +68,8 @@ hslavich_onelogin_saml:
         requestedAuthnContext: true
         signMetadata: false
         wantXMLValidation: true
-        signatureAlgorithm: 'http://www.w3.org/2000/09/xmldsig#rsa-sha1'
-        digestAlgorithm: 'http://www.w3.org/2000/09/xmldsig#sha1'
+        signatureAlgorithm: 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
+        digestAlgorithm: 'http://www.w3.org/2001/04/xmlenc#sha256'
     contactPerson:
         technical:
             givenName: 'Tech User'
