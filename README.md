@@ -54,6 +54,7 @@ hslavich_onelogin_saml:
         singleLogoutService:
             url: 'http://myapp.com/app_dev.php/saml/logout'
             binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+        privateKey: ''    
     # Optional settings
     security:
         nameIdEncrypted:       false
