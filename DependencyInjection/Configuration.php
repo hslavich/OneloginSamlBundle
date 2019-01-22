@@ -24,6 +24,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->scalarNode('baseurl')->end()
                 ->booleanNode('strict')->end()
                 ->booleanNode('debug')->end()
                 ->arrayNode('idp')
