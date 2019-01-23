@@ -66,6 +66,7 @@ class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($settings['strict']);
         $this->assertFalse($settings['debug']);
+        $this->assertEquals('http://myapp.com/app_dev.php/saml/', $settings['baseurl']);
     }
 
     public function testLoadOrganizationSettings()
