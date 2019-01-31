@@ -19,14 +19,14 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        if (PHP_VERSION_ID < 70100) {
-            $treeBuilder = new TreeBuilder();
-            $rootNode = $treeBuilder->root('hslavich_saml_sp');
-        } else {
+        if (in_array('getRootNode', get_class_methods(TreeBuilder::class))) {
             $treeBuilder = new TreeBuilder('hslavich_saml_sp');
             $rootNode = $treeBuilder->getRootNode();
+        } else {
+            $treeBuilder = new TreeBuilder();
+            $rootNode = $treeBuilder->root('hslavich_saml_sp');
         }
-
+        
         $rootNode
             ->children()
                 ->scalarNode('baseurl')->end()
