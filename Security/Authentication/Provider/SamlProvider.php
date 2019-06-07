@@ -15,11 +15,11 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class SamlProvider implements AuthenticationProviderInterface
 {
-    private $userProvider;
-    private $userFactory;
-    private $tokenFactory;
-    private $entityManager;
-    private $options;
+    protected $userProvider;
+    protected $userFactory;
+    protected $tokenFactory;
+    protected $entityManager;
+    protected $options;
 
     public function __construct(UserProviderInterface $userProvider, array $options = array())
     {
