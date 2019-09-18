@@ -15,11 +15,11 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class SamlProvider implements AuthenticationProviderInterface
 {
-    protected $userProvider;
-    protected $userFactory;
-    protected $tokenFactory;
-    protected $entityManager;
-    protected $options;
+    private $userProvider;
+    private $userFactory;
+    private $tokenFactory;
+    private $entityManager;
+    private $options;
 
     public function __construct(UserProviderInterface $userProvider, array $options = array())
     {
@@ -52,7 +52,7 @@ class SamlProvider implements AuthenticationProviderInterface
             if ($user instanceof SamlUserInterface) {
                 $user->setSamlAttributes($token->getAttributes());
             }
-            
+
             $authenticatedToken = $this->tokenFactory->createToken($user, $token->getAttributes(), $user->getRoles());
             $authenticatedToken->setAuthenticated(true);
 
@@ -75,7 +75,7 @@ class SamlProvider implements AuthenticationProviderInterface
             if ($this->userFactory instanceof SamlUserFactoryInterface) {
                 return $this->generateUser($token);
             }
-            
+
             throw $e;
         }
     }

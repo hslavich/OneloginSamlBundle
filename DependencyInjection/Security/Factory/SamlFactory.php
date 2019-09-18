@@ -22,6 +22,13 @@ class SamlFactory extends AbstractFactory
         $this->defaultFailureHandlerOptions['login_path'] = '/saml/login';
     }
 
+    public function addConfiguration(NodeDefinition $node)
+    {
+        parent::addConfiguration($node);
+        $this->addResourceOwnersConfiguration($node);
+    }
+
+
     /**
      * Defines the position at which the provider is called.
      * Possible values: pre_auth, form, http, and remember_me.
@@ -57,6 +64,8 @@ class SamlFactory extends AbstractFactory
     protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId)
     {
         $providerId = 'security.authentication.provider.saml.'.$id;
+        $container->setParameter('onelogin_auth.auth_map', $config['idp_mapping']);
+
         $definitionClassname = $this->getDefinitionClassname();
         $definition = $container->setDefinition($providerId, new $definitionClassname('hslavich_onelogin_saml.saml_provider'))
             ->replaceArgument(0, new Reference($userProviderId))
@@ -115,5 +124,19 @@ class SamlFactory extends AbstractFactory
     private function getDefinitionClassname()
     {
         return class_exists(ChildDefinition::class) ? ChildDefinition::class : DefinitionDecorator::class;
+    }
+
+    private function addResourceOwnersConfiguration(NodeDefinition $node)
+    {
+        $builder = $node->children();
+        $builder
+            ->arrayNode('idp_mapping')
+                ->isRequired()
+                ->useAttributeAsKey('name')
+                    ->prototype('scalar')
+                    ->end()
+                ->end()
+            ->end()
+        ;
     }
 }
