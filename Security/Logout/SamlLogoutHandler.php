@@ -8,13 +8,28 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Logout\LogoutHandlerInterface;
 
-class SamlLogoutHandler implements LogoutHandlerInterface
+class SamlLogoutHandler implements LogoutHandlerInterface, ContainerAwareInterface
 {
-    protected $samlAuth;
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+    /**
+     * @var array
+     */
+    private $authMap;
 
-    public function __construct(\OneLogin\Saml2\Auth $samlAuth)
+    public function __construct(array $authMap)
     {
-        $this->samlAuth = $samlAuth;
+        $this->authMap = $authMap;
+    }
+
+    /**
+     * Sets the container.
+     */
+    public function setContainer(ContainerInterface $container = null)
+    {
+        $this->container = $container;
     }
 
     /**
@@ -22,9 +37,10 @@ class SamlLogoutHandler implements LogoutHandlerInterface
      * to be logged out. Usually, you would unset session variables, or remove
      * cookies, etc.
      *
-     * @param Request $request
-     * @param Response $response
+     * @param Request        $request
+     * @param Response       $response
      * @param TokenInterface $token
+     * @throws \OneLogin\Saml2\Error
      */
     public function logout(Request $request, Response $response, TokenInterface $token)
     {
@@ -32,11 +48,14 @@ class SamlLogoutHandler implements LogoutHandlerInterface
             return;
         }
 
+        /** @var Auth $samlAuth */
+        $samlAuth = $this->container->get('onelogin_auth.' . $token->getAttribute('idp'));
         try {
-            $this->samlAuth->processSLO();
+            $samlAuth->processSLO();
         } catch (\OneLogin\Saml2\Error $e) {
             $sessionIndex = $token->hasAttribute('sessionIndex') ? $token->getAttribute('sessionIndex') : null;
-            $this->samlAuth->logout(null, array(), $token->getUsername(), $sessionIndex);
+            $samlAuth->logout(null, array(), $token->getUsername(), $sessionIndex);
         }
     }
+
 }

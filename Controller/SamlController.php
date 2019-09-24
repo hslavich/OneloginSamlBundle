@@ -9,7 +9,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SamlController extends AbstractController
 {
-    public function loginAction(Request $request)
+    /**
+     * @param Request $request
+     * @param string  $idp
+     */
+    public function loginAction(Request $request, string $idp)
     {
         $session = $request->getSession();
         $authErrorKey = Security::AUTHENTICATION_ERROR;
@@ -27,12 +31,16 @@ class SamlController extends AbstractController
             throw new \RuntimeException($error->getMessage());
         }
 
-        $this->get('onelogin_auth')->login();
+        $this->get('onelogin_auth.' . $idp)->login();
     }
 
-    public function metadataAction()
+    /**
+     * @param string $idp
+     * @return Response
+     */
+    public function metadataAction(string $idp)
     {
-        $auth = $this->get('onelogin_auth');
+        $auth = $this->get('onelogin_auth.' . $idp);
         $metadata = $auth->getSettings()->getSPMetadata();
 
         $response = new Response($metadata);

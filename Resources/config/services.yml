@@ -3,6 +3,7 @@ parameters:
 services:
     onelogin_auth:
         class: OneLogin\Saml2\Auth
+        abstract: true
         arguments: [ "%hslavich_onelogin_saml.settings%"]
         public: true
 
@@ -21,9 +22,12 @@ services:
         parent: security.authentication.listener.abstract
         abstract: true
         calls:
-            - [setOneLoginAuth, ["@onelogin_auth"]]
+            - [setAuthMap, ["%onelogin_auth.auth_map%"]]
+            - [setContainer, ["@service_container"]]
 
     hslavich_onelogin_saml.saml_logout:
         class: Hslavich\OneloginSamlBundle\Security\Logout\SamlLogoutHandler
         arguments:
-            - "@onelogin_auth"
+            - "%onelogin_auth.auth_map%"
+        calls:
+            - [setContainer, ["@service_container"]]
