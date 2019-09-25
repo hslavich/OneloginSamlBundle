@@ -26,24 +26,5 @@ class HslavichOneloginSamlExtension extends Extension
         $loader->load('services.yml');
 
         $container->setParameter('hslavich_onelogin_saml.settings', $config);
-        $this->loadIdentityProviders($config, $container);
-    }
-
-    /**
-     * @param array            $config
-     * @param ContainerBuilder $container
-     */
-    private function loadIdentityProviders(array $config, ContainerBuilder $container)
-    {
-        foreach($config['idps'] as $id => $idpConfig) {
-            $clientId = sprintf('onelogin_auth.%s', $id);
-            $clientDef = new ChildDefinition('onelogin_auth');
-            $authConfig = $config;
-            unset($authConfig['idps']);
-            $authConfig['idp'] = $idpConfig;
-            $clientDef->replaceArgument(0, $authConfig);
-            $clientDef->addTag('onelogin_auth.auth');
-            $container->setDefinition($clientId, $clientDef);
-        }
     }
 }

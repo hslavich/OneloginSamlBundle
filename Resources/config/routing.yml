@@ -1,5 +1,5 @@
 saml_metadata:
-    path:     /saml/metadata/{idp}
+    path:     /saml/metadata
     defaults: { _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::metadataAction }
 
 saml_acs:
@@ -7,7 +7,7 @@ saml_acs:
     defaults: { _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::assertionConsumerServiceAction }
 
 saml_login:
-    path:     /saml/login/{idp}
+    path:     /saml/login
     defaults: { _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::loginAction }
 
 saml_logout:

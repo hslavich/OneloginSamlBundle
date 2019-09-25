@@ -37,29 +37,15 @@ Configure SAML metadata in `app/config/config.yml`. Check https://github.com/one
 ``` yml
 hslavich_onelogin_saml:
     # Basic settings
-    idps:
-        azure:
-            name: 'Microsoft Cloud AD'
-            image: 'https://www.microsoft.com/cloudad.jpg'
-            entityId: 'http://id.example.com/saml2/idp/metadata.php'
-            singleSignOnService:
-                url: 'http://id.example.com/saml2/idp/SSOService.php'
-                binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-            singleLogoutService:
-                url: 'http://id.example.com/saml2/idp/SingleLogoutService.php'
-                binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-            x509cert: ''
-        keycloak:
-            name: 'Keycloak'
-            image: 'https://www.keycloak.com/image.jpg'
-            entityId: 'http://id.example.com/saml2/idp/metadata.php'
-            singleSignOnService:
-                url: 'http://id.example.com/saml2/idp/SSOService.php'
-                binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-            singleLogoutService:
-                url: 'http://id.example.com/saml2/idp/SingleLogoutService.php'
-                binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
-            x509cert: ''
+    idp:
+        entityId: 'http://id.example.com/saml2/idp/metadata.php'
+        singleSignOnService:
+            url: 'http://id.example.com/saml2/idp/SSOService.php'
+            binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+        singleLogoutService:
+            url: 'http://id.example.com/saml2/idp/SingleLogoutService.php'
+            binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+        x509cert: ''
     sp:
         entityId: 'http://myapp.com/app_dev.php/saml/metadata'
         assertionConsumerService:
