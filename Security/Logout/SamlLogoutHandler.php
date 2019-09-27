@@ -3,6 +3,7 @@
 namespace Hslavich\OneloginSamlBundle\Security\Logout;
 
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
