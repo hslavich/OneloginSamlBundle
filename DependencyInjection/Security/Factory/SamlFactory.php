@@ -19,6 +19,7 @@ class SamlFactory extends AbstractFactory
         $this->addOption('token_factory');
         $this->addOption('persist_user', false);
 
+        $this->options['success_handler'] = 'hslavich_onelogin_saml.saml_authentication_success_handler';
         $this->defaultFailureHandlerOptions['login_path'] = '/saml/login';
     }
 
