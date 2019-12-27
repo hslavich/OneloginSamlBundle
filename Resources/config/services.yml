@@ -18,7 +18,7 @@ services:
 
     hslavich_onelogin_saml.saml_authentication_success_handler:
         class: Hslavich\OneloginSamlBundle\Security\Authentication\SamlAuthenticationSuccessHandler
-        arguments: ["@security.http_utils", []]
+        parent: security.authentication.success_handler
 
     hslavich_onelogin_saml.saml_listener:
         class: Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener
