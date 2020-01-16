@@ -2,6 +2,7 @@
 
 namespace Hslavich\OneloginSamlBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use function is_array;
@@ -26,42 +27,40 @@ class Configuration implements ConfigurationInterface
             $treeBuilder = new TreeBuilder();
             $rootNode = $treeBuilder->root('hslavich_saml_sp');
         }
-        
-        $rootNode
+
+        $idp = $rootNode
             ->children()
+            ->arrayNode('idp');
+
+        $idps = $rootNode
+            ->children()
+            ->arrayNode('idps')
+                ->useAttributeAsKey('id')
+                ->normalizeKeys(false)
+                ->arrayPrototype();
+
+        $this->configureIdp($idp);
+        $this->configureIdp($idps);
+
+        $rootNode
+            ->beforeNormalization()
+            ->ifTrue(static function ($v) {
+                // Support single IDP for BC
+                return is_array($v) && array_key_exists('idp', $v);
+            })
+            ->then(static function ($v) {
+                $v['default_idp'] = isset($v['default_idp']) ? (string) $v['default_idp'] : 'default';
+                $v['idps'] = [$v['default_idp'] => $v['idp']];
+                unset($v['idp']);
+
+                return $v;
+            })
+            ->end()
+            ->children()
+                ->scalarNode('default_idp')->end()
                 ->scalarNode('baseurl')->end()
                 ->booleanNode('strict')->end()
                 ->booleanNode('debug')->end()
-                ->arrayNode('idp')
-                    ->children()
-                        ->scalarNode('entityId')->end()
-                        ->scalarNode('x509cert')->end()
-                        ->arrayNode('singleSignOnService')
-                            ->children()
-                                ->scalarNode('url')->end()
-                                ->scalarNode('binding')->end()
-                            ->end()
-                        ->end()
-                        ->arrayNode('singleLogoutService')
-                            ->children()
-                                ->scalarNode('url')->end()
-                                ->scalarNode('binding')->end()
-                            ->end()
-                        ->end()
-                        ->scalarNode('certFingerprint')->end()
-                        ->scalarNode('certFingerprintAlgorithm')->end()
-                        ->arrayNode('x509certMulti')
-                            ->children()
-                                ->arrayNode('signing')
-                                    ->prototype('scalar')->end()
-                                ->end()
-                                ->arrayNode('encryption')
-                                    ->prototype('scalar')->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
                 ->arrayNode('sp')
                     ->children()
                         ->scalarNode('entityId')->end()
@@ -155,5 +154,39 @@ class Configuration implements ConfigurationInterface
         ;
 
         return $treeBuilder;
+    }
+
+    private function configureIdp(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->scalarNode('entityId')->end()
+                ->scalarNode('x509cert')->end()
+                ->arrayNode('singleSignOnService')
+                    ->children()
+                        ->scalarNode('url')->end()
+                        ->scalarNode('binding')->end()
+                    ->end()
+                ->end()
+                ->arrayNode('singleLogoutService')
+                    ->children()
+                        ->scalarNode('url')->end()
+                        ->scalarNode('binding')->end()
+                    ->end()
+                ->end()
+                ->scalarNode('certFingerprint')->end()
+                ->scalarNode('certFingerprintAlgorithm')->end()
+                ->arrayNode('x509certMulti')
+                    ->children()
+                        ->arrayNode('signing')
+                            ->prototype('scalar')->end()
+                        ->end()
+                        ->arrayNode('encryption')
+                            ->prototype('scalar')->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+        ->end();
     }
 }

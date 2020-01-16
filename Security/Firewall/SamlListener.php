@@ -3,6 +3,8 @@
 namespace Hslavich\OneloginSamlBundle\Security\Firewall;
 
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
+use Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -11,17 +13,16 @@ use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
 
 class SamlListener extends AbstractAuthenticationListener
 {
-    /**
-     * @var \OneLogin\Saml2\Auth
-     */
-    protected $oneLoginAuth;
+    const AUTH_ID_SESSION_NAME = 'saml_auth_id';
 
     /**
-     * @param \OneLogin\Saml2\Auth $oneLoginAuth
+     * @var OneLoginAuthRegistry
      */
-    public function setOneLoginAuth(\OneLogin\Saml2\Auth $oneLoginAuth)
+    private $authRegistry;
+
+    public function setAuthRegistry(OneLoginAuthRegistry $authRegistry): void
     {
-        $this->oneLoginAuth = $oneLoginAuth;
+        $this->authRegistry = $authRegistry;
     }
 
     /**
@@ -35,19 +36,25 @@ class SamlListener extends AbstractAuthenticationListener
      */
     protected function attemptAuthentication(Request $request)
     {
-        $this->oneLoginAuth->processResponse();
-        if ($this->oneLoginAuth->getErrors()) {
-            $this->logger->error($this->oneLoginAuth->getLastErrorReason());
-            throw new AuthenticationException($this->oneLoginAuth->getLastErrorReason());
+        $idp = $request->getSession()->get(self::AUTH_ID_SESSION_NAME);
+        if (!$idp) {
+            throw new \RuntimeException(sprintf('Missing session attribute "%s"', self::AUTH_ID_SESSION_NAME));
         }
 
-        $attributes = [];
-        if (isset($this->options['use_attribute_friendly_name']) && $this->options['use_attribute_friendly_name']) {
-            $attributes = $this->oneLoginAuth->getAttributesWithFriendlyName();
-        } else {
-            $attributes = $this->oneLoginAuth->getAttributes();
+        $oneLoginAuth = $this->authRegistry->getIdpAuth($idp);
+
+        $oneLoginAuth->processResponse();
+        if ($oneLoginAuth->getErrors()) {
+            $this->logger->error($oneLoginAuth->getLastErrorReason());
+            throw new AuthenticationException($oneLoginAuth->getLastErrorReason());
         }
-        $attributes['sessionIndex'] = $this->oneLoginAuth->getSessionIndex();
+
+        if (isset($this->options['use_attribute_friendly_name']) && $this->options['use_attribute_friendly_name']) {
+            $attributes = $oneLoginAuth->getAttributesWithFriendlyName();
+        } else {
+            $attributes = $oneLoginAuth->getAttributes();
+        }
+        $attributes['sessionIndex'] = $oneLoginAuth->getSessionIndex();
         $token = new SamlToken();
         $token->setAttributes($attributes);
 
@@ -59,7 +66,7 @@ class SamlListener extends AbstractAuthenticationListener
 
             $username = $attributes[$this->options['username_attribute']][0];
         } else {
-            $username = $this->oneLoginAuth->getNameId();
+            $username = $oneLoginAuth->getNameId();
         }
         $token->setUser($username);
 

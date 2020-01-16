@@ -7,7 +7,7 @@ saml_acs:
     defaults: { _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::assertionConsumerServiceAction }
 
 saml_login:
-    path:     /saml/login
+    path:     /saml/login/{idp}
     defaults: { _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::loginAction }
 
 saml_logout:

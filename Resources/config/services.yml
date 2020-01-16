@@ -2,9 +2,14 @@ parameters:
 
 services:
     onelogin_auth:
+        abstract: true
         class: OneLogin\Saml2\Auth
         arguments: [ "%hslavich_onelogin_saml.settings%"]
         public: true
+
+    Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry:
+        arguments:
+            - "@security.http_utils"
 
     hslavich_onelogin_saml.user_provider:
         class: Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider
@@ -21,9 +26,13 @@ services:
         parent: security.authentication.listener.abstract
         abstract: true
         calls:
-            - [setOneLoginAuth, ["@onelogin_auth"]]
+            - [ setAuthRegistry, ["@Hslavich\\OneloginSamlBundle\\Security\\Utils\\OneLoginAuthRegistry"] ]
 
     hslavich_onelogin_saml.saml_logout:
         class: Hslavich\OneloginSamlBundle\Security\Logout\SamlLogoutHandler
         arguments:
-            - "@onelogin_auth"
+            - "@Hslavich\\OneloginSamlBundle\\Security\\Utils\\OneLoginAuthRegistry"
+
+    Hslavich\OneloginSamlBundle\Controller\SamlController:
+        arguments:
+            - "@Hslavich\\OneloginSamlBundle\\Security\\Utils\\OneLoginAuthRegistry"

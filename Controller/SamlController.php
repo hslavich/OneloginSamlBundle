@@ -2,14 +2,27 @@
 
 namespace Hslavich\OneloginSamlBundle\Controller;
 
+use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
+use Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Request;
 
 class SamlController extends AbstractController
 {
-    public function loginAction(Request $request)
+    /**
+     * @var OneLoginAuthRegistry
+     */
+    private $authRegistry;
+
+    public function __construct(OneLoginAuthRegistry $authRegistry)
+    {
+        $this->authRegistry = $authRegistry;
+    }
+
+    public function loginAction($idp, Request $request)
     {
         $session = $request->getSession();
         $authErrorKey = Security::AUTHENTICATION_ERROR;
@@ -27,12 +40,17 @@ class SamlController extends AbstractController
             throw new \RuntimeException($error->getMessage());
         }
 
-        $this->get('onelogin_auth')->login();
+        $session->set(SamlListener::AUTH_ID_SESSION_NAME, $idp);
+
+        $this->authRegistry->getIdpAuth($idp)->login();
     }
 
     public function metadataAction()
     {
-        $auth = $this->get('onelogin_auth');
+        /** @var SessionInterface $session */
+        $session = $this->container->get('session');
+
+        $auth = $this->authRegistry->getIdpAuth($session->get('auth_id'));
         $metadata = $auth->getSettings()->getSPMetadata();
 
         $response = new Response($metadata);
