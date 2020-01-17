@@ -37,16 +37,16 @@ class SamlLogoutHandler implements LogoutHandlerInterface
             return;
         }
 
-        $auth = $this->authRegistry->getAuthFromSession($request);
+        $auth = $this->authRegistry->getAuthFromSession($request->getSession());
         if (null === $auth) {
             throw new NotFoundHttpException('Auth service not found');
         }
 
         try {
-            $this->samlAuth->processSLO();
+            $auth->processSLO();
         } catch (\OneLogin\Saml2\Error $e) {
             $sessionIndex = $token->hasAttribute('sessionIndex') ? $token->getAttribute('sessionIndex') : null;
-            $this->samlAuth->logout(null, array(), $token->getUsername(), $sessionIndex);
+            $auth->logout(null, array(), $token->getUsername(), $sessionIndex);
         }
     }
 }

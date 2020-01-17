@@ -2,6 +2,7 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\Authentication\Provider;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
@@ -16,8 +17,20 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class SamlProvider implements AuthenticationProviderInterface
 {
     protected $userProvider;
+
+    /**
+     * @var SamlUserFactoryInterface
+     */
     protected $userFactory;
+
+    /**
+     * @var SamlTokenFactoryInterface
+     */
     protected $tokenFactory;
+
+    /**
+     * @var EntityManagerInterface
+     */
     protected $entityManager;
     protected $options;
 
@@ -44,6 +57,9 @@ class SamlProvider implements AuthenticationProviderInterface
         $this->entityManager = $entityManager;
     }
 
+    /**
+     * @param SamlTokenInterface $token
+     */
     public function authenticate(TokenInterface $token)
     {
         $user = $this->retrieveUser($token);
@@ -53,7 +69,12 @@ class SamlProvider implements AuthenticationProviderInterface
                 $user->setSamlAttributes($token->getAttributes());
             }
             
-            $authenticatedToken = $this->tokenFactory->createToken($user, $token->getAttributes(), $user->getRoles());
+            $authenticatedToken = $this->tokenFactory->createToken(
+                $user,
+                $token->getAttributes(),
+                $user->getRoles(),
+                $token->getIdpName()
+            );
             $authenticatedToken->setAuthenticated(true);
 
             return $authenticatedToken;
@@ -67,10 +88,13 @@ class SamlProvider implements AuthenticationProviderInterface
         return $token instanceof SamlTokenInterface;
     }
 
+    /**
+     * @param SamlTokenInterface $token
+     */
     protected function retrieveUser($token)
     {
         try {
-            return $this->userProvider->loadUserByUsername($token->getUsername());
+            return $this->userProvider->loadUserByUsername($token->getUsername(), $token->getIdpName());
         } catch (UsernameNotFoundException $e) {
             if ($this->userFactory instanceof SamlUserFactoryInterface) {
                 return $this->generateUser($token);

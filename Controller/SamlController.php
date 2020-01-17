@@ -40,7 +40,7 @@ class SamlController extends AbstractController
             throw new \RuntimeException($error->getMessage());
         }
 
-        $session->set(SamlListener::AUTH_ID_SESSION_NAME, $idp);
+        $session->set(SamlListener::IDP_NAME_SESSION_NAME, $idp);
 
         $this->authRegistry->getIdpAuth($idp)->login();
     }

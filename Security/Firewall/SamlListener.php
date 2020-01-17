@@ -13,7 +13,7 @@ use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
 
 class SamlListener extends AbstractAuthenticationListener
 {
-    const AUTH_ID_SESSION_NAME = 'saml_auth_id';
+    const IDP_NAME_SESSION_NAME = 'saml_idp_name';
 
     /**
      * @var OneLoginAuthRegistry
@@ -36,12 +36,12 @@ class SamlListener extends AbstractAuthenticationListener
      */
     protected function attemptAuthentication(Request $request)
     {
-        $idp = $request->getSession()->get(self::AUTH_ID_SESSION_NAME);
-        if (!$idp) {
-            throw new \RuntimeException(sprintf('Missing session attribute "%s"', self::AUTH_ID_SESSION_NAME));
+        $idpName = $request->getSession()->get(self::IDP_NAME_SESSION_NAME);
+        if (!$idpName) {
+            throw new RuntimeException(sprintf('Missing session attribute "%s"', self::IDP_NAME_SESSION_NAME));
         }
 
-        $oneLoginAuth = $this->authRegistry->getIdpAuth($idp);
+        $oneLoginAuth = $this->authRegistry->getIdpAuth($idpName);
 
         $oneLoginAuth->processResponse();
         if ($oneLoginAuth->getErrors()) {
@@ -57,6 +57,7 @@ class SamlListener extends AbstractAuthenticationListener
         $attributes['sessionIndex'] = $oneLoginAuth->getSessionIndex();
         $token = new SamlToken();
         $token->setAttributes($attributes);
+        $token->setIdpName($idpName);
 
         if (isset($this->options['username_attribute'])) {
             if (!array_key_exists($this->options['username_attribute'], $attributes)) {

@@ -10,6 +10,12 @@ saml_login:
     path:     /saml/login/{idp}
     defaults: { _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::loginAction }
 
+saml_login_default:
+    path:     /saml/login
+    defaults:
+        _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::loginAction
+        idp: default
+
 saml_logout:
     path:     /saml/logout
     defaults: { _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::singleLogoutServiceAction }
