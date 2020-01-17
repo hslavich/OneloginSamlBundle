@@ -25,12 +25,12 @@ class SamlListener extends AbstractAuthenticationListener
      */
     private $defaultIdpName;
 
-    public function setAuthRegistry(OneLoginAuthRegistry $authRegistry): void
+    public function setAuthRegistry(OneLoginAuthRegistry $authRegistry)
     {
         $this->authRegistry = $authRegistry;
     }
 
-    public function setDefaultIdpName(string $defaultIdpName): void
+    public function setDefaultIdpName(string $defaultIdpName)
     {
         $this->defaultIdpName = $defaultIdpName;
     }

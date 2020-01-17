@@ -28,6 +28,7 @@ class HslavichOneloginSamlExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
+        $container->setParameter('hslavich_onelogin_saml.settings', $config);
         $container->setParameter('hslavich_onelogin_saml.default_idp_name', $config['default_idp']);
         $this->loadIdentityProviders($config, $container);
     }
