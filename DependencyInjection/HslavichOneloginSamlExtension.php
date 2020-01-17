@@ -49,12 +49,15 @@ class HslavichOneloginSamlExtension extends Extension
 
     private function createAuthDefinition(ContainerBuilder $container, $id, array $config)
     {
-        $namespace = 'onelogin_auth';
-        $def = new ChildDefinition($namespace);
+        $def = new ChildDefinition('onelogin_auth_abstract');
         $def->replaceArgument(0, $config);
 
-        $serviceId = $namespace . '.' . $id;
+        $serviceId = 'onelogin_auth.'.$id;
         $container->setDefinition($serviceId, $def);
+
+        if ($id === Configuration::DEFAULT_NAME) {
+            $container->setAlias('onelogin_auth', $serviceId);
+        }
 
         return $serviceId;
     }
