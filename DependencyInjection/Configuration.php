@@ -57,7 +57,7 @@ class Configuration implements ConfigurationInterface
             })
             ->end()
             ->children()
-                ->scalarNode('default_idp')->end()
+                ->scalarNode('default_idp')->defaultValue('default')->end()
                 ->scalarNode('baseurl')->end()
                 ->booleanNode('strict')->end()
                 ->booleanNode('debug')->end()
