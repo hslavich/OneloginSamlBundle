@@ -4,12 +4,12 @@ services:
     onelogin_auth_abstract:
         abstract: true
         class: OneLogin\Saml2\Auth
-        arguments: [ "%hslavich_onelogin_saml.settings%"]
         public: true
 
     Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry:
         arguments:
             - "@security.http_utils"
+            - "%hslavich_onelogin_saml.default_idp_name%"
 
     hslavich_onelogin_saml.user_provider:
         class: Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider
@@ -27,6 +27,7 @@ services:
         abstract: true
         calls:
             - [ setAuthRegistry, ["@Hslavich\\OneloginSamlBundle\\Security\\Utils\\OneLoginAuthRegistry"] ]
+            - [ setDefaultIdpName, ["%hslavich_onelogin_saml.default_idp_name%"] ]
 
     hslavich_onelogin_saml.saml_logout:
         class: Hslavich\OneloginSamlBundle\Security\Logout\SamlLogoutHandler
@@ -36,3 +37,5 @@ services:
     Hslavich\OneloginSamlBundle\Controller\SamlController:
         arguments:
             - "@Hslavich\\OneloginSamlBundle\\Security\\Utils\\OneLoginAuthRegistry"
+        tags:
+            - { name: controller.service_arguments }

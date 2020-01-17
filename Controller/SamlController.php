@@ -22,7 +22,7 @@ class SamlController extends AbstractController
         $this->authRegistry = $authRegistry;
     }
 
-    public function loginAction($idp, Request $request)
+    public function loginAction(Request $request, $idp = null)
     {
         $session = $request->getSession();
         $authErrorKey = Security::AUTHENTICATION_ERROR;
@@ -40,7 +40,9 @@ class SamlController extends AbstractController
             throw new \RuntimeException($error->getMessage());
         }
 
-        $session->set(SamlListener::IDP_NAME_SESSION_NAME, $idp);
+        if (null !== $idp) {
+            $session->set(SamlListener::IDP_NAME_SESSION_NAME, $idp);
+        }
 
         $this->authRegistry->getIdpAuth($idp)->login();
     }

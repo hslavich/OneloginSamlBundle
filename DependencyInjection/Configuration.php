@@ -15,8 +15,6 @@ use function is_bool;
  */
 class Configuration implements ConfigurationInterface
 {
-    const DEFAULT_NAME = 'default';
-
     /**
      * {@inheritdoc}
      */
@@ -51,7 +49,7 @@ class Configuration implements ConfigurationInterface
                 return is_array($v) && array_key_exists('idp', $v);
             })
             ->then(static function ($v) {
-                $v['default_idp'] = isset($v['default_idp']) ? (string) $v['default_idp'] : self::DEFAULT_NAME;
+                $v['default_idp'] = isset($v['default_idp']) ? (string) $v['default_idp'] : 'default';
                 $v['idps'] = [$v['default_idp'] => $v['idp']];
                 unset($v['idp']);
 

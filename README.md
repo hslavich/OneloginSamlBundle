@@ -11,30 +11,28 @@ Installation
 ------------
 
 Install with composer
-``` json
-"require": {
-    "hslavich/oneloginsaml-bundle": "dev-master"
-}
+```bash
+composer require hslavich/oneloginsaml-bundle
 ```
 
 Run composer update
-``` bash
+```bash
 composer update hslavich/oneloginsaml-bundle
 ```
 
 Enable the bundle in `app/AppKernel.php`
-``` php
+```php
 $bundles = array(
     // ...
     new Hslavich\OneloginSamlBundle\HslavichOneloginSamlBundle(),
-)
+);
 ```
 
 Configuration
 -------------
 
 Configure SAML metadata in `app/config/config.yml`. Check https://github.com/onelogin/php-saml#settings for more info.
-``` yml
+```yml
 hslavich_onelogin_saml:
     # Basic settings
     idp:
@@ -88,8 +86,35 @@ hslavich_onelogin_saml:
 
 If you don't want to set contactPerson or organization, don't add those parameters instead of leaving them blank.
 
+## Configure multiple identity providers:
+
+Instead of declaring the default idp in the `idp` node, you can define several providers in the `idps` node the an associative array of IDP:
+
+```yaml
+hslavich_onelogin_saml:
+    idps:
+        my-idp-1:
+            entityId: 'http://id.example.com/saml2/idp/metadata.php'
+            singleSignOnService:
+                url: 'http://id.example.com/saml2/idp/SSOService.php'
+                binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+            singleLogoutService:
+                url: 'http://id.example.com/saml2/idp/SingleLogoutService.php'
+                binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+            x509cert: ''
+        my-idp-2:
+            entityId: 'http://id.example2.com/saml2/idp/metadata.php'
+            singleSignOnService:
+                url: 'http://id.example2.com/saml2/idp/SSOService.php'
+                binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+            singleLogoutService:
+                url: 'http://id.example2.com/saml2/idp/SingleLogoutService.php'
+                binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+            x509cert: ''
+```
+
 Configure firewall and user provider in `app/config/security.yml`
-``` yml
+```yml
 security:
     # ...
 
@@ -122,7 +147,7 @@ security:
 ```
 
 Edit your `app/config/routing`
-``` yml
+```yml
 hslavich_saml_sp:
     resource: "@HslavichOneloginSamlBundle/Resources/config/routing.yml"
 ```
@@ -131,7 +156,7 @@ Inject SAML attributes into User object (Optional)
 --------------------------------------------------
 Your user class must implement `SamlUserInterface`
 
-``` php
+```php
 <?php
 
 namespace AppBundle\Entity;
@@ -153,7 +178,7 @@ class User implements SamlUserInterface
 ```
 
 Then you can get attributes from user object
-``` php
+```php
 $email = $this->getUser()->getEmail();
 ```
 
@@ -162,7 +187,7 @@ Integration with classic login form
 
 You can integrate SAML authentication with traditional login form by editing your `security.yml`:
 
-``` yml
+```yml
 security:
     providers:
         user_provider:
@@ -193,8 +218,13 @@ security:
 
 Then you can add a link to route `saml_login` in your login page in order to start SAML sign on.
 
-``` html
+```html
     <a href="{{ path('saml_login') }}">SAML Login</a>
+```
+
+Or if you have multiple IdP:
+```html
+    <a href="{{ path('saml_login_idp', {idp: 'my-idp-1') }}">SAML Login</a>
 ```
 
 Just-in-time user provisioning (optional)
@@ -204,7 +234,7 @@ When user is not found by user provider, you can set a user factory to create a 
 
 Edit firewall settings in `security.yml`:
 
-``` yml
+```yml
 firewalls:
     default:
         anonymous: ~
@@ -220,7 +250,7 @@ firewalls:
 
 Create the user factory service editing `services.yml`:
 
-``` yml
+```yml
 services:
     my_user_factory:
         class: Hslavich\OneloginSamlBundle\Security\User\SamlUserFactory
@@ -239,7 +269,7 @@ Fields with '$' references to SAML attribute value.
 
 Or you can create your own User Factory that implements `SamlUserFactoryInterface`
 
-``` php
+```php
 <?php
 
 namespace AppBundle\Security;
@@ -265,7 +295,7 @@ class UserFactory implements SamlUserFactoryInterface
 }
 ```
 
-``` yml
+```yml
 services:
     my_user_factory:
         class: AppBundle\Security\UserFactory

@@ -19,9 +19,15 @@ class OneLoginAuthRegistry
      */
     private $httpUtils;
 
-    public function __construct(HttpUtils $httpUtils)
+    /**
+     * @var string
+     */
+    private $defaultIdp;
+
+    public function __construct(HttpUtils $httpUtils, $defaultIdp)
     {
         $this->httpUtils = $httpUtils;
+        $this->defaultIdp = $defaultIdp;
     }
 
     /**
@@ -33,10 +39,15 @@ class OneLoginAuthRegistry
     }
 
     /**
-     * @param Auth $idpAuth
+     * @param string|null $name
+     * @return Auth
      */
-    public function getIdpAuth($name)
+    public function getIdpAuth($name = null)
     {
+        if (null === $name) {
+            $name = $this->defaultIdp;
+        }
+
         if (!isset($this->idpAuth[$name])) {
             throw new \InvalidArgumentException(sprintf('Undefined IDP "%s"', $name));
         }

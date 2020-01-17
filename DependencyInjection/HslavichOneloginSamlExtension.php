@@ -28,7 +28,7 @@ class HslavichOneloginSamlExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
-        $container->setParameter('hslavich_onelogin_saml.settings', $config);
+        $container->setParameter('hslavich_onelogin_saml.default_idp_name', $config['default_idp']);
         $this->loadIdentityProviders($config, $container);
     }
 
@@ -40,22 +40,27 @@ class HslavichOneloginSamlExtension extends Extension
         $registryDef = $container->getDefinition(OneLoginAuthRegistry::class);
 
         foreach($idps as $id => $idpConfig) {
-            $idpServiceId = $this->createAuthDefinition($container, $id, array_merge($config, ['idp' => $idpConfig]));
+            $idpServiceId = $this->createAuthDefinition(
+                $container,
+                $id,
+                array_merge($config, ['idp' => $idpConfig]),
+                $config['default_idp']
+            );
 
             $registryDef->addMethodCall('addIdpAuth', [$id, new Reference($idpServiceId)]);
             $this->createLogoutDefinition($container, $id, $idpServiceId);
         }
     }
 
-    private function createAuthDefinition(ContainerBuilder $container, $id, array $config)
+    private function createAuthDefinition(ContainerBuilder $container, $id, array $config, $defaultIdp)
     {
         $def = new ChildDefinition('onelogin_auth_abstract');
-        $def->replaceArgument(0, $config);
+        $def->setArgument(0, $config);
 
         $serviceId = 'onelogin_auth.'.$id;
         $container->setDefinition($serviceId, $def);
 
-        if ($id === Configuration::DEFAULT_NAME) {
+        if ($id === $defaultIdp) {
             $container->setAlias('onelogin_auth', $serviceId);
         }
 

@@ -20,9 +20,19 @@ class SamlListener extends AbstractAuthenticationListener
      */
     private $authRegistry;
 
+    /**
+     * @var string
+     */
+    private $defaultIdpName;
+
     public function setAuthRegistry(OneLoginAuthRegistry $authRegistry): void
     {
         $this->authRegistry = $authRegistry;
+    }
+
+    public function setDefaultIdpName(string $defaultIdpName): void
+    {
+        $this->defaultIdpName = $defaultIdpName;
     }
 
     /**
@@ -36,10 +46,8 @@ class SamlListener extends AbstractAuthenticationListener
      */
     protected function attemptAuthentication(Request $request)
     {
-        $idpName = $request->getSession()->get(self::IDP_NAME_SESSION_NAME);
-        if (!$idpName) {
-            throw new RuntimeException(sprintf('Missing session attribute "%s"', self::IDP_NAME_SESSION_NAME));
-        }
+        // Get current IdP name or use the single configured IdP
+        $idpName = $request->getSession()->get(self::IDP_NAME_SESSION_NAME, 'default');
 
         $oneLoginAuth = $this->authRegistry->getIdpAuth($idpName);
 
