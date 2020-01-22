@@ -54,8 +54,10 @@ class SamlLogoutHandler implements LogoutHandlerInterface, ContainerAwareInterfa
         try {
             $samlAuth->processSLO();
         } catch (\OneLogin\Saml2\Error $e) {
-            $sessionIndex = $token->hasAttribute('sessionIndex') ? $token->getAttribute('sessionIndex') : null;
-            $samlAuth->logout(null, array(), $token->getUsername(), $sessionIndex);
+            if (!empty($samlAuth->getSLOurl())) {
+                $sessionIndex = $token->hasAttribute('sessionIndex') ? $token->getAttribute('sessionIndex') : null;
+                $samlAuth->logout(null, array(), $token->getUsername(), $sessionIndex);
+            }
         }
     }
 
