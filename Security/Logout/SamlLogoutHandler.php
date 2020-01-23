@@ -3,18 +3,23 @@
 namespace Hslavich\OneloginSamlBundle\Security\Logout;
 
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
+use Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Logout\LogoutHandlerInterface;
 
 class SamlLogoutHandler implements LogoutHandlerInterface
 {
-    protected $samlAuth;
+    /**
+     * @var OneLoginAuthRegistry
+     */
+    private $authRegistry;
 
-    public function __construct(\OneLogin\Saml2\Auth $samlAuth)
+    public function __construct(OneLoginAuthRegistry $authRegistry)
     {
-        $this->samlAuth = $samlAuth;
+        $this->authRegistry = $authRegistry;
     }
 
     /**
@@ -32,11 +37,16 @@ class SamlLogoutHandler implements LogoutHandlerInterface
             return;
         }
 
+        $auth = $this->authRegistry->getIdpAuth($token->getIdpName());
+        if (null === $auth) {
+            throw new NotFoundHttpException('Auth service not found');
+        }
+
         try {
-            $this->samlAuth->processSLO();
+            $auth->processSLO();
         } catch (\OneLogin\Saml2\Error $e) {
             $sessionIndex = $token->hasAttribute('sessionIndex') ? $token->getAttribute('sessionIndex') : null;
-            $this->samlAuth->logout(null, array(), $token->getUsername(), $sessionIndex);
+            $auth->logout(null, array(), $token->getUsername(), $sessionIndex);
         }
     }
 }

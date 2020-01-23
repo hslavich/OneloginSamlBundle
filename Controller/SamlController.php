@@ -2,14 +2,28 @@
 
 namespace Hslavich\OneloginSamlBundle\Controller;
 
+use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
+use Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry;
+use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Request;
 
 class SamlController extends AbstractController
 {
-    public function loginAction(Request $request)
+    /**
+     * @var OneLoginAuthRegistry
+     */
+    private $authRegistry;
+
+    public function __construct(OneLoginAuthRegistry $authRegistry)
+    {
+        $this->authRegistry = $authRegistry;
+    }
+
+    public function loginAction(Request $request, $idp = null)
     {
         $session = $request->getSession();
         $authErrorKey = Security::AUTHENTICATION_ERROR;
@@ -27,12 +41,21 @@ class SamlController extends AbstractController
             throw new \RuntimeException($error->getMessage());
         }
 
-        $this->get('onelogin_auth')->login();
+        if (null !== $idp) {
+            $session->set(SamlListener::IDP_NAME_SESSION_NAME, $idp);
+        }
+
+        $this->authRegistry->getIdpAuth($idp)->login();
     }
 
-    public function metadataAction()
+    public function metadataAction($idp = null)
     {
-        $auth = $this->get('onelogin_auth');
+        try {
+            $auth = $this->authRegistry->getIdpAuth($idp);
+        } catch (InvalidArgumentException $e) {
+            throw new NotFoundHttpException(sprintf('IDP %s not found', $idp), $e);
+        }
+
         $metadata = $auth->getSettings()->getSPMetadata();
 
         $response = new Response($metadata);
