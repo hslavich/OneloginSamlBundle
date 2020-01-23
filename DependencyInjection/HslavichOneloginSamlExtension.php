@@ -2,6 +2,7 @@
 
 namespace Hslavich\OneloginSamlBundle\DependencyInjection;
 
+use Hslavich\OneloginSamlBundle\DependencyInjection\Compiler\SpResolverCompilerPass;
 use Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -41,10 +42,17 @@ class HslavichOneloginSamlExtension extends Extension
         $registryDef = $container->getDefinition(OneLoginAuthRegistry::class);
 
         foreach($idps as $id => $idpConfig) {
+            $idpConfig = array_merge(
+                $config,
+                array('idp' => $idpConfig),
+                // Merge custom SP definition of IDP with the template one
+                array('sp' => array_merge($config['sp'], isset($idpConfig['sp']) ? $idpConfig['sp'] : array()))
+            );
+
             $idpServiceId = $this->createAuthDefinition(
                 $container,
                 $id,
-                array_merge($config, ['idp' => $idpConfig]),
+                $idpConfig,
                 $config['default_idp']
             );
 
@@ -57,6 +65,9 @@ class HslavichOneloginSamlExtension extends Extension
     {
         $def = new ChildDefinition('onelogin_auth_abstract');
         $def->setArgument(0, $config);
+        $def->addTag(SpResolverCompilerPass::TAG_NAME, [
+            'name' => $id,
+        ]);
 
         $serviceId = 'onelogin_auth.'.$id;
         $container->setDefinition($serviceId, $def);

@@ -111,6 +111,22 @@ hslavich_onelogin_saml:
                 url: 'http://id.example2.com/saml2/idp/SingleLogoutService.php'
                 binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
             x509cert: ''
+
+            # optional, override SP configuration metadata for this IDP
+            sp:
+                entityId: 'http://myapp.com/app_dev.php/saml/metadata/my-idp-2'
+                privateKey: ''
+    
+    # Configure your SP template for all IDP:
+    sp:
+        entityId: 'http://myapp.com/app_dev.php/saml/metadata/{idp}' # {idp} will be resolved for each IDP
+        assertionConsumerService:
+            url: 'http://myapp.com/app_dev.php/saml/acs'
+            binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+        singleLogoutService:
+            url: 'http://myapp.com/app_dev.php/saml/logout'
+            binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect'
+        privateKey: ''
 ```
 
 Configure firewall and user provider in `app/config/security.yml`

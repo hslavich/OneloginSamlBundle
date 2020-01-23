@@ -54,12 +54,4 @@ class OneLoginAuthRegistry
 
         return $this->idpAuth[$name];
     }
-
-    /**
-     * @return Auth
-     */
-    public function getAuthFromSession(SessionInterface $session)
-    {
-        return $this->getIdpAuth($session->get('auth_id'));
-    }
 }

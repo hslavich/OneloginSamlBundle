@@ -39,8 +39,11 @@ class Configuration implements ConfigurationInterface
                 ->normalizeKeys(false)
                 ->arrayPrototype();
 
-        $this->configureIdp($idp);
-        $this->configureIdp($idps);
+        $this->configureIdpNode($idp);
+        $this->configureSPNode($rootNode->children()->arrayNode('sp'));
+
+        $this->configureIdpNode($idps);
+        $this->configureSPNode($idps->children()->arrayNode('sp'));
 
         $rootNode
             ->beforeNormalization()
@@ -61,43 +64,6 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('baseurl')->end()
                 ->booleanNode('strict')->end()
                 ->booleanNode('debug')->end()
-                ->arrayNode('sp')
-                    ->children()
-                        ->scalarNode('entityId')->end()
-                        ->scalarNode('NameIDFormat')->end()
-                        ->scalarNode('x509cert')->end()
-                        ->scalarNode('privateKey')->end()
-                        ->arrayNode('assertionConsumerService')
-                            ->children()
-                                ->scalarNode('url')->end()
-                                ->scalarNode('binding')->end()
-                            ->end()
-                        ->end()
-                        ->arrayNode('attributeConsumingService')
-                            ->children()
-                                ->scalarNode('serviceName')->end()
-                                ->scalarNode('serviceDescription')->end()
-                                ->arrayNode('requestedAttributes')
-                                    ->prototype('array')
-                                        ->children()
-                                            ->scalarNode('name')->end()
-                                            ->booleanNode('isRequired')->defaultValue(false)->end()
-                                            ->scalarNode('nameFormat')->end()
-                                            ->scalarNode('friendlyName')->end()
-                                            ->arrayNode('attributeValue')->end()
-                                        ->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                        ->arrayNode('singleLogoutService')
-                            ->children()
-                                ->scalarNode('url')->end()
-                                ->scalarNode('binding')->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
                 ->arrayNode('security')
                     ->children()
                         ->booleanNode('nameIdEncrypted')->end()
@@ -156,7 +122,48 @@ class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    private function configureIdp(ArrayNodeDefinition $node)
+    private function configureSPNode(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->scalarNode('entityId')->end()
+                ->scalarNode('NameIDFormat')->end()
+                ->scalarNode('x509cert')->end()
+                ->scalarNode('privateKey')->end()
+                ->arrayNode('assertionConsumerService')
+                    ->children()
+                        ->scalarNode('url')->end()
+                        ->scalarNode('binding')->end()
+                    ->end()
+                ->end()
+                ->arrayNode('attributeConsumingService')
+                    ->children()
+                        ->scalarNode('serviceName')->end()
+                        ->scalarNode('serviceDescription')->end()
+                        ->arrayNode('requestedAttributes')
+                            ->prototype('array')
+                                ->children()
+                                    ->scalarNode('name')->end()
+                                    ->booleanNode('isRequired')->defaultValue(false)->end()
+                                    ->scalarNode('nameFormat')->end()
+                                    ->scalarNode('friendlyName')->end()
+                                    ->arrayNode('attributeValue')->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('singleLogoutService')
+                    ->children()
+                        ->scalarNode('url')->end()
+                        ->scalarNode('binding')->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    private function configureIdpNode(ArrayNodeDefinition $node)
     {
         $node
             ->children()
