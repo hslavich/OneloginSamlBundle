@@ -1,5 +1,5 @@
 {
-    "name": "hslavich/oneloginsaml-bundle",
+    "name": "kevinpapst/oneloginsaml-bundle",
     "type": "symfony-bundle",
     "description": "OneLogin SAML Bundle for Symfony2",
     "keywords": ["onelogin", "saml", "sso"],
