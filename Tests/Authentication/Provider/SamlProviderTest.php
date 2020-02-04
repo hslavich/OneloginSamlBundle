@@ -26,7 +26,11 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Hslavich\\OneloginSamlBundle\\Security\\Authentication\\Token\\SamlToken', $token);
         $this->assertEquals(array('foo' => 'bar'), $token->getAttributes());
-        $this->assertEquals(array(), $token->getRoles());
+        if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID >= 40300) {
+            $this->assertEquals(array(), $token->getRoleNames());
+        } else {
+            $this->assertEquals(array(), $token->getRoles());
+        }
         $this->assertTrue($token->isAuthenticated());
         $this->assertSame($user, $token->getUser());
     }
@@ -53,7 +57,11 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Hslavich\\OneloginSamlBundle\\Security\\Authentication\\Token\\SamlToken', $token);
         $this->assertEquals(array('foo' => 'bar'), $token->getAttributes());
-        $this->assertEquals(array(), $token->getRoles());
+        if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID >= 40300) {
+            $this->assertEquals(array(), $token->getRoleNames());
+        } else {
+            $this->assertEquals(array(), $token->getRoles());
+        }
         $this->assertTrue($token->isAuthenticated());
         $this->assertSame($user, $token->getUser());
     }

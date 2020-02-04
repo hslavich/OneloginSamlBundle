@@ -27,7 +27,7 @@ class SamlController extends AbstractController
             throw new \RuntimeException($error->getMessage());
         }
 
-        $this->get('onelogin_auth')->login();
+        $this->get('onelogin_auth')->login($session->get('_security.main.target_path'));
     }
 
     public function metadataAction()

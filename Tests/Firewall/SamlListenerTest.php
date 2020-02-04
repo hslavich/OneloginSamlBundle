@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SamlProviderTest extends \PHPUnit_Framework_TestCase
 {
+    private $httpKernel;
     private $authenticationManager;
     private $dispatcher;
     private $event;
@@ -29,7 +30,11 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
         ;
         $listener->setOneLoginAuth($onelogin);
 
-        $listener->handle($this->event);
+        if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID >= 40300) {
+            $listener($this->event);
+        } else {
+            $listener->handle($this->event);
+        }
     }
 
     public function testHandleValidAuthenticationWithEmptyOptions()
@@ -50,7 +55,11 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
         ;
         $listener->setOneLoginAuth($onelogin);
 
-        $listener->handle($this->event);
+        if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID >= 40300) {
+            $listener($this->event);
+        } else {
+            $listener->handle($this->event);
+        }
     }
 
     protected function getListener($options = array())
@@ -69,6 +78,7 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
+        $this->httpKernel = $this->createMock('Symfony\Component\HttpKernel\HttpKernelInterface');
         $this->authenticationManager = $this->getMockBuilder('Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager')
             ->disableOriginalConstructor()
             ->getMock()
@@ -86,11 +96,20 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(true))
         ;
 
-        $this->event = $this->createMock('Symfony\Component\HttpKernel\Event\GetResponseEvent', array(), array(), '', false);
+        if (class_exists('Symfony\Component\HttpKernel\Event\RequestEvent')) {
+            $this->event = $this->createMock('Symfony\Component\HttpKernel\Event\RequestEvent', array(), array(), '', false);
+        } else {
+            $this->event = $this->createMock('Symfony\Component\HttpKernel\Event\GetResponseEvent', array(), array(), '', false);
+        }
         $this->event
             ->expects($this->any())
             ->method('getRequest')
             ->will($this->returnValue($this->request))
+        ;
+        $this->event
+            ->expects($this->any())
+            ->method('getKernel')
+            ->will($this->returnValue($this->httpKernel))
         ;
         $this->sessionStrategy = $this->createMock('Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterface');
         $this->httpUtils = $this->createMock('Symfony\Component\Security\Http\HttpUtils');
