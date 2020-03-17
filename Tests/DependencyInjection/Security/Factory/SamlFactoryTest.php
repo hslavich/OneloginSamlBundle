@@ -38,6 +38,9 @@ class SamlFactoryTest extends \PHPUnit_Framework_TestCase
                 'user_factory' => 'my_user_factory',
                 'token_factory' => 'my_token_factory',
                 'persist_user' => true,
+                'idp_mapping' => array(
+                    '/my_login/example' => 'example',
+                )
             ),
             array(
                 'username_attribute' => 'uid',
@@ -46,11 +49,18 @@ class SamlFactoryTest extends \PHPUnit_Framework_TestCase
                 'user_factory' => 'my_user_factory',
                 'token_factory' => 'my_token_factory',
                 'persist_user' => true,
+                'idp_mapping' => array(
+                    '/my_login/example' => 'example',
+                )
             )
         );
 
         $tests[] = array(
-            array(),
+            array(
+                'idp_mapping' => array(
+                    '/saml/login/example' => 'example',
+                )
+            ),
             array(
                 'username_attribute' => null,
                 'login_path' => '/saml/login',
@@ -58,6 +68,9 @@ class SamlFactoryTest extends \PHPUnit_Framework_TestCase
                 'user_factory' => null,
                 'token_factory' => null,
                 'persist_user' => false,
+                'idp_mapping' => array(
+                    '/saml/login/example' => 'example',
+                )
             )
         );
 
@@ -75,6 +88,9 @@ class SamlFactoryTest extends \PHPUnit_Framework_TestCase
             'username_attribute' => null,
             'login_path' => '/saml/login',
             'check_path' => '/saml/acs',
+            'idp_mapping' => array(
+                '/saml/login/example' => 'example',
+            )
         );
         $node = $nodeDefinition->getNode();
         $normalizedConfig = $node->normalize($config);

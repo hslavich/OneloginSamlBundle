@@ -3,6 +3,7 @@
 namespace Hslavich\OneloginSamlBundle\Tests\Firewall;
 
 use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class SamlProviderTest extends \PHPUnit_Framework_TestCase
@@ -17,6 +18,13 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testHandleValidAuthenticationWithAttribute()
     {
+        $this->request
+            ->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('RelayState'))
+            ->willReturn('/login/saml/example')
+        ;
+
         $listener = $this->getListener(array('username_attribute' => 'uid'));
 
         $attributes = array('uid' => array('username_uid'));
@@ -28,7 +36,20 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
             ->method('getAttributes')
             ->will($this->returnValue($attributes))
         ;
-        $listener->setOneLoginAuth($onelogin);
+
+        $container = $this->createMock('Symfony\Component\DependencyInjection\ContainerInterface');
+        $container
+            ->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('onelogin_auth.example'))
+            ->willReturn($onelogin)
+        ;
+
+        $listener->setContainer($container);
+
+        $listener->setAuthMap(array(
+            '/login/saml/example' => 'example',
+        ));
 
         if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID >= 40300) {
             $listener($this->event);
@@ -39,6 +60,13 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testHandleValidAuthenticationWithEmptyOptions()
     {
+        $this->request
+            ->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('RelayState'))
+            ->willReturn('/login/saml/example')
+        ;
+
         $listener = $this->getListener(array());
 
         $onelogin = $this->getMockBuilder('OneLogin\Saml2\Auth')->disableOriginalConstructor()->getMock();
@@ -53,7 +81,20 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
             ->method('getNameId')
             ->will($this->returnValue('username'))
         ;
-        $listener->setOneLoginAuth($onelogin);
+
+        $container = $this->createMock('Symfony\Component\DependencyInjection\ContainerInterface');
+        $container
+            ->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('onelogin_auth.example'))
+            ->willReturn($onelogin)
+        ;
+
+        $listener->setContainer($container);
+
+        $listener->setAuthMap(array(
+            '/login/saml/example' => 'example',
+        ));
 
         if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID >= 40300) {
             $listener($this->event);
