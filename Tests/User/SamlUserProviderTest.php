@@ -8,16 +8,16 @@ class SamlUserProviderTest extends \PHPUnit_Framework_TestCase
 {
     public function testLoadByUsername()
     {
-        $provider = $this->getUserProvider(array('ROLE_ADMIN'));
+        $provider = $this->getUserProvider(['ROLE_ADMIN']);
         $user = $provider->loadUserByUsername('admin');
 
         $this->assertEquals('admin', $user->getUsername());
-        $this->assertEquals(array('ROLE_ADMIN'), $user->getRoles());
+        $this->assertEquals(['ROLE_ADMIN'], $user->getRoles());
     }
 
     public function testRefreshUser()
     {
-        $user = $this->createMock('Symfony\Component\Security\Core\User\UserInterface');
+        $user = $this->createMock(\Symfony\Component\Security\Core\User\UserInterface::class);
         $provider = $this->getUserProvider();
 
         $this->assertSame($user, $provider->refreshUser($user));
@@ -27,12 +27,12 @@ class SamlUserProviderTest extends \PHPUnit_Framework_TestCase
     {
         $provider = $this->getUserProvider();
 
-        $this->assertTrue($provider->supportsClass('Hslavich\OneloginSamlBundle\Tests\TestUser'));
-        $this->assertFalse($provider->supportsClass('Symfony\Component\Security\Core\User\UserInterface'));
+        $this->assertTrue($provider->supportsClass(\Hslavich\OneloginSamlBundle\Tests\TestUser::class));
+        $this->assertFalse($provider->supportsClass(\Symfony\Component\Security\Core\User\UserInterface::class));
     }
 
-    protected function getUserProvider($roles = array())
+    protected function getUserProvider($roles = [])
     {
-        return new SamlUserProvider('Hslavich\OneloginSamlBundle\Tests\TestUser', $roles);
+        return new SamlUserProvider(\Hslavich\OneloginSamlBundle\Tests\TestUser::class, $roles);
     }
 }

@@ -2,29 +2,29 @@
 
 namespace Hslavich\OneloginSamlBundle\Tests\User;
 
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactory;
 use Hslavich\OneloginSamlBundle\Tests\TestUser;
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
 
 class SamlUserFactoryTest extends \PHPUnit_Framework_TestCase
 {
     public function testUserMapping()
     {
-        $map = array(
+        $map = [
             'password' => 'notused',
             'email' => '$mail',
             'name' => '$cn',
             'lastname' => '$sn',
-            'roles' => ['ROLE_USER']
-        );
+            'roles' => ['ROLE_USER'],
+        ];
 
         $token = $this->createMock(SamlToken::class);
         $token->method('getUsername')->willReturn('admin');
-        $token->method('getAttributes')->willReturn(array(
-            'mail' => array('email@mail.com'),
-            'cn' => array('testname'),
-            'sn' => array('testlastname')
-        ));
+        $token->method('getAttributes')->willReturn([
+            'mail' => ['email@mail.com'],
+            'cn' => ['testname'],
+            'sn' => ['testlastname'],
+        ]);
 
         $factory = new SamlUserFactory(TestUser::class, $map);
         $user = $factory->createUser($token);
@@ -36,5 +36,4 @@ class SamlUserFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('notused', $user->getPassword());
         $this->assertEquals(['ROLE_USER'], $user->getRoles());
     }
-
 }

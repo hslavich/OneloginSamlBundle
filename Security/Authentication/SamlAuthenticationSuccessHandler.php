@@ -2,8 +2,8 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\Authentication;
 
-use Symfony\Component\Security\Http\Authentication\DefaultAuthenticationSuccessHandler;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\Authentication\DefaultAuthenticationSuccessHandler;
 
 class SamlAuthenticationSuccessHandler extends DefaultAuthenticationSuccessHandler
 {

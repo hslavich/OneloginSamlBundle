@@ -5,7 +5,7 @@ namespace Hslavich\OneloginSamlBundle\Security\Authentication\Token;
 class SamlTokenFactory implements SamlTokenFactoryInterface
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function createToken($user, array $attributes, array $roles)
     {

@@ -2,7 +2,6 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\Authentication\Provider;
 
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
@@ -21,12 +20,12 @@ class SamlProvider implements AuthenticationProviderInterface
     protected $entityManager;
     protected $options;
 
-    public function __construct(UserProviderInterface $userProvider, array $options = array())
+    public function __construct(UserProviderInterface $userProvider, array $options = [])
     {
         $this->userProvider = $userProvider;
-        $this->options = array_merge(array(
-            'persist_user' => false
-        ), $options);
+        $this->options = array_merge([
+            'persist_user' => false,
+        ], $options);
     }
 
     public function setUserFactory(SamlUserFactoryInterface $userFactory)
@@ -52,7 +51,7 @@ class SamlProvider implements AuthenticationProviderInterface
             if ($user instanceof SamlUserInterface) {
                 $user->setSamlAttributes($token->getAttributes());
             }
-            
+
             $authenticatedToken = $this->tokenFactory->createToken($user, $token->getAttributes(), $user->getRoles());
             $authenticatedToken->setAuthenticated(true);
 
@@ -75,7 +74,7 @@ class SamlProvider implements AuthenticationProviderInterface
             if ($this->userFactory instanceof SamlUserFactoryInterface) {
                 return $this->generateUser($token);
             }
-            
+
             throw $e;
         }
     }

@@ -16,9 +16,6 @@ class SamlListener extends AbstractAuthenticationListener
      */
     protected $oneLoginAuth;
 
-    /**
-     * @param \OneLogin\Saml2\Auth $oneLoginAuth
-     */
     public function setOneLoginAuth(\OneLogin\Saml2\Auth $oneLoginAuth)
     {
         $this->oneLoginAuth = $oneLoginAuth;
@@ -28,10 +25,11 @@ class SamlListener extends AbstractAuthenticationListener
      * Performs authentication.
      *
      * @param Request $request A Request instance
+     *
      * @return TokenInterface|Response|null The authenticated token, null if full authentication is not possible, or a Response
      *
      * @throws AuthenticationException if the authentication fails
-     * @throws \Exception if attribute set by "username_attribute" option not found
+     * @throws \Exception              if attribute set by "username_attribute" option not found
      */
     protected function attemptAuthentication(Request $request)
     {
@@ -53,7 +51,7 @@ class SamlListener extends AbstractAuthenticationListener
 
         if (isset($this->options['username_attribute'])) {
             if (!array_key_exists($this->options['username_attribute'], $attributes)) {
-                $this->logger->error(sprintf("Found attributes: %s", print_r($attributes, true)));
+                $this->logger->error(sprintf('Found attributes: %s', print_r($attributes, true)));
                 throw new \Exception(sprintf("Attribute '%s' not found in SAML data", $this->options['username_attribute']));
             }
 

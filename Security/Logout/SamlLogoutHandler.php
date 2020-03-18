@@ -21,10 +21,6 @@ class SamlLogoutHandler implements LogoutHandlerInterface
      * This method is called by the LogoutListener when a user has requested
      * to be logged out. Usually, you would unset session variables, or remove
      * cookies, etc.
-     *
-     * @param Request $request
-     * @param Response $response
-     * @param TokenInterface $token
      */
     public function logout(Request $request, Response $response, TokenInterface $token)
     {
@@ -37,7 +33,7 @@ class SamlLogoutHandler implements LogoutHandlerInterface
         } catch (\OneLogin\Saml2\Error $e) {
             if (!empty($this->samlAuth->getSLOurl())) {
                 $sessionIndex = $token->hasAttribute('sessionIndex') ? $token->getAttribute('sessionIndex') : null;
-                $this->samlAuth->logout(null, array(), $token->getUsername(), $sessionIndex);
+                $this->samlAuth->logout(null, [], $token->getUsername(), $sessionIndex);
             }
         }
     }

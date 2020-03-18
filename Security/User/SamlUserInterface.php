@@ -8,8 +8,6 @@ interface SamlUserInterface extends UserInterface
 {
     /**
      * Set SAML attributes in user object.
-     *
-     * @param array $attributes
      */
     public function setSamlAttributes(array $attributes);
 }

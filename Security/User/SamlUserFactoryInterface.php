@@ -11,6 +11,7 @@ interface SamlUserFactoryInterface
      * Creates a new User object from SAML Token.
      *
      * @param SamlTokenInterface $token SAML token
+     *
      * @return UserInterface
      */
     public function createUser(SamlTokenInterface $token);

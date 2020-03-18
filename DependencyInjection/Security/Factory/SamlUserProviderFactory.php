@@ -4,13 +4,13 @@ namespace Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory;
 
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\UserProvider\UserProviderFactoryInterface;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
+use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
-use Symfony\Component\DependencyInjection\ChildDefinition;
 
 class SamlUserProviderFactory implements UserProviderFactoryInterface
 {
-    protected $defaultRoles = array('ROLE_USER');
+    protected $defaultRoles = ['ROLE_USER'];
 
     public function create(ContainerBuilder $container, $id, $config)
     {

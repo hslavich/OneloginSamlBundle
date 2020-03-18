@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
 {
-    private static $containerCache = array();
+    private static $containerCache = [];
 
     public function testLoadIdpSettings()
     {
@@ -25,8 +25,8 @@ class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('idp_x509certdata', $settings['idp']['x509cert']);
         $this->assertEquals('43:51:43:a1:b5:fc:8b:b7:0a:3a:a9:b1:0f:66:73:a8', $settings['idp']['certFingerprint']);
         $this->assertEquals('sha1', $settings['idp']['certFingerprintAlgorithm']);
-        $this->assertEquals(array('<cert1-string>'), $settings['idp']['x509certMulti']['signing']);
-        $this->assertEquals(array('<cert2-string>'), $settings['idp']['x509certMulti']['encryption']);
+        $this->assertEquals(['<cert1-string>'], $settings['idp']['x509certMulti']['signing']);
+        $this->assertEquals(['<cert2-string>'], $settings['idp']['x509certMulti']['encryption']);
     }
 
     public function testLoadSpSettings()
@@ -97,9 +97,9 @@ class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
 
     protected function createContainer()
     {
-        return new ContainerBuilder(new ParameterBag(array(
-            'kernel.bundles' => array('FrameworkBundle' => HslavichOneloginSamlBundle::class),
-            'kernel.bundles_metadata' => array('HslavichOneloginSamlBundle' => array('namespace' => 'Hslavich\\OneloginSamlBundle\\HslavichOneloginSamlBundle', 'path' => __DIR__.'/../..')),
+        return new ContainerBuilder(new ParameterBag([
+            'kernel.bundles' => ['FrameworkBundle' => HslavichOneloginSamlBundle::class],
+            'kernel.bundles_metadata' => ['HslavichOneloginSamlBundle' => ['namespace' => 'Hslavich\\OneloginSamlBundle\\HslavichOneloginSamlBundle', 'path' => __DIR__.'/../..']],
             'kernel.cache_dir' => __DIR__,
             'kernel.project_dir' => __DIR__,
             'kernel.debug' => false,
@@ -110,7 +110,7 @@ class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
             'container.build_hash' => 'Abc1234',
             'container.build_id' => hash('crc32', 'Abc123423456789'),
             'container.build_time' => 23456789,
-        )));
+        ]));
     }
 
     protected function createContainerFromFile($file)
@@ -123,8 +123,8 @@ class HslavichOneloginSamlExtensionTest extends \PHPUnit_Framework_TestCase
         $container->registerExtension(new HslavichOneloginSamlExtension());
         $this->loadFromFile($container, $file);
 
-        $container->getCompilerPassConfig()->setOptimizationPasses(array());
-        $container->getCompilerPassConfig()->setRemovingPasses(array());
+        $container->getCompilerPassConfig()->setOptimizationPasses([]);
+        $container->getCompilerPassConfig()->setRemovingPasses([]);
 
         $container->compile();
 

@@ -3,9 +3,9 @@
 namespace Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory;
 
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AbstractFactory;
+use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
-use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Reference;
 
 class SamlFactory extends AbstractFactory
@@ -18,7 +18,7 @@ class SamlFactory extends AbstractFactory
         $this->addOption('user_factory');
         $this->addOption('token_factory');
         $this->addOption('persist_user', false);
-        
+
         if (!isset($this->options['success_handler'])) {
             $this->options['success_handler'] = 'hslavich_onelogin_saml.saml_authentication_success_handler';
         }
@@ -50,9 +50,8 @@ class SamlFactory extends AbstractFactory
      * Subclasses must return the id of a service which implements the
      * AuthenticationProviderInterface.
      *
-     * @param ContainerBuilder $container
-     * @param string $id The unique id of the firewall
-     * @param array $config The options array for this listener
+     * @param string $id             The unique id of the firewall
+     * @param array  $config         The options array for this listener
      * @param string $userProviderId The id of the user provider
      *
      * @return string never null, the id of the authentication provider
@@ -63,21 +62,21 @@ class SamlFactory extends AbstractFactory
         $definitionClassname = $this->getDefinitionClassname();
         $definition = $container->setDefinition($providerId, new $definitionClassname('hslavich_onelogin_saml.saml_provider'))
             ->replaceArgument(0, new Reference($userProviderId))
-            ->addArgument(array(
-                 'persist_user' => $config['persist_user']
-            ))
+            ->addArgument([
+                'persist_user' => $config['persist_user'],
+            ])
             ->addTag('hslavich.saml_provider')
         ;
 
         if ($config['user_factory']) {
-            $definition->addMethodCall('setUserFactory', array(new Reference($config['user_factory'])));
+            $definition->addMethodCall('setUserFactory', [new Reference($config['user_factory'])]);
         }
 
         $factoryId = $config['token_factory'] ?: 'hslavich_onelogin_saml.saml_token_factory';
-        $definition->addMethodCall('setTokenFactory', array(new Reference($factoryId)));
+        $definition->addMethodCall('setTokenFactory', [new Reference($factoryId)]);
 
         return $providerId;
-     }
+    }
 
     protected function createListener($container, $id, $config, $userProvider)
     {
@@ -111,7 +110,7 @@ class SamlFactory extends AbstractFactory
             $container
                 ->setDefinition($samlListenerId, new $definitionClassname('saml.security.http.logout'))
                 ->replaceArgument(2, array_intersect_key($config, $this->options));
-            $logoutListener->addMethodCall('addHandler', array(new Reference($samlListenerId)));
+            $logoutListener->addMethodCall('addHandler', [new Reference($samlListenerId)]);
         }
     }
 
