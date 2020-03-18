@@ -34,7 +34,7 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('debug')->end()
                 ->arrayNode('idps')
                     ->useAttributeAsKey('id')
-                    ->arrayPrototype()
+                    ->prototype('array')
                         ->children()
                             ->scalarNode('name')->end()
                             ->scalarNode('image')->end()

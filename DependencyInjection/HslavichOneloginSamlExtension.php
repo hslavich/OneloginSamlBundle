@@ -2,7 +2,6 @@
 
 namespace Hslavich\OneloginSamlBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
@@ -38,7 +37,11 @@ class HslavichOneloginSamlExtension extends Extension
     {
         foreach($config['idps'] as $id => $idpConfig) {
             $clientId = sprintf('onelogin_auth.%s', $id);
-            $clientDef = new ChildDefinition('onelogin_auth');
+            if (class_exists('Symfony\Component\DependencyInjection\ChildDefinition')) {
+                $clientDef = new \Symfony\Component\DependencyInjection\ChildDefinition('onelogin_auth');
+            } else {
+                $clientDef = new \Symfony\Component\DependencyInjection\DefinitionDecorator('onelogin_auth');
+            }
             $authConfig = $config;
             unset($authConfig['idps']);
             $authConfig['idp'] = $idpConfig;
