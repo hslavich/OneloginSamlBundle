@@ -17,7 +17,7 @@ class SamlListener extends AbstractAuthenticationListener implements ContainerAw
     /**
      * @var array
      */
-    protected $authMap = [];
+    protected $authMap = array();
     /**
      * @var ContainerInterface
      */
@@ -26,7 +26,7 @@ class SamlListener extends AbstractAuthenticationListener implements ContainerAw
     /**
      * @param array $authMap
      */
-    public function setAuthMap(array $authMap): void
+    public function setAuthMap(array $authMap)
     {
         $this->authMap = $authMap;
     }

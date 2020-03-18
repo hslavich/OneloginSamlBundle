@@ -3,10 +3,12 @@
 namespace Hslavich\OneloginSamlBundle\Tests\Firewall;
 
 use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class SamlProviderTest extends \PHPUnit_Framework_TestCase
 {
+    private $httpKernel;
     private $authenticationManager;
     private $dispatcher;
     private $event;
@@ -16,6 +18,13 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
 
     public function testHandleValidAuthenticationWithAttribute()
     {
+        $this->request
+            ->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('RelayState'))
+            ->willReturn('/login/saml/example')
+        ;
+
         $listener = $this->getListener(array('username_attribute' => 'uid'));
 
         $attributes = array('uid' => array('username_uid'));
@@ -27,13 +36,37 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
             ->method('getAttributes')
             ->will($this->returnValue($attributes))
         ;
-        $listener->setOneLoginAuth($onelogin);
 
-        $listener->handle($this->event);
+        $container = $this->createMock('Symfony\Component\DependencyInjection\ContainerInterface');
+        $container
+            ->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('onelogin_auth.example'))
+            ->willReturn($onelogin)
+        ;
+
+        $listener->setContainer($container);
+
+        $listener->setAuthMap(array(
+            '/login/saml/example' => 'example',
+        ));
+
+        if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID >= 40300) {
+            $listener($this->event);
+        } else {
+            $listener->handle($this->event);
+        }
     }
 
     public function testHandleValidAuthenticationWithEmptyOptions()
     {
+        $this->request
+            ->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('RelayState'))
+            ->willReturn('/login/saml/example')
+        ;
+
         $listener = $this->getListener(array());
 
         $onelogin = $this->getMockBuilder('OneLogin\Saml2\Auth')->disableOriginalConstructor()->getMock();
@@ -48,9 +81,26 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
             ->method('getNameId')
             ->will($this->returnValue('username'))
         ;
-        $listener->setOneLoginAuth($onelogin);
 
-        $listener->handle($this->event);
+        $container = $this->createMock('Symfony\Component\DependencyInjection\ContainerInterface');
+        $container
+            ->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('onelogin_auth.example'))
+            ->willReturn($onelogin)
+        ;
+
+        $listener->setContainer($container);
+
+        $listener->setAuthMap(array(
+            '/login/saml/example' => 'example',
+        ));
+
+        if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID >= 40300) {
+            $listener($this->event);
+        } else {
+            $listener->handle($this->event);
+        }
     }
 
     protected function getListener($options = array())
@@ -69,6 +119,7 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
+        $this->httpKernel = $this->createMock('Symfony\Component\HttpKernel\HttpKernelInterface');
         $this->authenticationManager = $this->getMockBuilder('Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager')
             ->disableOriginalConstructor()
             ->getMock()
@@ -86,11 +137,20 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(true))
         ;
 
-        $this->event = $this->createMock('Symfony\Component\HttpKernel\Event\GetResponseEvent', array(), array(), '', false);
+        if (class_exists('Symfony\Component\HttpKernel\Event\RequestEvent')) {
+            $this->event = $this->createMock('Symfony\Component\HttpKernel\Event\RequestEvent', array(), array(), '', false);
+        } else {
+            $this->event = $this->createMock('Symfony\Component\HttpKernel\Event\GetResponseEvent', array(), array(), '', false);
+        }
         $this->event
             ->expects($this->any())
             ->method('getRequest')
             ->will($this->returnValue($this->request))
+        ;
+        $this->event
+            ->expects($this->any())
+            ->method('getKernel')
+            ->will($this->returnValue($this->httpKernel))
         ;
         $this->sessionStrategy = $this->createMock('Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterface');
         $this->httpUtils = $this->createMock('Symfony\Component\Security\Http\HttpUtils');

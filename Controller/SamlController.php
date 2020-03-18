@@ -31,7 +31,7 @@ class SamlController extends AbstractController
             throw new \RuntimeException($error->getMessage());
         }
 
-        $this->get('onelogin_auth.' . $idp)->login();
+        $this->get('onelogin_auth.' . $idp)->login($session->get('_security.main.target_path'));
     }
 
     /**

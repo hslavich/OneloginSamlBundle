@@ -3,6 +3,7 @@
 namespace Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory;
 
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AbstractFactory;
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\ChildDefinition;
@@ -18,7 +19,10 @@ class SamlFactory extends AbstractFactory
         $this->addOption('user_factory');
         $this->addOption('token_factory');
         $this->addOption('persist_user', false);
-
+        
+        if (!isset($this->options['success_handler'])) {
+            $this->options['success_handler'] = 'hslavich_onelogin_saml.saml_authentication_success_handler';
+        }
         $this->defaultFailureHandlerOptions['login_path'] = '/saml/login';
     }
 
