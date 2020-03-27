@@ -122,7 +122,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('wantXMLValidation')->end()
                         ->booleanNode('relaxDestinationValidation')->end()
                         ->booleanNode('destinationStrictlyMatches')->end()
-                        ->booleanNode('destinationStrictlyMatches')->end()
+                        ->booleanNode('rejectUnsolicitedResponsesWithInResponseTo')->end()
                         ->booleanNode('lowercaseUrlencoding')->end()
                         ->scalarNode('signatureAlgorithm')->end()
                         ->scalarNode('digestAlgorithm')->end()
