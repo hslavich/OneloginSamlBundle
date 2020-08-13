@@ -58,7 +58,10 @@ class HslavichOneloginSamlExtensionTest extends TestCase
         self::assertTrue($settings['security']['requestedAuthnContext']);
         self::assertFalse($settings['security']['signMetadata']);
         self::assertFalse($settings['security']['wantXMLValidation']);
-        self::assertEquals('http://www.w3.org/2000/09/xmldsig#rsa-sha1', $settings['security']['signatureAlgorithm']);
+        self::assertEquals('http://www.w3.org/2000/09/xmldsig#rsa-sha1', $settings['security']['signatureAlgorithm']);       
+        self::assertFalse($settings['security']['relaxDestinationValidation']);
+        self::assertTrue($settings['security']['destinationStrictlyMatches']);
+        self::assertFalse($settings['security']['rejectUnsolicitedResponsesWithInResponseTo']);
     }
 
     public function testLoadBasicSettings(): void
