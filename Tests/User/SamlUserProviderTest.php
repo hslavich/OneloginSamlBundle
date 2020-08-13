@@ -3,36 +3,39 @@
 namespace Hslavich\OneloginSamlBundle\Tests\User;
 
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Hslavich\OneloginSamlBundle\Tests\TestUser;
 
-class SamlUserProviderTest extends \PHPUnit_Framework_TestCase
+class SamlUserProviderTest extends TestCase
 {
-    public function testLoadByUsername()
+    public function testLoadByUsername(): void
     {
-        $provider = $this->getUserProvider(array('ROLE_ADMIN'));
+        $provider = $this->getUserProvider(['ROLE_ADMIN']);
         $user = $provider->loadUserByUsername('admin');
 
-        $this->assertEquals('admin', $user->getUsername());
-        $this->assertEquals(array('ROLE_ADMIN'), $user->getRoles());
+        self::assertEquals('admin', $user->getUsername());
+        self::assertEquals(['ROLE_ADMIN'], $user->getRoles());
     }
 
-    public function testRefreshUser()
+    public function testRefreshUser(): void
     {
-        $user = $this->createMock('Symfony\Component\Security\Core\User\UserInterface');
+        $user = $this->createMock(UserInterface::class);
         $provider = $this->getUserProvider();
 
-        $this->assertSame($user, $provider->refreshUser($user));
+        self::assertSame($user, $provider->refreshUser($user));
     }
 
-    public function testSupportsClass()
+    public function testSupportsClass(): void
     {
         $provider = $this->getUserProvider();
 
-        $this->assertTrue($provider->supportsClass('Hslavich\OneloginSamlBundle\Tests\TestUser'));
-        $this->assertFalse($provider->supportsClass('Symfony\Component\Security\Core\User\UserInterface'));
+        self::assertTrue($provider->supportsClass(TestUser::class));
+        self::assertFalse($provider->supportsClass(UserInterface::class));
     }
 
-    protected function getUserProvider($roles = array())
+    protected function getUserProvider($roles = []): SamlUserProvider
     {
-        return new SamlUserProvider('Hslavich\OneloginSamlBundle\Tests\TestUser', $roles);
+        return new SamlUserProvider(TestUser::class, $roles);
     }
 }

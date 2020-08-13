@@ -4,7 +4,6 @@ namespace Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory;
 
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AbstractFactory;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -18,7 +17,7 @@ class SamlFactory extends AbstractFactory
         $this->addOption('user_factory');
         $this->addOption('token_factory');
         $this->addOption('persist_user', false);
-        
+
         if (!isset($this->options['success_handler'])) {
             $this->options['success_handler'] = 'hslavich_onelogin_saml.saml_authentication_success_handler';
         }
@@ -60,8 +59,7 @@ class SamlFactory extends AbstractFactory
     protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId)
     {
         $providerId = 'security.authentication.provider.saml.'.$id;
-        $definitionClassname = $this->getDefinitionClassname();
-        $definition = $container->setDefinition($providerId, new $definitionClassname('hslavich_onelogin_saml.saml_provider'))
+        $definition = $container->setDefinition($providerId, new ChildDefinition('hslavich_onelogin_saml.saml_provider'))
             ->replaceArgument(0, new Reference($userProviderId))
             ->addArgument(array(
                  'persist_user' => $config['persist_user']
@@ -79,44 +77,16 @@ class SamlFactory extends AbstractFactory
         return $providerId;
      }
 
-    protected function createListener($container, $id, $config, $userProvider)
-    {
-        $listenerId = parent::createListener($container, $id, $config, $userProvider);
-        $this->createLogoutHandler($container, $id, $config);
-
-        return $listenerId;
-    }
-
     protected function createEntryPoint($container, $id, $config, $defaultEntryPoint)
     {
         $entryPointId = 'security.authentication.form_entry_point.'.$id;
-        $definitionClassname = $this->getDefinitionClassname();
         $container
-            ->setDefinition($entryPointId, new $definitionClassname('security.authentication.form_entry_point'))
+            ->setDefinition($entryPointId, new ChildDefinition('security.authentication.form_entry_point'))
             ->addArgument(new Reference('security.http_utils'))
             ->addArgument($config['login_path'])
             ->addArgument($config['use_forward'])
         ;
 
         return $entryPointId;
-    }
-
-    protected function createLogoutHandler($container, $id, $config)
-    {
-        if ($container->hasDefinition('security.logout_listener.'.$id)) {
-            $logoutListener = $container->getDefinition('security.logout_listener.'.$id);
-            $samlListenerId = 'hslavich_onelogin_saml.saml_logout';
-
-            $definitionClassname = $this->getDefinitionClassname();
-            $container
-                ->setDefinition($samlListenerId, new $definitionClassname('saml.security.http.logout'))
-                ->replaceArgument(2, array_intersect_key($config, $this->options));
-            $logoutListener->addMethodCall('addHandler', array(new Reference($samlListenerId)));
-        }
-    }
-
-    private function getDefinitionClassname()
-    {
-        return class_exists(ChildDefinition::class) ? ChildDefinition::class : DefinitionDecorator::class;
     }
 }

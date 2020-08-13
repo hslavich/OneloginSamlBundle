@@ -27,7 +27,10 @@ services:
         calls:
             - [setOneLoginAuth, ["@onelogin_auth"]]
 
-    hslavich_onelogin_saml.saml_logout:
-        class: Hslavich\OneloginSamlBundle\Security\Logout\SamlLogoutHandler
+    hslavich_onelogin_saml.saml_logout_listener:
+        class: Hslavich\OneloginSamlBundle\EventListener\Security\SamlLogoutListener
         arguments:
             - "@onelogin_auth"
+        tags:
+            - name: kernel.event_listener
+              event: Symfony\Component\Security\Http\Event\LogoutEvent

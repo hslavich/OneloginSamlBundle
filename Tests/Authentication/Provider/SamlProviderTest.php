@@ -4,113 +4,156 @@ namespace Hslavich\OneloginSamlBundle\Tests\Authentication\Provider;
 
 use Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactory;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
+use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class SamlProviderTest extends \PHPUnit_Framework_TestCase
+class SamlProviderTest extends TestCase
 {
-    public function testSupports()
+    public function testSupports(): void
     {
         $provider = $this->getProvider();
 
-        $this->assertTrue($provider->supports($this->createMock('Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken')));
-        $this->assertFalse($provider->supports($this->createMock('Symfony\Component\Security\Core\Authentication\Token\TokenInterface')));
+        self::assertTrue($provider->supports($this->createMock(SamlToken::class)));
+        self::assertFalse($provider->supports($this->createMock(TokenInterface::class)));
     }
 
-    public function testAuthenticate()
+    public function testAuthenticate(): void
     {
-        $user = $this->createMock('Symfony\Component\Security\Core\User\UserInterface');
-        $user->expects($this->once())->method('getRoles')->willReturn(array());
+        $user = $this->createMock(UserInterface::class);
+        $user
+            ->expects(self::once())
+            ->method('getRoles')
+            ->willReturn([])
+        ;
 
         $provider = $this->getProvider($user);
         $token = $provider->authenticate($this->getSamlToken());
 
-        $this->assertInstanceOf('Hslavich\\OneloginSamlBundle\\Security\\Authentication\\Token\\SamlToken', $token);
-        $this->assertEquals(array('foo' => 'bar'), $token->getAttributes());
-        if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID >= 40300) {
-            $this->assertEquals(array(), $token->getRoleNames());
-        } else {
-            $this->assertEquals(array(), $token->getRoles());
-        }
-        $this->assertTrue($token->isAuthenticated());
-        $this->assertSame($user, $token->getUser());
+        self::assertInstanceOf(SamlToken::class, $token);
+        self::assertEquals(['foo' => 'bar'], $token->getAttributes());
+        self::assertEquals([], $token->getRoleNames());
+        self::assertTrue($token->isAuthenticated());
+        self::assertSame($user, $token->getUser());
     }
 
-    /**
-     * @expectedException Symfony\Component\Security\Core\Exception\UsernameNotFoundException
-     */
-    public function testAuthenticateInvalidUser()
+    public function testAuthenticateInvalidUser(): void
     {
+        $this->expectException(UsernameNotFoundException::class);
         $provider = $this->getProvider();
         $provider->authenticate($this->getSamlToken());
     }
 
-    public function testAuthenticateWithUserFactory()
+    public function testAuthenticateWithUserFactory(): void
     {
-        $user = $this->createMock('Symfony\Component\Security\Core\User\UserInterface');
-        $user->expects($this->once())->method('getRoles')->willReturn(array());
+        $user = $this->createMock(UserInterface::class);
+        $user
+            ->expects(self::once())
+            ->method('getRoles')
+            ->willReturn([])
+        ;
 
-        $userFactory = $this->createMock('Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface');
-        $userFactory->expects($this->once())->method('createUser')->willReturn($user);
+        $userFactory = $this->createMock(SamlUserFactoryInterface::class);
+        $userFactory
+            ->expects(self::once())
+            ->method('createUser')
+            ->willReturn($user)
+        ;
 
         $provider = $this->getProvider(null, $userFactory);
         $token = $provider->authenticate($this->getSamlToken());
 
-        $this->assertInstanceOf('Hslavich\\OneloginSamlBundle\\Security\\Authentication\\Token\\SamlToken', $token);
-        $this->assertEquals(array('foo' => 'bar'), $token->getAttributes());
-        if (\Symfony\Component\HttpKernel\Kernel::VERSION_ID >= 40300) {
-            $this->assertEquals(array(), $token->getRoleNames());
-        } else {
-            $this->assertEquals(array(), $token->getRoles());
-        }
-        $this->assertTrue($token->isAuthenticated());
-        $this->assertSame($user, $token->getUser());
+        self::assertInstanceOf(SamlToken::class, $token);
+        self::assertEquals(['foo' => 'bar'], $token->getAttributes());
+        self::assertEquals([], $token->getRoleNames());
+        self::assertTrue($token->isAuthenticated());
+        self::assertSame($user, $token->getUser());
     }
 
-    public function testSamlAttributesInjection()
+    public function testSamlAttributesInjection(): void
     {
-        $user = $this->createMock('Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface');
-        $user->expects($this->once())->method('getRoles')->willReturn(array());
-        $user->expects($this->once())->method('setSamlAttributes')->with($this->equalTo(array('foo' => 'bar')));
+        $user = $this->createMock(SamlUserInterface::class);
+        $user
+            ->expects(self::once())
+            ->method('getRoles')
+            ->willReturn([])
+        ;
+        $user
+            ->expects(self::once())
+            ->method('setSamlAttributes')
+            ->with(self::equalTo(['foo' => 'bar']))
+        ;
 
         $provider = $this->getProvider($user);
         $provider->authenticate($this->getSamlToken());
     }
 
-    public function testPersistUser()
+    public function testPersistUser(): void
     {
-        $user = $this->createMock('Symfony\Component\Security\Core\User\UserInterface');
-        $user->expects($this->once())->method('getRoles')->willReturn(array());
+        $user = $this->createMock(UserInterface::class);
+        $user
+            ->expects(self::once())
+            ->method('getRoles')
+            ->willReturn([])
+        ;
 
-        $userFactory = $this->createMock('Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface');
-        $userFactory->expects($this->once())->method('createUser')->willReturn($user);
+        $userFactory = $this->createMock(SamlUserFactoryInterface::class);
+        $userFactory
+            ->expects(self::once())
+            ->method('createUser')
+            ->willReturn($user)
+        ;
 
-        $entityManager = $this->createMock('Doctrine\ORM\EntityManagerInterface', array('persist', 'flush'));
-        $entityManager->expects($this->once())->method('persist')->with($this->equalTo($user));
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager
+            ->expects(self::once())
+            ->method('persist')
+            ->with(self::equalTo($user))
+        ;
 
         $provider = $this->getProvider(null, $userFactory, $entityManager, true);
         $provider->authenticate($this->getSamlToken());
 
     }
 
-    protected function getSamlToken()
+    protected function getSamlToken(): SamlToken
     {
-        $token = $this->createMock('Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken');
-        $token->expects($this->once())->method('getUsername')->willReturn('admin');
-        $token->method('getAttributes')->willReturn(array('foo' => 'bar'));
+        $token = $this->createMock(SamlToken::class);
+        $token
+            ->expects(self::once())
+            ->method('getUsername')
+            ->willReturn('admin')
+        ;
+        $token
+            ->method('getAttributes')
+            ->willReturn(['foo' => 'bar'])
+        ;
 
         return $token;
     }
 
-    protected function getProvider($user = null, $userFactory = null, $entityManager = null, $persist = false)
+    protected function getProvider($user = null, $userFactory = null, $entityManager = null, $persist = false): SamlProvider
     {
-        $userProvider = $this->createMock('Symfony\Component\Security\Core\User\UserProviderInterface');
+        $userProvider = $this->createMock(UserProviderInterface::class);
         if ($user) {
-            $userProvider->method('loadUserByUsername')->willReturn($user);
+            $userProvider
+                ->method('loadUserByUsername')
+                ->willReturn($user)
+            ;
         } else {
-            $userProvider->method('loadUserByUsername')->will($this->throwException(new UsernameNotFoundException()));
+            $userProvider
+                ->method('loadUserByUsername')
+                ->will(self::throwException(new UsernameNotFoundException()))
+            ;
         }
 
-        $provider = new SamlProvider($userProvider, array('persist_user' => $persist));
+        $provider = new SamlProvider($userProvider, ['persist_user' => $persist]);
         $provider->setTokenFactory(new SamlTokenFactory());
 
         if ($userFactory) {
