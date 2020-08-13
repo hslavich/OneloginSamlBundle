@@ -1,5 +1,5 @@
 # OneloginSamlBundle
-OneLogin SAML Bundle for Symfony2. (https://github.com/onelogin/php-saml)
+OneLogin SAML Bundle for Symfony. (https://github.com/onelogin/php-saml)
 
 [![Build Status](https://travis-ci.org/hslavich/OneloginSamlBundle.svg?branch=master)](https://travis-ci.org/hslavich/OneloginSamlBundle)
 [![Coverage Status](https://coveralls.io/repos/github/hslavich/OneloginSamlBundle/badge.svg?branch=master)](https://coveralls.io/github/hslavich/OneloginSamlBundle?branch=master)
