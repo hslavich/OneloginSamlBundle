@@ -3,77 +3,82 @@
 namespace Hslavich\OneloginSamlBundle\Tests\Authentication;
 
 use Hslavich\OneloginSamlBundle\Security\Authentication\SamlAuthenticationSuccessHandler;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\HttpUtils;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
 
-class SamlAuthenticationSuccessHandlerTest extends \PHPUnit_Framework_TestCase
+class SamlAuthenticationSuccessHandlerTest extends TestCase
 {
-    private $handler;
-
-    public function testWithAlwaysUseDefaultTargetPath()
+    public function testWithAlwaysUseDefaultTargetPath(): void
     {
         $httpUtils = new HttpUtils($this->getUrlGenerator());
-        $handler = new SamlAuthenticationSuccessHandler($httpUtils, array('always_use_default_target_path' => true));
+        $handler = new SamlAuthenticationSuccessHandler($httpUtils, ['always_use_default_target_path' => true]);
         $defaultTargetPath = $httpUtils->generateUri($this->getRequest('/sso/login'), $this->getOption($handler, 'default_target_path', '/'));
         $response = $handler->onAuthenticationSuccess($this->getRequest('/login', 'http://localhost/relayed'), $this->getSamlToken());
-        $this->assertTrue($response->isRedirect($defaultTargetPath), 'SamlAuthenticationSuccessHandler does not honor the always_use_default_target_path option.');
+        self::assertTrue($response->isRedirect($defaultTargetPath), 'SamlAuthenticationSuccessHandler does not honor the always_use_default_target_path option.');
     }
 
-    public function testRelayState()
+    public function testRelayState(): void
     {
-        $handler = new SamlAuthenticationSuccessHandler(new HttpUtils($this->getUrlGenerator()), array('always_use_default_target_path' => false));
+        $handler = new SamlAuthenticationSuccessHandler(new HttpUtils($this->getUrlGenerator()), ['always_use_default_target_path' => false]);
         $response = $handler->onAuthenticationSuccess($this->getRequest('/sso/login', 'http://localhost/relayed'), $this->getSamlToken());
-        $this->assertTrue($response->isRedirect('http://localhost/relayed'), 'SamlAuthenticationSuccessHandler is not processing the RelayState parameter properly.');
+        self::assertTrue($response->isRedirect('http://localhost/relayed'), 'SamlAuthenticationSuccessHandler is not processing the RelayState parameter properly.');
     }
 
-    public function testWithoutRelayState()
+    public function testWithoutRelayState(): void
     {
         $httpUtils = new HttpUtils($this->getUrlGenerator());
-        $handler = new SamlAuthenticationSuccessHandler($httpUtils, array('always_use_default_target_path' => false));
+        $handler = new SamlAuthenticationSuccessHandler($httpUtils, ['always_use_default_target_path' => false]);
         $defaultTargetPath = $httpUtils->generateUri($this->getRequest('/sso/login'), $this->getOption($handler, 'default_target_path', '/'));
         $response = $handler->onAuthenticationSuccess($this->getRequest(), $this->getSamlToken());
-        $this->assertTrue($response->isRedirect($defaultTargetPath));
+        self::assertTrue($response->isRedirect($defaultTargetPath));
     }
 
-    public function testRelayStateLoop()
+    public function testRelayStateLoop(): void
     {
         $httpUtils = new HttpUtils($this->getUrlGenerator());
-        $handler = new SamlAuthenticationSuccessHandler($httpUtils, array('always_use_default_target_path' => false));
+        $handler = new SamlAuthenticationSuccessHandler($httpUtils, ['always_use_default_target_path' => false]);
         $loginPath = $httpUtils->generateUri($this->getRequest('/sso/login'), $this->getOption($handler, 'login_path', '/login'));
         $response = $handler->onAuthenticationSuccess($this->getRequest($loginPath), $this->getSamlToken());
-        $this->assertTrue(!$response->isRedirect($loginPath), 'SamlAuthenticationSuccessHandler causes a redirect loop when RelayState points to login_path.');
+        self::assertNotTrue($response->isRedirect($loginPath), 'SamlAuthenticationSuccessHandler causes a redirect loop when RelayState points to login_path.');
     }
 
 
-    private function getUrlGenerator()
+    private function getUrlGenerator(): UrlGeneratorInterface
     {
-        $urlGenerator = $this->getMockBuilder('Symfony\Component\Routing\Generator\UrlGeneratorInterface')->getMock();
+        $urlGenerator = $this->createMock(UrlGeneratorInterface::class);
         $urlGenerator
-            ->expects($this->any())
             ->method('generate')
-            ->will($this->returnCallback(function($name)
-            {
-                return (string) $name;
-            }))
+            ->willReturnCallback(static function ($name) {
+                return (string)$name;
+            })
         ;
 
         return $urlGenerator;
     }
 
-    private function getRequest($path = '/', $relayState = null)
+    private function getRequest($path = '/', $relayState = null): Request
     {
-        $params = array();
+        $params = [];
         if (null !== $relayState) {
             $params['RelayState'] = $relayState;
         }
         return Request::create($path, 'get', $params);
     }
 
-    private function getSamlToken()
+    private function getSamlToken(): SamlToken
     {
-        $token = $this->createMock('Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken');
-        $token->expects($this->any())->method('getUsername')->willReturn('admin');
-        $token->method('getAttributes')->willReturn(array('foo' => 'bar'));
+        $token = $this->createMock(SamlToken::class);
+        $token
+            ->method('getUsername')
+            ->willReturn('admin')
+        ;
+        $token
+            ->method('getAttributes')
+            ->willReturn(['foo' => 'bar'])
+        ;
 
         return $token;
     }

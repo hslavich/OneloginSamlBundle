@@ -11,15 +11,16 @@
         }
     ],
     "require": {
-        "symfony/framework-bundle": "~2.3|~3.0|^4.0|^5.0",
-        "symfony/security-bundle": "~2.3|~3.0|^4.0|^5.0",
+        "symfony/framework-bundle": "^5.1",
+        "symfony/security-bundle": "^5.1",
         "onelogin/php-saml": "^3.0"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "~2.7|~3.0|^4.0|^5.0",
+        "symfony/phpunit-bridge": "^5.1",
         "doctrine/orm": "~2.3",
-        "satooshi/php-coveralls": "~1.0",
-        "phpunit/phpunit": "~5.7"
+        "php-coveralls/php-coveralls": "^2.2",
+        "phpunit/phpunit": "^9.0",
+        "dms/phpunit-arraysubset-asserts": "^0.2.0"
     },
     "autoload": {
         "psr-4": { "Hslavich\\OneloginSamlBundle\\": "" },
