@@ -1,6 +1,12 @@
 parameters:
 
 services:
+    Hslavich\OneloginSamlBundle\Controller\SamlController:
+        class: Hslavich\OneloginSamlBundle\Controller\SamlController
+        tags: ['controller.service_arguments']
+        public: true
+        autowire: true
+        
     onelogin_auth:
         class: OneLogin\Saml2\Auth
         arguments: [ "%hslavich_onelogin_saml.settings%"]
