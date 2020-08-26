@@ -17,16 +17,11 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritdoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
-        if (in_array('getRootNode', get_class_methods(TreeBuilder::class))) {
-            $treeBuilder = new TreeBuilder('hslavich_saml_sp');
-            $rootNode = $treeBuilder->getRootNode();
-        } else {
-            $treeBuilder = new TreeBuilder();
-            $rootNode = $treeBuilder->root('hslavich_saml_sp');
-        }
-        
+        $treeBuilder = new TreeBuilder('hslavich_saml_sp');
+        $rootNode = $treeBuilder->getRootNode();
+
         $rootNode
             ->children()
                 ->scalarNode('baseurl')->end()

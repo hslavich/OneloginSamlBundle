@@ -2,6 +2,10 @@
 
 namespace Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory;
 
+use Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider;
+use Hslavich\OneloginSamlBundle\Security\Authentication\SamlAuthenticationSuccessHandler;
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactoryInterface;
+use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AbstractFactory;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ChildDefinition;
@@ -19,7 +23,7 @@ class SamlFactory extends AbstractFactory
         $this->addOption('persist_user', false);
 
         if (!isset($this->options['success_handler'])) {
-            $this->options['success_handler'] = 'hslavich_onelogin_saml.saml_authentication_success_handler';
+            $this->options['success_handler'] = SamlAuthenticationSuccessHandler::class;
         }
         $this->defaultFailureHandlerOptions['login_path'] = '/saml/login';
     }
@@ -30,19 +34,19 @@ class SamlFactory extends AbstractFactory
      *
      * @return string
      */
-    public function getPosition()
+    public function getPosition(): string
     {
         return 'pre_auth';
     }
 
-    public function getKey()
+    public function getKey(): string
     {
         return 'saml';
     }
 
-    protected function getListenerId()
+    protected function getListenerId(): string
     {
-        return 'hslavich_onelogin_saml.saml_listener';
+        return SamlListener::class;
     }
 
     /**
@@ -56,28 +60,30 @@ class SamlFactory extends AbstractFactory
      *
      * @return string never null, the id of the authentication provider
      */
-    protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId)
+    protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId): string
     {
         $providerId = 'security.authentication.provider.saml.'.$id;
-        $definition = $container->setDefinition($providerId, new ChildDefinition('hslavich_onelogin_saml.saml_provider'))
-            ->replaceArgument(0, new Reference($userProviderId))
-            ->addArgument(array(
-                 'persist_user' => $config['persist_user']
-            ))
+        $definition = $container->setDefinition($providerId, new ChildDefinition(SamlProvider::class))
+            ->setArguments([
+                new Reference($userProviderId),
+                [
+                    'persist_user' => $config['persist_user']
+                ],
+            ])
             ->addTag('hslavich.saml_provider')
         ;
 
         if ($config['user_factory']) {
-            $definition->addMethodCall('setUserFactory', array(new Reference($config['user_factory'])));
+            $definition->addMethodCall('setUserFactory', [new Reference($config['user_factory'])]);
         }
 
-        $factoryId = $config['token_factory'] ?: 'hslavich_onelogin_saml.saml_token_factory';
-        $definition->addMethodCall('setTokenFactory', array(new Reference($factoryId)));
+        $factoryId = $config['token_factory'] ?: SamlTokenFactoryInterface::class;
+        $definition->addMethodCall('setTokenFactory', [new Reference($factoryId)]);
 
         return $providerId;
      }
 
-    protected function createEntryPoint($container, $id, $config, $defaultEntryPoint)
+    protected function createEntryPoint($container, $id, $config, $defaultEntryPoint): ?string
     {
         $entryPointId = 'security.authentication.form_entry_point.'.$id;
         $container

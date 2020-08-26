@@ -87,8 +87,8 @@ class SamlFactoryTest extends TestCase
 
         $providerDefinition = $container->getDefinition('security.authentication.provider.saml.test_firewall');
         self::assertEquals([
-            'index_0' => new Reference('my_user_provider'),
-            0 => ['persist_user' => false]
+            new Reference('my_user_provider'),
+            ['persist_user' => false]
         ], $providerDefinition->getArguments());
     }
 }
