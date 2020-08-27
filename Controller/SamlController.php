@@ -30,7 +30,6 @@ class SamlController extends AbstractController
             $error = $request->attributes->get($authErrorKey);
         } elseif (null !== $session && $session->has($authErrorKey)) {
             $error = $session->get($authErrorKey);
-            $targetPath = $session->get('_security.main.target_path');
             $session->remove($authErrorKey);
         } else {
             $error = null;
