@@ -1,19 +1,19 @@
 <?php
 
-namespace Hslavich\OneloginSamlBundle\Tests\Firewall;
+namespace Hslavich\OneloginSamlBundle\Tests\Security\Firewall;
 
 use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
+use OneLogin\Saml2\Auth;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
-use OneLogin\Saml2\Auth;
-use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
-use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Security\Core\Authentication\AuthenticationProviderManager;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Component\Security\Http\HttpUtils;
+use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterface;
 
 class SamlListenerTest extends TestCase
 {

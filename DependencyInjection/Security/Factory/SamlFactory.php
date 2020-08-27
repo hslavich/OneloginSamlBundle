@@ -3,12 +3,12 @@
 namespace Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory;
 
 use Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider;
-use Hslavich\OneloginSamlBundle\Security\Authentication\SamlAuthenticationSuccessHandler;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
+use Hslavich\OneloginSamlBundle\Security\Http\Authentication\SamlAuthenticationSuccessHandler;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AbstractFactory;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ChildDefinition;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
 class SamlFactory extends AbstractFactory

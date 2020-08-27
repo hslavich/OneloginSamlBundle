@@ -1,17 +1,17 @@
 <?php
 
-namespace Hslavich\OneloginSamlBundle\Tests\Authentication\Provider;
+namespace Hslavich\OneloginSamlBundle\Tests\Security\Authentication\Provider;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider;
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactory;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactory;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
-use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class SamlProviderTest extends TestCase
