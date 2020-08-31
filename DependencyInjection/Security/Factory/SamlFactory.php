@@ -14,6 +14,7 @@ use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Security\Http\HttpUtils;
 
 class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInterface, EntryPointFactoryInterface
 {
@@ -107,6 +108,7 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
         $authenticatorId = 'security.authenticator.saml.'.$firewallName;
         $authenticator = (new ChildDefinition(SamlAuthenticator::class))
             ->addTag('hslavich.saml_authenticator')
+            ->replaceArgument(0, new Reference(HttpUtils::class))
             ->replaceArgument(1, new Reference($userProviderId))
             ->replaceArgument(3, new Reference($this->createAuthenticationSuccessHandler($container, $firewallName, $config)))
             ->replaceArgument(4, new Reference($this->createAuthenticationFailureHandler($container, $firewallName, $config)))
@@ -127,7 +129,7 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
         $entryPointId = 'security.authentication.form_entry_point.'.$id;
         $container
             ->setDefinition($entryPointId, new ChildDefinition('security.authentication.form_entry_point'))
-            ->addArgument(new Reference('security.http_utils'))
+            ->addArgument(new Reference(HttpUtils::class))
             ->addArgument($config['login_path'])
             ->addArgument($config['use_forward'])
         ;

@@ -35,7 +35,7 @@ return static function (ContainerConfigurator $container): void {
     $services->set(SamlAuthenticator::class)
         ->tag('monolog.logger', ['channel' => 'security'])
         ->args([
-            /* 0 */ service(HttpUtils::class),
+            /* 0 */ null, //  security.http_utils
             /* 1 */ null, //  user provider
             /* 2 */ service(\OneLogin\Saml2\Auth::class),
             /* 3 */ null, //  success handler
