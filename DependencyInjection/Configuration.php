@@ -19,12 +19,13 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('hslavich_saml_sp');
+        $treeBuilder = new TreeBuilder('hslavich_onelogin_saml');
         $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
             ->children()
                 ->scalarNode('baseurl')->end()
+                ->scalarNode('entityManagerName')->end()
                 ->booleanNode('strict')->end()
                 ->booleanNode('debug')->end()
                 ->arrayNode('idp')
@@ -123,7 +124,6 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('lowercaseUrlencoding')->end()
                         ->scalarNode('signatureAlgorithm')->end()
                         ->scalarNode('digestAlgorithm')->end()
-                        ->scalarNode('entityManagerName')->end()
                     ->end()
                 ->end()
                 ->arrayNode('contactPerson')

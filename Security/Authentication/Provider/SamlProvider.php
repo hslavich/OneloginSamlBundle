@@ -12,6 +12,9 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
+/**
+ * @deprecated since 2.1
+ */
 class SamlProvider implements AuthenticationProviderInterface
 {
     protected $userProvider;

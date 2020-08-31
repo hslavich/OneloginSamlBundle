@@ -56,8 +56,8 @@ class SamlFactoryTest extends TestCase
             [],
             [
                 'username_attribute' => null,
-                'login_path' => '/saml/login',
-                'check_path' => '/saml/acs',
+                'login_path' => 'saml_login',
+                'check_path' => 'saml_acs',
                 'user_factory' => null,
                 'token_factory' => null,
                 'persist_user' => false,
@@ -76,8 +76,8 @@ class SamlFactoryTest extends TestCase
 
         $config = [
             'username_attribute' => null,
-            'login_path' => '/saml/login',
-            'check_path' => '/saml/acs',
+            'login_path' => 'saml_login',
+            'check_path' => 'saml_acs',
         ];
         $node = $nodeDefinition->getNode();
         $normalizedConfig = $node->normalize($config);

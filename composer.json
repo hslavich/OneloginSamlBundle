@@ -13,7 +13,8 @@
     "require": {
         "symfony/framework-bundle": "^5.1",
         "symfony/security-bundle": "^5.1",
-        "onelogin/php-saml": "^3.0"
+        "onelogin/php-saml": "^3.0",
+        "symfony/deprecation-contracts": "^2.1"
     },
     "require-dev": {
         "symfony/phpunit-bridge": "^5.1",
