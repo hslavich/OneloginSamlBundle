@@ -98,8 +98,8 @@ class SamlListenerTest extends TestCase
 
     protected function setUp(): void
     {
-        $httpKernel = $this->createMock(HttpKernelInterface::class);
         $this->authenticationManager = $this->createMock(AuthenticationProviderManager::class);
+
         $request = $this->createMock(Request::class);
         $request
             ->method('hasSession')
@@ -117,12 +117,12 @@ class SamlListenerTest extends TestCase
         ;
         $this->event
             ->method('getKernel')
-            ->willReturn($httpKernel)
+            ->willReturn($this->createMock(HttpKernelInterface::class))
         ;
+
         $this->sessionStrategy = $this->createMock(SessionAuthenticationStrategyInterface::class);
         $this->httpUtils = $this->createMock(HttpUtils::class);
-        $this->httpUtils
-            ->method('checkRequestPath')
+        $this->httpUtils->method('checkRequestPath')
             ->willReturn(true)
         ;
 
