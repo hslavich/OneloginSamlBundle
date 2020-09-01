@@ -79,10 +79,11 @@ class SamlAuthenticator extends AbstractAuthenticator
         $this->oneLoginAuth->processResponse();
 
         if ($this->oneLoginAuth->getErrors()) {
+            $errorReason = $this->oneLoginAuth->getLastErrorReason();
             if (null !== $this->logger) {
-                $this->logger->error($this->oneLoginAuth->getLastErrorReason());
+                $this->logger->error($errorReason);
             }
-            throw new AuthenticationException($this->oneLoginAuth->getLastErrorReason());
+            throw new AuthenticationException($errorReason);
         }
 
         $user = $this->retrieveUser();
