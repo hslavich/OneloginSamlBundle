@@ -108,7 +108,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('wantNameIdEncrypted')->end()
                         ->variableNode('requestedAuthnContext')
                             ->validate()
-                                ->ifTrue(function ($v) {
+                                ->ifTrue(static function ($v) {
                                     return !is_bool($v) && !is_array($v);
                                 })
                                 ->thenInvalid('Must be an array or a bool.')
@@ -124,6 +124,13 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('lowercaseUrlencoding')->end()
                         ->scalarNode('signatureAlgorithm')->end()
                         ->scalarNode('digestAlgorithm')->end()
+                        ->scalarNode('entityManagerName')
+                            ->setDeprecated(
+                                'hslavich/oneloginsaml-bundle',
+                                '2.1',
+                                'The "%path%.%node%" is deprecated. Use "hslavich_onelogin_saml.entityManagerName" instead.'
+                            )
+                        ->end()
                     ->end()
                 ->end()
                 ->arrayNode('contactPerson')
