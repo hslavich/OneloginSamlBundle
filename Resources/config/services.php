@@ -9,8 +9,8 @@ use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
 use Hslavich\OneloginSamlBundle\Security\Http\Authentication\SamlAuthenticationSuccessHandler;
 use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\SamlAuthenticator;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider;
+use Symfony\Component\DependencyInjection\Argument\AbstractArgument;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
-use Symfony\Component\Security\Http\HttpUtils;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
@@ -35,13 +35,13 @@ return static function (ContainerConfigurator $container): void {
     $services->set(SamlAuthenticator::class)
         ->tag('monolog.logger', ['channel' => 'security'])
         ->args([
-            /* 0 */ null, //  security.http_utils
-            /* 1 */ null, //  user provider
+            /* 0 */ new AbstractArgument('security.http_utils'),
+            /* 1 */ new AbstractArgument('user provider'),
             /* 2 */ service(\OneLogin\Saml2\Auth::class),
-            /* 3 */ null, //  success handler
-            /* 4 */ null, //  failure handler
-            /* 5 */ null, //  options
-            /* 6 */ null, //  user factory
+            /* 3 */ new AbstractArgument('success handler'),
+            /* 4 */ new AbstractArgument('failure handler'),
+            /* 5 */ new AbstractArgument('options'),
+            /* 6 */ new AbstractArgument('user factory'),
         ])
     ;
 
