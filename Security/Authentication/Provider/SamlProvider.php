@@ -2,7 +2,6 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\Authentication\Provider;
 
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
@@ -13,6 +12,9 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
+/**
+ * @deprecated since 2.1
+ */
 class SamlProvider implements AuthenticationProviderInterface
 {
     protected $userProvider;
@@ -52,7 +54,7 @@ class SamlProvider implements AuthenticationProviderInterface
             if ($user instanceof SamlUserInterface) {
                 $user->setSamlAttributes($token->getAttributes());
             }
-            
+
             $authenticatedToken = $this->tokenFactory->createToken($user, $token->getAttributes(), $user->getRoles());
             $authenticatedToken->setAuthenticated(true);
 
@@ -75,7 +77,7 @@ class SamlProvider implements AuthenticationProviderInterface
             if ($this->userFactory instanceof SamlUserFactoryInterface) {
                 return $this->generateUser($token);
             }
-            
+
             throw $e;
         }
     }

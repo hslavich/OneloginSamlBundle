@@ -9,10 +9,22 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SamlController extends AbstractController
 {
+    protected $samlAuth;
+
+    public function __construct(\OneLogin\Saml2\Auth $samlAuth)
+    {
+        $this->samlAuth = $samlAuth;
+    }
+
     public function loginAction(Request $request)
     {
-        $session = $request->getSession();
         $authErrorKey = Security::AUTHENTICATION_ERROR;
+        $session = $targetPath = null;
+
+        if ($request->hasSession()) {
+            $session = $request->getSession();
+            $targetPath = $session->get('_security.main.target_path');
+        }
 
         if ($request->attributes->has($authErrorKey)) {
             $error = $request->attributes->get($authErrorKey);
@@ -27,13 +39,12 @@ class SamlController extends AbstractController
             throw new \RuntimeException($error->getMessage());
         }
 
-        $this->get('onelogin_auth')->login($session->get('_security.main.target_path'));
+        $this->samlAuth->login($targetPath);
     }
 
     public function metadataAction()
     {
-        $auth = $this->get('onelogin_auth');
-        $metadata = $auth->getSettings()->getSPMetadata();
+        $metadata = $this->samlAuth->getSettings()->getSPMetadata();
 
         $response = new Response($metadata);
         $response->headers->set('Content-Type', 'xml');

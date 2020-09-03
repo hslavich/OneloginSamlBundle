@@ -9,6 +9,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
 
+/**
+ * @deprecated since 2.1
+ */
 class SamlListener extends AbstractAuthenticationListener
 {
     /**
@@ -37,11 +40,12 @@ class SamlListener extends AbstractAuthenticationListener
     {
         $this->oneLoginAuth->processResponse();
         if ($this->oneLoginAuth->getErrors()) {
-            $this->logger->error($this->oneLoginAuth->getLastErrorReason());
+            if (null !== $this->logger) {
+                $this->logger->error($this->oneLoginAuth->getLastErrorReason());
+            }
             throw new AuthenticationException($this->oneLoginAuth->getLastErrorReason());
         }
 
-        $attributes = [];
         if (isset($this->options['use_attribute_friendly_name']) && $this->options['use_attribute_friendly_name']) {
             $attributes = $this->oneLoginAuth->getAttributesWithFriendlyName();
         } else {
@@ -53,8 +57,10 @@ class SamlListener extends AbstractAuthenticationListener
 
         if (isset($this->options['username_attribute'])) {
             if (!array_key_exists($this->options['username_attribute'], $attributes)) {
-                $this->logger->error(sprintf("Found attributes: %s", print_r($attributes, true)));
-                throw new \Exception(sprintf("Attribute '%s' not found in SAML data", $this->options['username_attribute']));
+                if (null !== $this->logger) {
+                    $this->logger->error(sprintf("Found attributes: %s", print_r($attributes, true)));
+                }
+                throw new \RuntimeException(sprintf("Attribute '%s' not found in SAML data", $this->options['username_attribute']));
             }
 
             $username = $attributes[$this->options['username_attribute']][0];

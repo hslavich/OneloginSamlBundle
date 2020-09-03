@@ -1,11 +1,11 @@
 <?php
 
-namespace Hslavich\OneloginSamlBundle\Tests\User;
+namespace Hslavich\OneloginSamlBundle\Tests\Security\User;
 
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider;
+use Hslavich\OneloginSamlBundle\Tests\TestUser;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Hslavich\OneloginSamlBundle\Tests\TestUser;
 
 class SamlUserProviderTest extends TestCase
 {

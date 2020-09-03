@@ -103,21 +103,20 @@ security:
     firewalls:
         app:
             pattern:    ^/
-            anonymous: true
             saml:
                 # Match SAML attribute 'uid' with username.
                 # Uses getNameId() method by default.
                 username_attribute: uid
                 # Use the attribute's friendlyName instead of the name 
                 use_attribute_friendly_name: true
-                check_path: /saml/acs
-                login_path: /saml/login
+                check_path: saml_acs
+                login_path: saml_login
             logout:
-                path: /saml/logout
+                path: saml_logout
 
     access_control:
-        - { path: ^/saml/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/saml/metadata, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/saml/login, roles: PUBLIC_ACCESS }
+        - { path: ^/saml/metadata, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: ROLE_USER }
 ```
 
@@ -164,6 +163,8 @@ You can integrate SAML authentication with traditional login form by editing you
 
 ``` yml
 security:
+    enable_authenticator_manager: true
+
     providers:
         user_provider:
             # Loads user from user repository
@@ -173,12 +174,11 @@ security:
 
     firewalls:
         default:
-            anonymous: ~
             saml:
                 username_attribute: uid
-                check_path: /saml/acs
-                login_path: /saml/login
-                failure_path: /login
+                check_path: saml_acs
+                login_path: saml_login
+                failure_path: saml_login
                 always_use_default_target_path: true
 
             # Traditional login form
@@ -188,7 +188,7 @@ security:
                 always_use_default_target_path: true
 
             logout:
-                path: /saml/logout
+                path: saml_logout
 ```
 
 Then you can add a link to route `saml_login` in your login page in order to start SAML sign on.
@@ -206,8 +206,9 @@ Edit firewall settings in `security.yml`:
 
 ``` yml
 firewalls:
+    enable_authenticator_manager: true
+
     default:
-        anonymous: ~
         saml:
             username_attribute: uid
             # User factory service
@@ -215,7 +216,7 @@ firewalls:
             # Persist new user. Doctrine is required.
             persist_user: true
         logout:
-            path: /saml/logout
+            path: saml_logout
 ```
 
 Create the user factory service editing `services.yml`:
@@ -247,14 +248,15 @@ namespace AppBundle\Security;
 use AppBundle\Entity\User;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserFactory implements SamlUserFactoryInterface
 {
-    public function createUser(SamlTokenInterface $token)
+    public function createUser(SamlTokenInterface $token): UserInterface
     {
         $attributes = $token->getAttributes();
         $user = new User();
-        $user->setRoles(array('ROLE_USER'));
+        $user->setRoles(['ROLE_USER']);
         $user->setUsername($token->getUsername());
         $user->setPassword('notused');
         $user->setEmail($attributes['mail'][0]);

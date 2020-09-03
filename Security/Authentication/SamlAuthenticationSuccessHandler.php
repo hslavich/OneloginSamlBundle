@@ -2,22 +2,9 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\Authentication;
 
-use Symfony\Component\Security\Http\Authentication\DefaultAuthenticationSuccessHandler;
-use Symfony\Component\HttpFoundation\Request;
-
-class SamlAuthenticationSuccessHandler extends DefaultAuthenticationSuccessHandler
+/**
+ * @deprecated since 2.1
+ */
+class SamlAuthenticationSuccessHandler extends \Hslavich\OneloginSamlBundle\Security\Http\Authentication\SamlAuthenticationSuccessHandler
 {
-    protected function determineTargetUrl(Request $request)
-    {
-        if ($this->options['always_use_default_target_path']) {
-            return $this->options['default_target_path'];
-        }
-
-        $relayState = $request->get('RelayState');
-        if (null !== $relayState && $relayState !== $this->httpUtils->generateUri($request, $this->options['login_path'])) {
-            return $relayState;
-        }
-
-        return parent::determineTargetUrl($request);
-    }
 }

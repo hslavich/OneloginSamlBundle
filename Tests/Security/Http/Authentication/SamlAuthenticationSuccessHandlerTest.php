@@ -1,13 +1,13 @@
 <?php
 
-namespace Hslavich\OneloginSamlBundle\Tests\Authentication;
+namespace Hslavich\OneloginSamlBundle\Tests\Security\Http\Authentication;
 
-use Hslavich\OneloginSamlBundle\Security\Authentication\SamlAuthenticationSuccessHandler;
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
+use Hslavich\OneloginSamlBundle\Security\Http\Authentication\SamlAuthenticationSuccessHandler;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Http\HttpUtils;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
+use Symfony\Component\Security\Http\HttpUtils;
 
 class SamlAuthenticationSuccessHandlerTest extends TestCase
 {

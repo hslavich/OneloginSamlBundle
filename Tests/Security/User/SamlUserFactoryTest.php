@@ -1,10 +1,10 @@
 <?php
 
-namespace Hslavich\OneloginSamlBundle\Tests\User;
+namespace Hslavich\OneloginSamlBundle\Tests\Security\User;
 
+use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactory;
 use Hslavich\OneloginSamlBundle\Tests\TestUser;
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
 use PHPUnit\Framework\TestCase;
 
 class SamlUserFactoryTest extends TestCase
