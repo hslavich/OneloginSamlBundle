@@ -41,7 +41,7 @@ return static function (ContainerConfigurator $container): void {
             /* 3 */ new AbstractArgument('success handler'),
             /* 4 */ new AbstractArgument('failure handler'),
             /* 5 */ new AbstractArgument('options'),
-            /* 6 */ new AbstractArgument('user factory'),
+            /* 6 */ null,
         ])
     ;
 
