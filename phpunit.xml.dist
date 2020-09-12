@@ -24,6 +24,6 @@
     </logging>
 
     <php>
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[direct]=0" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[direct]=2" />
     </php>
 </phpunit>

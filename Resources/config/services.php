@@ -2,6 +2,7 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Hslavich\OneloginSamlBundle\Controller\SamlController;
 use Hslavich\OneloginSamlBundle\EventListener\Security\SamlLogoutListener;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactory;
@@ -26,6 +27,8 @@ return static function (ContainerConfigurator $container): void {
         ->args(['%hslavich_onelogin_saml.settings%'])
     ;
 
+    $services->set(SamlController::class);
+
     $services->set(SamlListener::class)
         ->parent(service('security.authentication.listener.abstract'))
         ->abstract()
@@ -41,7 +44,8 @@ return static function (ContainerConfigurator $container): void {
             /* 3 */ new AbstractArgument('success handler'),
             /* 4 */ new AbstractArgument('failure handler'),
             /* 5 */ new AbstractArgument('options'),
-            /* 6 */ new AbstractArgument('user factory'),
+            /* 6 */ null,  // user factory
+            /* 7 */ service('logger')->nullOnInvalid(),
         ])
     ;
 
