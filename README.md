@@ -14,9 +14,12 @@ Installation
 Install with composer
 ``` json
 "require": {
-    "hslavich/oneloginsaml-bundle": "^1.0"
+    "hslavich/oneloginsaml-bundle": "^2.0"
 }
 ```
+
+> Using of `dev-master` version deprecated, use a specific version instead (i.e. 2.0).<br>
+> In the future `master` branch will be removed (approximately in the fall '21).
 
 Run composer update
 ``` bash
