@@ -2,6 +2,7 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Hslavich\OneloginSamlBundle\Controller\SamlController;
 use Hslavich\OneloginSamlBundle\EventListener\Security\SamlLogoutListener;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider;
@@ -10,6 +11,7 @@ use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
 use Hslavich\OneloginSamlBundle\Security\Http\Authentication\SamlAuthenticationSuccessHandler;
 use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\SamlAuthenticator;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Argument\AbstractArgument;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
@@ -45,7 +47,8 @@ return static function (ContainerConfigurator $container): void {
             /* 4 */ new AbstractArgument('failure handler'),
             /* 5 */ new AbstractArgument('options'),
             /* 6 */ null,  // user factory
-            /* 7 */ service('logger')->nullOnInvalid(),
+            /* 7 */ service(EntityManagerInterface::class)->nullOnInvalid(),
+            /* 8 */ service(LoggerInterface::class)->nullOnInvalid(),
         ])
     ;
 
