@@ -199,9 +199,9 @@ class SamlAuthenticatorTest extends TestCase
                 'require_previous_session' => false,
                 'persist_user' => true,
             ],
-            $userFactory
+            $userFactory,
+            $entityManager
         );
-        $authenticator->setEntityManager($entityManager);
 
         $passport = $authenticator->authenticate($this->createRequestWithSession());
 

@@ -7,6 +7,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
 
 class SecurityCompilerPass implements CompilerPassInterface
@@ -23,9 +24,7 @@ class SecurityCompilerPass implements CompilerPassInterface
 
         foreach (array_keys($container->findTaggedServiceIds('hslavich.saml_authenticator')) as $id) {
             $serviceDefinition = $container->getDefinition($id);
-            if ($container->hasDefinition($emDefinition)) {
-                $serviceDefinition->addMethodCall('setEntityManager', [new Reference($emDefinition)]);
-            }
+            $serviceDefinition->replaceArgument(7, new Reference($emDefinition, ContainerInterface::NULL_ON_INVALID_REFERENCE));
         }
 
         foreach (array_keys($container->findTaggedServiceIds('hslavich.saml_provider')) as $id) {
