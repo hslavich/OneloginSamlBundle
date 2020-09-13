@@ -32,8 +32,8 @@ class SamlAuthenticator extends AbstractAuthenticator
     private $failureHandler;
     private $options;
     private $userFactory;
-    private $logger;
     private $entityManager;
+    private $logger;
 
     public function __construct(
         HttpUtils $httpUtils,
@@ -43,6 +43,7 @@ class SamlAuthenticator extends AbstractAuthenticator
         AuthenticationFailureHandlerInterface $failureHandler,
         array $options,
         ?SamlUserFactoryInterface $userFactory = null,
+        ?EntityManagerInterface $entityManager = null,
         ?LoggerInterface $logger = null
     ) {
         $this->httpUtils = $httpUtils;
@@ -52,12 +53,8 @@ class SamlAuthenticator extends AbstractAuthenticator
         $this->failureHandler = $failureHandler;
         $this->options = $options;
         $this->userFactory = $userFactory;
-        $this->logger = $logger;
-    }
-
-    public function setEntityManager(EntityManagerInterface $entityManager): void
-    {
         $this->entityManager = $entityManager;
+        $this->logger = $logger;
     }
 
     public function supports(Request $request): ?bool
