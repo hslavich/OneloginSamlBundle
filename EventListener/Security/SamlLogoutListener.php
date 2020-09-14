@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Hslavich\OneloginSamlBundle\EventListener\Security;
 
-use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
+use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Token\SamlTokenInterface;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 class SamlLogoutListener
