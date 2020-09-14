@@ -45,6 +45,7 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('singleLogoutService')
                             ->children()
                                 ->scalarNode('url')->end()
+                                ->scalarNode('responseUrl')->end()
                                 ->scalarNode('binding')->end()
                             ->end()
                         ->end()
