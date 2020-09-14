@@ -19,7 +19,7 @@ class SamlUserFactory implements SamlUserFactoryInterface
     public function createUser($username, array $attributes = []): UserInterface
     {
         if ($username instanceof SamlTokenInterface) {
-            trigger_deprecation('hslavich/oneloginsaml-bundle', '2.1', 'Usage of SamlToken is deprecated.');
+            trigger_deprecation('hslavich/oneloginsaml-bundle', '2.1', 'Usage of %s is deprecated.', SamlTokenInterface::class);
 
             [$username, $attributes] = [$username->getUsername(), $username->getAttributes()];
         }

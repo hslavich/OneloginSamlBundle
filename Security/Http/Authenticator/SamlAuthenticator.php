@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Hslavich\OneloginSamlBundle\Security\Http\Authenticator;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Passport\SamlPassport;
+use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Passport\SamlPassportInterface;
+use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Token\SamlToken;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
 use Psr\Log\LoggerInterface;
@@ -12,18 +15,18 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\LogicException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
-use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
-use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\HttpUtils;
 
-class SamlAuthenticator extends AbstractAuthenticator
+class SamlAuthenticator implements AuthenticatorInterface
 {
     private $httpUtils;
     private $userProvider;
@@ -83,9 +86,16 @@ class SamlAuthenticator extends AbstractAuthenticator
             throw new AuthenticationException($errorReason);
         }
 
-        $user = $this->retrieveUser();
+        return $this->createPassport();
+    }
 
-        return new SelfValidatingPassport($user);
+    public function createAuthenticatedToken(PassportInterface $passport, string $firewallName): TokenInterface
+    {
+        if (!$passport instanceof SamlPassportInterface) {
+            throw new LogicException(sprintf('Passport should be an instance of "%s".', SamlPassportInterface::class));
+        }
+
+        return new SamlToken($passport->getUser(), $firewallName, $passport->getUser()->getRoles(), $passport->getAttributes());
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
@@ -98,7 +108,7 @@ class SamlAuthenticator extends AbstractAuthenticator
         return $this->failureHandler->onAuthenticationFailure($request, $exception);
     }
 
-    protected function retrieveUser(): UserInterface
+    protected function createPassport(): PassportInterface
     {
         $attributes = $this->extractAttributes();
         $username = $this->extractUsername($attributes);
@@ -119,7 +129,7 @@ class SamlAuthenticator extends AbstractAuthenticator
             $user->setSamlAttributes($attributes);
         }
 
-        return $user;
+        return new SamlPassport($user, $attributes);
     }
 
     protected function extractAttributes(): array
