@@ -204,24 +204,40 @@ Then you can add a link to route `saml_login` in your login page in order to sta
 Just-in-time user provisioning (optional)
 -----------------------------------------
 
-When user is not found by user provider, you can set a user factory to create a new user mapping SAML attributes.
+It's possible to have a new user provisioned based off the received SAML attributes when the user provider cannot find a
+user.
 
 Edit firewall settings in `security.yml`:
 
 ``` yml
-firewalls:
-    enable_authenticator_manager: true
+security:
+    # ...
 
-    default:
-        saml:
-            username_attribute: uid
-            # User factory service
-            user_factory: my_user_factory
-            # Persist new user. Doctrine is required.
-            persist_user: true
-        logout:
+    providers:
+        saml_provider:
+            # Loads user from user repository
+            entity:
+                class: AppBundle\Entity\User
+                property: username
+
+    firewalls:
+        enable_authenticator_manager: true
+    
+        default:
+            provider: saml_provider
+            saml:
+                username_attribute: uid
+                # User factory service
+                user_factory: my_user_factory
+                # Persist new user. Doctrine is required.
+                persist_user: true
+            logout:
             path: saml_logout
 ```
+
+> In order for the user to be persisted, you must use a user provider that throws `UsernameNotFoundException` (e.g.
+> `EntityUserProvider` as used in the example above). The `SamlUserProvider` does not throw this exception which will
+> cause an empty user to be returned when a matching user cannot be found.
 
 Create the user factory service editing `services.yml`:
 
