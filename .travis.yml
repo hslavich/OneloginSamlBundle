@@ -11,6 +11,8 @@ matrix:
       env: SYMFONY_VERSION=5.1.*
     - php: 7.4
       env: SYMFONY_VERSION=5.1.*
+    - php: 7.4
+      env: SYMFONY_VERSION=5.2.*
 
 sudo: false
 
