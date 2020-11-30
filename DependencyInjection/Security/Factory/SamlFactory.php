@@ -8,7 +8,6 @@ use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
 use Hslavich\OneloginSamlBundle\Security\Http\Authentication\SamlAuthenticationSuccessHandler;
 use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\SamlAuthenticator;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AuthenticatorFactoryInterface;
-use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\EntryPointFactoryInterface;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\SecurityFactoryInterface;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ChildDefinition;
@@ -16,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Security\Http\HttpUtils;
 
-class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInterface, EntryPointFactoryInterface
+class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInterface
 {
     protected $options = [
         'check_path' => 'saml_acs',
@@ -124,19 +123,6 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
         return $authenticatorId;
     }
 
-    public function registerEntryPoint(ContainerBuilder $container, string $id, array $config): ?string
-    {
-        $entryPointId = 'security.authentication.form_entry_point.'.$id;
-        $container
-            ->setDefinition($entryPointId, new ChildDefinition('security.authentication.form_entry_point'))
-            ->addArgument(new Reference(HttpUtils::class))
-            ->addArgument($config['login_path'])
-            ->addArgument($config['use_forward'])
-        ;
-
-        return $entryPointId;
-    }
-
     protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId): string
     {
         $providerId = 'security.authentication.provider.saml.'.$id;
@@ -145,7 +131,7 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
             ->setArguments([
                 new Reference($userProviderId),
                 [
-                    'persist_user' => $config['persist_user']
+                    'persist_user' => $config['persist_user'],
                 ],
             ])
         ;
@@ -158,7 +144,7 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
         $definition->addMethodCall('setTokenFactory', [new Reference($factoryId)]);
 
         return $providerId;
-     }
+    }
 
     protected function createListener(ContainerBuilder $container, string $id, array $config): string
     {
@@ -183,7 +169,15 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
 
     protected function createEntryPoint(ContainerBuilder $container, string $id, array $config): ?string
     {
-        return $this->registerEntryPoint($container, $id, $config);
+        $entryPointId = 'security.authentication.form_entry_point.'.$id;
+        $container
+            ->setDefinition($entryPointId, new ChildDefinition('security.authentication.form_entry_point'))
+            ->addArgument(new Reference(HttpUtils::class))
+            ->addArgument($config['login_path'])
+            ->addArgument($config['use_forward'])
+        ;
+
+        return $entryPointId;
     }
 
     protected function createAuthenticationSuccessHandler(ContainerBuilder $container, string $id, array $config): string
