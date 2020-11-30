@@ -2,7 +2,11 @@
     "name": "hslavich/oneloginsaml-bundle",
     "type": "symfony-bundle",
     "description": "OneLogin SAML Bundle for Symfony",
-    "keywords": ["onelogin", "saml", "sso"],
+    "keywords": [
+        "onelogin",
+        "saml",
+        "sso"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -11,20 +15,23 @@
         }
     ],
     "require": {
-        "symfony/framework-bundle": "^5.1.5",
-        "symfony/security-bundle": "^5.1",
         "onelogin/php-saml": "^3.0",
-        "symfony/deprecation-contracts": "^2.1"
+        "symfony/dependency-injection": "^5.2",
+        "symfony/deprecation-contracts": "^2.1",
+        "symfony/framework-bundle": "^5.2",
+        "symfony/security-bundle": "^5.2"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "^5.1",
+        "dms/phpunit-arraysubset-asserts": "^0.2.0",
         "doctrine/orm": "~2.3",
         "php-coveralls/php-coveralls": "^2.2",
         "phpunit/phpunit": "^9.0",
-        "dms/phpunit-arraysubset-asserts": "^0.2.0"
+        "symfony/phpunit-bridge": "^5.2"
     },
     "autoload": {
-        "psr-4": { "Hslavich\\OneloginSamlBundle\\": "" },
+        "psr-4": {
+            "Hslavich\\OneloginSamlBundle\\": ""
+        },
         "exclude-from-classmap": [
             "/Tests/"
         ]
