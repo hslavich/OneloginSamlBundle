@@ -2,8 +2,6 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use Symfony\Component\DependencyInjection\Argument\AbstractArgument;
-
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
@@ -29,12 +27,12 @@ return static function (ContainerConfigurator $container): void {
     $services->set(\Hslavich\OneloginSamlBundle\Security\Http\Authenticator\SamlAuthenticator::class)
         ->tag('monolog.logger', ['channel' => 'security'])
         ->args([
-            /* 0 */ new AbstractArgument('security.http_utils'),
-            /* 1 */ new AbstractArgument('user provider'),
+            /* 0 */ abstract_arg('security.http_utils'),
+            /* 1 */ abstract_arg('user provider'),
             /* 2 */ service(\OneLogin\Saml2\Auth::class),
-            /* 3 */ new AbstractArgument('success handler'),
-            /* 4 */ new AbstractArgument('failure handler'),
-            /* 5 */ new AbstractArgument('options'),
+            /* 3 */ abstract_arg('success handler'),
+            /* 4 */ abstract_arg('failure handler'),
+            /* 5 */ abstract_arg('options'),
             /* 6 */ null,  // user factory
             /* 7 */ service(\Doctrine\ORM\EntityManagerInterface::class)->nullOnInvalid(),
             /* 8 */ service(\Psr\Log\LoggerInterface::class)->nullOnInvalid(),

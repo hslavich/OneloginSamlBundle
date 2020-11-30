@@ -11,6 +11,7 @@ use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Token\SamlToken;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -24,9 +25,10 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerI
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 use Symfony\Component\Security\Http\HttpUtils;
 
-class SamlAuthenticator implements AuthenticatorInterface
+class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPointInterface
 {
     private $httpUtils;
     private $userProvider;
@@ -64,6 +66,11 @@ class SamlAuthenticator implements AuthenticatorInterface
     {
         return $request->isMethod('POST')
             && $this->httpUtils->checkRequestPath($request, $this->options['check_path']);
+    }
+
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
+    {
+        return new RedirectResponse($this->httpUtils->generateUri($request, $this->options['login_path']));
     }
 
     public function authenticate(Request $request): PassportInterface
