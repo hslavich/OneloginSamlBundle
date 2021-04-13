@@ -118,6 +118,7 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('signMetadata')->end()
                         ->booleanNode('wantXMLValidation')->end()
                         ->booleanNode('relaxDestinationValidation')->end()
+                        ->booleanNode('allowRepeatAttributeName')->end()
                         ->booleanNode('destinationStrictlyMatches')
                             ->defaultTrue()
                         ->end()
