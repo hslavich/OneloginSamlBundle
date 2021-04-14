@@ -13,7 +13,7 @@ class TestUser implements UserInterface
     private $lastname;
     private $roles;
 
-    public function __construct($username = '', $roles = array())
+    public function __construct($username = '', $roles = [])
     {
         $this->username = $username;
         $this->roles = $roles;

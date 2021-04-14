@@ -1,9 +1,10 @@
 # OneloginSamlBundle
-OneLogin SAML Bundle for Symfony2. (https://github.com/onelogin/php-saml)
+OneLogin SAML Bundle for Symfony. (https://github.com/onelogin/php-saml)
+
+[![Latest Stable Version](https://poser.pugx.org/hslavich/oneloginsaml-bundle/v)](//packagist.org/packages/hslavich/oneloginsaml-bundle) [![Latest Unstable Version](https://poser.pugx.org/hslavich/oneloginsaml-bundle/v/unstable)](//packagist.org/packages/hslavich/oneloginsaml-bundle) [![Total Downloads](https://poser.pugx.org/hslavich/oneloginsaml-bundle/downloads)](//packagist.org/packages/hslavich/oneloginsaml-bundle)  [![License](https://poser.pugx.org/hslavich/oneloginsaml-bundle/license)](//packagist.org/packages/hslavich/oneloginsaml-bundle)
 
 [![Build Status](https://travis-ci.org/hslavich/OneloginSamlBundle.svg?branch=master)](https://travis-ci.org/hslavich/OneloginSamlBundle)
 [![Coverage Status](https://coveralls.io/repos/github/hslavich/OneloginSamlBundle/badge.svg?branch=master)](https://coveralls.io/github/hslavich/OneloginSamlBundle?branch=master)
-[![Latest Stable Version](https://poser.pugx.org/hslavich/oneloginsaml-bundle/v/stable)](https://packagist.org/packages/hslavich/oneloginsaml-bundle)  [![Latest Unstable Version](https://poser.pugx.org/hslavich/oneloginsaml-bundle/v/unstable)](https://packagist.org/packages/hslavich/oneloginsaml-bundle) [![Total Downloads](https://poser.pugx.org/hslavich/oneloginsaml-bundle/downloads)](https://packagist.org/packages/hslavich/oneloginsaml-bundle)
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa/big.png)](https://insight.sensiolabs.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa)
 
@@ -11,9 +12,14 @@ Installation
 ------------
 
 Install with composer
-```bash
-composer require hslavich/oneloginsaml-bundle
+``` json
+"require": {
+    "hslavich/oneloginsaml-bundle": "^2.0"
+}
 ```
+
+> Using of `dev-master` version deprecated, use a specific version instead (i.e. 2.0).<br>
+> In the future `master` branch will be removed (approximately in the fall '21).
 
 Run composer update
 ```bash
@@ -144,21 +150,20 @@ security:
     firewalls:
         app:
             pattern:    ^/
-            anonymous: true
             saml:
                 # Match SAML attribute 'uid' with username.
                 # Uses getNameId() method by default.
                 username_attribute: uid
                 # Use the attribute's friendlyName instead of the name 
                 use_attribute_friendly_name: true
-                check_path: /saml/acs
-                login_path: /saml/login
+                check_path: saml_acs
+                login_path: saml_login
             logout:
-                path: /saml/logout
+                path: saml_logout
 
     access_control:
-        - { path: ^/saml/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/saml/metadata, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/saml/login, roles: PUBLIC_ACCESS }
+        - { path: ^/saml/metadata, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: ROLE_USER }
 ```
 
@@ -205,6 +210,8 @@ You can integrate SAML authentication with traditional login form by editing you
 
 ```yml
 security:
+    enable_authenticator_manager: true
+
     providers:
         user_provider:
             # Loads user from user repository
@@ -214,12 +221,11 @@ security:
 
     firewalls:
         default:
-            anonymous: ~
             saml:
                 username_attribute: uid
-                check_path: /saml/acs
-                login_path: /saml/login
-                failure_path: /login
+                check_path: saml_acs
+                login_path: saml_login
+                failure_path: saml_login
                 always_use_default_target_path: true
 
             # Traditional login form
@@ -229,7 +235,7 @@ security:
                 always_use_default_target_path: true
 
             logout:
-                path: /saml/logout
+                path: saml_logout
 ```
 
 Then you can add a link to route `saml_login` in your login page in order to start SAML sign on.
@@ -246,23 +252,40 @@ Or if you have multiple IdP:
 Just-in-time user provisioning (optional)
 -----------------------------------------
 
-When user is not found by user provider, you can set a user factory to create a new user mapping SAML attributes.
+It's possible to have a new user provisioned based off the received SAML attributes when the user provider cannot find a
+user.
 
 Edit firewall settings in `security.yml`:
 
 ```yml
-firewalls:
-    default:
-        anonymous: ~
-        saml:
-            username_attribute: uid
-            # User factory service
-            user_factory: my_user_factory
-            # Persist new user. Doctrine is required.
-            persist_user: true
-        logout:
-            path: /saml/logout
+security:
+    # ...
+
+    providers:
+        saml_provider:
+            # Loads user from user repository
+            entity:
+                class: AppBundle\Entity\User
+                property: username
+
+    firewalls:
+        enable_authenticator_manager: true
+    
+        default:
+            provider: saml_provider
+            saml:
+                username_attribute: uid
+                # User factory service
+                user_factory: my_user_factory
+                # Persist new user. Doctrine is required.
+                persist_user: true
+            logout:
+            path: saml_logout
 ```
+
+> In order for the user to be persisted, you must use a user provider that throws `UsernameNotFoundException` (e.g.
+> `EntityUserProvider` as used in the example above). The `SamlUserProvider` does not throw this exception which will
+> cause an empty user to be returned when a matching user cannot be found.
 
 Create the user factory service editing `services.yml`:
 
@@ -293,14 +316,15 @@ namespace AppBundle\Security;
 use AppBundle\Entity\User;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserFactory implements SamlUserFactoryInterface
 {
-    public function createUser(SamlTokenInterface $token)
+    public function createUser(SamlTokenInterface $token): UserInterface
     {
         $attributes = $token->getAttributes();
         $user = new User();
-        $user->setRoles(array('ROLE_USER'));
+        $user->setRoles(['ROLE_USER']);
         $user->setUsername($token->getUsername());
         $user->setPassword('notused');
         $user->setEmail($attributes['mail'][0]);

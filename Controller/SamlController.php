@@ -25,8 +25,13 @@ class SamlController extends AbstractController
 
     public function loginAction(Request $request, $idp = null)
     {
-        $session = $request->getSession();
         $authErrorKey = Security::AUTHENTICATION_ERROR;
+        $session = $targetPath = null;
+
+        if ($request->hasSession()) {
+            $session = $request->getSession();
+            $targetPath = $session->get('_security.main.target_path');
+        }
 
         if ($request->attributes->has($authErrorKey)) {
             $error = $request->attributes->get($authErrorKey);

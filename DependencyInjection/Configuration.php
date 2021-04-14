@@ -18,7 +18,7 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritdoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         if (in_array('getRootNode', get_class_methods(TreeBuilder::class))) {
             $treeBuilder = new TreeBuilder('hslavich_saml_sp');
@@ -45,6 +45,9 @@ class Configuration implements ConfigurationInterface
         $this->configureIdpNode($idps);
         $this->configureSPNode($idps->children()->arrayNode('sp'));
 
+        $treeBuilder = new TreeBuilder('hslavich_onelogin_saml');
+        $rootNode = $treeBuilder->getRootNode();
+
         $rootNode
             ->beforeNormalization()
             ->ifTrue(static function ($v) {
@@ -62,6 +65,7 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->scalarNode('default_idp')->defaultValue('default')->end()
                 ->scalarNode('baseurl')->end()
+                ->scalarNode('entityManagerName')->end()
                 ->booleanNode('strict')->end()
                 ->booleanNode('debug')->end()
                 ->arrayNode('security')
@@ -102,6 +106,7 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('support')
                             ->children()
                                 ->scalarNode('givenName')->end()
+                                ->scalarNode('responseUrl')->end()
                                 ->scalarNode('emailAddress')->end()
                             ->end()
                         ->end()

@@ -2,6 +2,9 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\Authentication\Token;
 
+/**
+ * @deprecated since 2.1
+ */
 interface SamlTokenFactoryInterface
 {
     /**

@@ -10,6 +10,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
 
+/**
+ * @deprecated since 2.1
+ */
 class SamlListener extends AbstractAuthenticationListener
 {
     const IDP_NAME_SESSION_NAME = 'saml_idp_name';
@@ -52,7 +55,9 @@ class SamlListener extends AbstractAuthenticationListener
 
         $oneLoginAuth->processResponse();
         if ($oneLoginAuth->getErrors()) {
-            $this->logger->error($oneLoginAuth->getLastErrorReason());
+            if (null !== $this->logger) {
+                $this->logger->error($oneLoginAuth->getLastErrorReason());
+            }
             throw new AuthenticationException($oneLoginAuth->getLastErrorReason());
         }
 
@@ -68,8 +73,10 @@ class SamlListener extends AbstractAuthenticationListener
 
         if (isset($this->options['username_attribute'])) {
             if (!array_key_exists($this->options['username_attribute'], $attributes)) {
-                $this->logger->error(sprintf("Found attributes: %s", print_r($attributes, true)));
-                throw new \Exception(sprintf("Attribute '%s' not found in SAML data", $this->options['username_attribute']));
+                if (null !== $this->logger) {
+                    $this->logger->error(sprintf("Found attributes: %s", print_r($attributes, true)));
+                }
+                throw new \RuntimeException(sprintf("Attribute '%s' not found in SAML data", $this->options['username_attribute']));
             }
 
             $username = $attributes[$this->options['username_attribute']][0];
