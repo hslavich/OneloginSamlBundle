@@ -18,12 +18,22 @@ return static function (ContainerConfigurator $container): void {
         ->args(['%hslavich_onelogin_saml.settings%'])
     ;
 
-    $services->set(\Hslavich\OneloginSamlBundle\Controller\SamlController::class);
+    $services->set('hslavich_onelogin_saml.saml_logout', \Hslavich\OneloginSamlBundle\Security\Logout\SamlLogoutHandler::class)
+        ->args(['%@Hslavich\\OneloginSamlBundle\\Security\\Utils\\OneLoginAuthRegistry%'])
+    ;
+
+    $services->set(\Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry::class)
+        ->args(['%hslavich_onelogin_saml.default_idp_name%'])
+    ;
+
+    $services->set(\Hslavich\OneloginSamlBundle\Controller\SamlController::class)
+        ->args(['@Hslavich\\OneloginSamlBundle\\Security\\Utils\\OneLoginAuthRegistry']);
 
     $services->set(\Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener::class)
         ->parent(service('security.authentication.listener.abstract'))
         ->abstract()
         ->call('setAuthRegistry', [service(OneLoginAuthRegistry::class)])
+        ->call('setDefaultIdpName', ["%hslavich_onelogin_saml.default_idp_name%"])
     ;
 
     $services->set(\Hslavich\OneloginSamlBundle\Security\Http\Authenticator\SamlAuthenticator::class)
