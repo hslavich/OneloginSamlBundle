@@ -20,13 +20,8 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        if (in_array('getRootNode', get_class_methods(TreeBuilder::class))) {
-            $treeBuilder = new TreeBuilder('hslavich_saml_sp');
-            $rootNode = $treeBuilder->getRootNode();
-        } else {
-            $treeBuilder = new TreeBuilder();
-            $rootNode = $treeBuilder->root('hslavich_saml_sp');
-        }
+        $treeBuilder = new TreeBuilder('hslavich_onelogin_saml');
+        $rootNode = $treeBuilder->getRootNode();
 
         $idp = $rootNode
             ->children()
@@ -44,9 +39,6 @@ class Configuration implements ConfigurationInterface
 
         $this->configureIdpNode($idps);
         $this->configureSPNode($idps->children()->arrayNode('sp'));
-
-        $treeBuilder = new TreeBuilder('hslavich_onelogin_saml');
-        $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
             ->beforeNormalization()
