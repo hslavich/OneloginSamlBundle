@@ -3,9 +3,6 @@
 namespace Hslavich\OneloginSamlBundle\Security\Utils;
 
 use OneLogin\Saml2\Auth;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Security\Http\HttpUtils;
 
 class OneLoginAuthRegistry
 {
@@ -15,18 +12,12 @@ class OneLoginAuthRegistry
     protected $idpAuth = array();
 
     /**
-     * @var HttpUtils
-     */
-    private $httpUtils;
-
-    /**
      * @var string
      */
     private $defaultIdp;
 
-    public function __construct(HttpUtils $httpUtils, $defaultIdp)
+    public function __construct($defaultIdp)
     {
-        $this->httpUtils = $httpUtils;
         $this->defaultIdp = $defaultIdp;
     }
 
