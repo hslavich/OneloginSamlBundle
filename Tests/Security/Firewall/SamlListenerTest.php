@@ -47,7 +47,7 @@ class SamlListenerTest extends TestCase
             ->method('getSessionIndex')
             ->willReturn($sessionIndex)
         ;
-        $listener->setOneLoginAuth($onelogin);
+        $listener->setAuthRegistry($onelogin);
 
         $this->authenticationManager
             ->expects(self::once())
@@ -77,7 +77,7 @@ class SamlListenerTest extends TestCase
             ->method('getNameId')
             ->willReturn('username')
         ;
-        $listener->setOneLoginAuth($onelogin);
+        $listener->setAuthRegistry($onelogin);
 
         $listener($this->event);
     }

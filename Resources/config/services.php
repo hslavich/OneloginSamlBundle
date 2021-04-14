@@ -2,6 +2,8 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry;
+
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
@@ -21,7 +23,7 @@ return static function (ContainerConfigurator $container): void {
     $services->set(\Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener::class)
         ->parent(service('security.authentication.listener.abstract'))
         ->abstract()
-        ->call('setOneLoginAuth', [service(\OneLogin\Saml2\Auth::class)])
+        ->call('setAuthRegistry', [service(OneLoginAuthRegistry::class)])
     ;
 
     $services->set(\Hslavich\OneloginSamlBundle\Security\Http\Authenticator\SamlAuthenticator::class)
