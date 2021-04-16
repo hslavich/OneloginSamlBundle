@@ -49,7 +49,7 @@ class SamlListener extends AbstractAuthenticationListener
     protected function attemptAuthentication(Request $request)
     {
         // Get current IdP name or use the single configured IdP
-        $idpName = $request->getSession()->get(self::IDP_NAME_SESSION_NAME, 'default');
+        $idpName = $request->get('idp', 'default');
 
         $oneLoginAuth = $this->authRegistry->getIdpAuth($idpName);
 
