@@ -7,4 +7,8 @@ namespace Hslavich\OneloginSamlBundle\Security\Authentication\Token;
  */
 interface SamlTokenInterface extends \Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Token\SamlTokenInterface
 {
+    /**
+     * @return string
+     */
+    public function getIdpName();
 }

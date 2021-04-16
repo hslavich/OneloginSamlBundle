@@ -2,13 +2,26 @@ saml_metadata:
     path:     /saml/metadata
     defaults: { _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::metadataAction }
 
+saml_metadata_idp:
+    path:     /saml/metadata/{idp}
+    defaults: { _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::metadataAction }
+
 saml_acs:
     path:     /saml/acs
     methods:  ['POST']
     defaults: { _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::assertionConsumerServiceAction }
 
+saml_acs_idp:
+    path:     /saml/acs/{idp}
+    methods:  ['POST']
+    defaults: { _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::assertionConsumerServiceAction }
+
 saml_login:
     path:     /saml/login
+    defaults: { _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::loginAction }
+
+saml_login_idp:
+    path:     /saml/login/{idp}
     defaults: { _controller: Hslavich\OneloginSamlBundle\Controller\SamlController::loginAction }
 
 saml_logout:

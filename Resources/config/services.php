@@ -2,6 +2,8 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry;
+
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
@@ -16,12 +18,22 @@ return static function (ContainerConfigurator $container): void {
         ->args(['%hslavich_onelogin_saml.settings%'])
     ;
 
-    $services->set(\Hslavich\OneloginSamlBundle\Controller\SamlController::class);
+    $services->set(\Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry::class)
+        ->args(['%hslavich_onelogin_saml.default_idp_name%'])
+    ;
+
+    $services->set('hslavich_onelogin_saml.saml_logout', \Hslavich\OneloginSamlBundle\Security\Logout\SamlLogoutHandler::class)
+        ->args([service(\Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry::class)])
+    ;
+
+    $services->set(\Hslavich\OneloginSamlBundle\Controller\SamlController::class)
+        ->args([service(\Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry::class)]);
 
     $services->set(\Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener::class)
         ->parent(service('security.authentication.listener.abstract'))
         ->abstract()
-        ->call('setOneLoginAuth', [service(\OneLogin\Saml2\Auth::class)])
+        ->call('setAuthRegistry', [service(OneLoginAuthRegistry::class)])
+        ->call('setDefaultIdpName', ["%hslavich_onelogin_saml.default_idp_name%"])
     ;
 
     $services->set(\Hslavich\OneloginSamlBundle\Security\Http\Authenticator\SamlAuthenticator::class)

@@ -2,21 +2,28 @@
 
 namespace Hslavich\OneloginSamlBundle\Controller;
 
+use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
+use Hslavich\OneloginSamlBundle\Security\Utils\OneLoginAuthRegistry;
+use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Request;
 
 class SamlController extends AbstractController
 {
-    protected $samlAuth;
+    /**
+     * @var OneLoginAuthRegistry
+     */
+    private $authRegistry;
 
-    public function __construct(\OneLogin\Saml2\Auth $samlAuth)
+    public function __construct(OneLoginAuthRegistry $authRegistry)
     {
-        $this->samlAuth = $samlAuth;
+        $this->authRegistry = $authRegistry;
     }
 
-    public function loginAction(Request $request)
+    public function loginAction(Request $request, $idp = null)
     {
         $authErrorKey = Security::AUTHENTICATION_ERROR;
         $session = $targetPath = null;
@@ -39,12 +46,22 @@ class SamlController extends AbstractController
             throw new \RuntimeException($error->getMessage());
         }
 
-        $this->samlAuth->login($targetPath);
+        if (null !== $idp) {
+            $session->set(SamlListener::IDP_NAME_SESSION_NAME, $idp);
+        }
+
+        $this->authRegistry->getIdpAuth($idp)->login();
     }
 
-    public function metadataAction()
+    public function metadataAction($idp = null)
     {
-        $metadata = $this->samlAuth->getSettings()->getSPMetadata();
+        try {
+            $auth = $this->authRegistry->getIdpAuth($idp);
+        } catch (InvalidArgumentException $e) {
+            throw new NotFoundHttpException(sprintf('IDP %s not found', $idp), $e);
+        }
+
+        $metadata = $auth->getSettings()->getSPMetadata();
 
         $response = new Response($metadata);
         $response->headers->set('Content-Type', 'xml');
