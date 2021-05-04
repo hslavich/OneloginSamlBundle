@@ -124,7 +124,7 @@ security:
         - { path: ^/, roles: ROLE_USER }
 ```
 
-Edit your `app/config/routing`
+Edit your `app/config/routing` or `app/config/routes.yaml` depending on your Symfony version.
 ``` yml
 hslavich_saml_sp:
     resource: "@HslavichOneloginSamlBundle/Resources/config/routing.yml"
