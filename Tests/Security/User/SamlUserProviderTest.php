@@ -12,7 +12,7 @@ class SamlUserProviderTest extends TestCase
     public function testLoadByUsername(): void
     {
         $provider = $this->getUserProvider(['ROLE_ADMIN']);
-        $user = $provider->loadUserByUsername('admin');
+        $user = $provider->loadUserByIdentifier('admin');
 
         self::assertEquals('admin', $user->getUsername());
         self::assertEquals(['ROLE_ADMIN'], $user->getRoles());

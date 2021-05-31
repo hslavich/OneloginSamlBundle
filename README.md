@@ -6,7 +6,9 @@ OneLogin SAML Bundle for Symfony. (https://github.com/onelogin/php-saml)
 [![Build Status](https://travis-ci.org/hslavich/OneloginSamlBundle.svg?branch=master)](https://travis-ci.org/hslavich/OneloginSamlBundle)
 [![Coverage Status](https://coveralls.io/repos/github/hslavich/OneloginSamlBundle/badge.svg?branch=master)](https://coveralls.io/github/hslavich/OneloginSamlBundle?branch=master)
 
-[![SensioLabsInsight](https://insight.sensiolabs.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa/big.png)](https://insight.sensiolabs.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa)
+[![SensioLabsInsight](https://insight.symfony.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa/big.png)](https://insight.symfony.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa)
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/hslavich)
 
 Installation
 ------------
@@ -26,18 +28,18 @@ Run composer update
 composer update hslavich/oneloginsaml-bundle
 ```
 
-Enable the bundle in `app/AppKernel.php`
+Enable the bundle in `config/bundles.php`
 ``` php
-$bundles = array(
+return [
     // ...
-    new Hslavich\OneloginSamlBundle\HslavichOneloginSamlBundle(),
-)
+    Hslavich\OneloginSamlBundle\HslavichOneloginSamlBundle::class => ['all' => true],
+]
 ```
 
 Configuration
 -------------
 
-Configure SAML metadata in `app/config/config.yml`. Check https://github.com/onelogin/php-saml#settings for more info.
+Configure SAML metadata in `config/packages/hslavich_onelogin_saml.yaml`. Check https://github.com/onelogin/php-saml#settings for more info.
 ``` yml
 hslavich_onelogin_saml:
     # Basic settings
@@ -92,7 +94,7 @@ hslavich_onelogin_saml:
 
 If you don't want to set contactPerson or organization, don't add those parameters instead of leaving them blank.
 
-Configure firewall and user provider in `app/config/security.yml`
+Configure firewall and user provider in `config/packages/security.yaml`
 ``` yml
 security:
     # ...
@@ -106,7 +108,7 @@ security:
 
     firewalls:
         app:
-            pattern:    ^/
+            pattern: ^/
             saml:
                 # Match SAML attribute 'uid' with username.
                 # Uses getNameId() method by default.
@@ -124,7 +126,7 @@ security:
         - { path: ^/, roles: ROLE_USER }
 ```
 
-Edit your `app/config/routing`
+Edit your `config/routing` or `config/routes.yaml` depending on your Symfony version.
 ``` yml
 hslavich_saml_sp:
     resource: "@HslavichOneloginSamlBundle/Resources/config/routing.yml"
@@ -137,7 +139,7 @@ Your user class must implement `SamlUserInterface`
 ``` php
 <?php
 
-namespace AppBundle\Entity;
+namespace App\Entity;
 
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
 
@@ -163,7 +165,7 @@ $email = $this->getUser()->getEmail();
 Integration with classic login form
 -----------------------------------
 
-You can integrate SAML authentication with traditional login form by editing your `security.yml`:
+You can integrate SAML authentication with traditional login form by editing your `security.yaml`:
 
 ``` yml
 security:
@@ -173,7 +175,7 @@ security:
         user_provider:
             # Loads user from user repository
             entity:
-                class: AppBundle:User
+                class: App:User
                 property: username
 
     firewalls:
@@ -207,7 +209,7 @@ Just-in-time user provisioning (optional)
 It's possible to have a new user provisioned based off the received SAML attributes when the user provider cannot find a
 user.
 
-Edit firewall settings in `security.yml`:
+Edit firewall settings in `security.yaml`:
 
 ``` yml
 security:
@@ -217,7 +219,7 @@ security:
         saml_provider:
             # Loads user from user repository
             entity:
-                class: AppBundle\Entity\User
+                class: App\Entity\User
                 property: username
 
     firewalls:
@@ -239,7 +241,7 @@ security:
 > `EntityUserProvider` as used in the example above). The `SamlUserProvider` does not throw this exception which will
 > cause an empty user to be returned when a matching user cannot be found.
 
-Create the user factory service editing `services.yml`:
+Create the user factory service editing `services.yaml`:
 
 ``` yml
 services:
@@ -247,7 +249,7 @@ services:
         class: Hslavich\OneloginSamlBundle\Security\User\SamlUserFactory
         arguments:
             # User class
-            - AppBundle\Entity\User
+            - App\Entity\User
             # Attribute mapping.
             - password: 'notused'
               email: $mail
@@ -263,9 +265,9 @@ Or you can create your own User Factory that implements `SamlUserFactoryInterfac
 ``` php
 <?php
 
-namespace AppBundle\Security;
+namespace App\Security;
 
-use AppBundle\Entity\User;
+use App\Entity\User;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -290,5 +292,5 @@ class UserFactory implements SamlUserFactoryInterface
 ``` yml
 services:
     my_user_factory:
-        class: AppBundle\Security\UserFactory
+        class: App\Security\UserFactory
 ```
