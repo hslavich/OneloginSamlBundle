@@ -8,6 +8,8 @@ OneLogin SAML Bundle for Symfony. (https://github.com/onelogin/php-saml)
 
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa/big.png)](https://insight.sensiolabs.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa)
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/hslavich)
+
 Installation
 ------------
 
