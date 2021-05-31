@@ -127,9 +127,12 @@ class SamlListenerTest extends TestCase
         ;
 
         $reflection = new \ReflectionClass(SamlListener::class);
-        $params = $reflection->getConstructor()->getParameters();
-        $param = $params[0];
-        $this->tokenStorage = $this->createMock($param->getClass()->name);
+        $param = $reflection->getConstructor()->getParameters()[0];
+        $type = $param->getType();
+
+        $this->tokenStorage = $type instanceof \ReflectionNamedType
+            ? $this->createMock($type->getName())
+            : (string) $type;
     }
 
     protected function tearDown(): void
