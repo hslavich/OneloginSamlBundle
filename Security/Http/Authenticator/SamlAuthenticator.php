@@ -24,6 +24,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 use Symfony\Component\Security\Http\HttpUtils;
@@ -120,23 +121,28 @@ class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPo
         $attributes = $this->extractAttributes();
         $username = $this->extractUsername($attributes);
 
-        try {
-            $user = $this->userProvider->loadUserByUsername($username);
-        } catch (UsernameNotFoundException $exception) {
-            if (!$this->userFactory instanceof SamlUserFactoryInterface) {
-                throw $exception;
+        $userBadge = new UserBadge(
+            $username,
+            function ($identifier) use ($attributes) {
+                try {
+                    $user = $this->userProvider->loadUserByUsername($identifier);
+                } catch (UsernameNotFoundException $exception) {
+                    if (!$this->userFactory instanceof SamlUserFactoryInterface) {
+                        throw $exception;
+                    }
+
+                    $user = $this->generateUser($identifier, $attributes);
+                }
+
+                if ($user instanceof SamlUserInterface) {
+                    $user->setSamlAttributes($attributes);
+                }
+
+                return $user;
             }
+        );
 
-            $user = $this->generateUser($username, $attributes);
-        } catch (\Throwable $exception) {
-            throw new AuthenticationException('The authentication failed.', 0, $exception);
-        }
-
-        if ($user instanceof SamlUserInterface) {
-            $user->setSamlAttributes($attributes);
-        }
-
-        return new SamlPassport($user, $attributes);
+        return new SamlPassport($userBadge, $attributes);
     }
 
     protected function extractAttributes(): array
