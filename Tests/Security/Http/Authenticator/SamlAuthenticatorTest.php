@@ -7,6 +7,7 @@ namespace Hslavich\OneloginSamlBundle\Tests\Security\Http\Authenticator;
 use Doctrine\ORM\EntityManagerInterface;
 use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\SamlAuthenticator;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
+use Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider;
 use Hslavich\OneloginSamlBundle\Tests\TestUser;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Rule\InvokedCount;
@@ -16,12 +17,10 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\UserPassportInterface;
 use Symfony\Component\Security\Http\HttpUtils;
-use const false;
 
 class SamlAuthenticatorTest extends TestCase
 {
@@ -40,7 +39,7 @@ class SamlAuthenticatorTest extends TestCase
     {
         $authenticator = new SamlAuthenticator(
             $httpUtils = $this->createMock(HttpUtils::class),
-            $this->createMock(UserProviderInterface::class),
+            $this->createMock(SamlUserProvider::class),
             $this->createMock(\OneLogin\Saml2\Auth::class),
             $this->createMock(AuthenticationSuccessHandlerInterface::class),
             $this->createMock(AuthenticationFailureHandlerInterface::class),
@@ -73,7 +72,7 @@ class SamlAuthenticatorTest extends TestCase
 
         $authenticator = new SamlAuthenticator(
             $httpUtils = $this->createMock(HttpUtils::class),
-            $this->createMock(UserProviderInterface::class),
+            $this->createMock(SamlUserProvider::class),
             $auth,
             $this->createMock(AuthenticationSuccessHandlerInterface::class),
             $this->createMock(AuthenticationFailureHandlerInterface::class),
@@ -88,7 +87,7 @@ class SamlAuthenticatorTest extends TestCase
 
     public function testUsernameNotFound(): void
     {
-        $userProvider = $this->createMock(UserProviderInterface::class);
+        $userProvider = $this->createMock(SamlUserProvider::class);
         $userProvider
             ->expects(self::once())
             ->method('loadUserByUsername')
@@ -111,7 +110,7 @@ class SamlAuthenticatorTest extends TestCase
 
     public function testUserFactoryException(): void
     {
-        $userProvider = $this->createMock(UserProviderInterface::class);
+        $userProvider = $this->createMock(SamlUserProvider::class);
         $userProvider
             ->expects(self::once())
             ->method('loadUserByUsername')
@@ -137,7 +136,7 @@ class SamlAuthenticatorTest extends TestCase
     {
         $user = new TestUser('test', ['ROLE_USER']);
 
-        $userProvider = $this->createMock(UserProviderInterface::class);
+        $userProvider = $this->createMock(SamlUserProvider::class);
         $userProvider
             ->expects(self::once())
             ->method('loadUserByUsername')
@@ -163,7 +162,7 @@ class SamlAuthenticatorTest extends TestCase
     {
         $user = new TestUser('test', ['ROLE_USER']);
 
-        $userProvider = $this->createMock(UserProviderInterface::class);
+        $userProvider = $this->createMock(SamlUserProvider::class);
         $userProvider
             ->expects(self::once())
             ->method('loadUserByUsername')
@@ -223,7 +222,7 @@ class SamlAuthenticatorTest extends TestCase
 
         return new SamlAuthenticator(
             $httpUtils,
-            $this->createMock(UserProviderInterface::class),
+            $this->createMock(SamlUserProvider::class),
             $this->createMock(\OneLogin\Saml2\Auth::class),
             $this->createMock(AuthenticationSuccessHandlerInterface::class),
             $this->createMock(AuthenticationFailureHandlerInterface::class),

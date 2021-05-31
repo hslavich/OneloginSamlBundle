@@ -8,11 +8,11 @@ use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactory;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
+use Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class SamlProviderTest extends TestCase
 {
@@ -140,7 +140,7 @@ class SamlProviderTest extends TestCase
 
     protected function getProvider($user = null, $userFactory = null, $entityManager = null, $persist = false): SamlProvider
     {
-        $userProvider = $this->createMock(UserProviderInterface::class);
+        $userProvider = $this->createMock(SamlUserProvider::class);
         if ($user) {
             $userProvider
                 ->method('loadUserByUsername')
