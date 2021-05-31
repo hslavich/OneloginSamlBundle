@@ -9,7 +9,7 @@ use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 /**
@@ -72,8 +72,8 @@ class SamlProvider implements AuthenticationProviderInterface
     protected function retrieveUser($token)
     {
         try {
-            return $this->userProvider->loadUserByUsername($token->getUsername());
-        } catch (UsernameNotFoundException $e) {
+            return $this->userProvider->loadUserByIdentifier($token->getUsername());
+        } catch (UserNotFoundException $e) {
             if ($this->userFactory instanceof SamlUserFactoryInterface) {
                 return $this->generateUser($token);
             }

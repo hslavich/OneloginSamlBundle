@@ -18,7 +18,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\LogicException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
@@ -125,13 +125,15 @@ class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPo
             $username,
             function ($identifier) use ($attributes) {
                 try {
-                    $user = $this->userProvider->loadUserByUsername($identifier);
-                } catch (UsernameNotFoundException $exception) {
+                    $user = $this->userProvider->loadUserByIdentifier($identifier);
+                } catch (UserNotFoundException $exception) {
                     if (!$this->userFactory instanceof SamlUserFactoryInterface) {
                         throw $exception;
                     }
 
                     $user = $this->generateUser($identifier, $attributes);
+                } catch (\Throwable $exception) {
+                    throw new AuthenticationException('The authentication failed.', 0, $exception);
                 }
 
                 if ($user instanceof SamlUserInterface) {

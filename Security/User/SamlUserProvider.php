@@ -2,8 +2,8 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\User;
 
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class SamlUserProvider implements UserProviderInterface
 {
@@ -16,9 +16,9 @@ class SamlUserProvider implements UserProviderInterface
         $this->defaultRoles = $defaultRoles;
     }
 
-    public function loadUserByUsername($username)
+    public function loadUserByIdentifier($identifier)
     {
-        return new $this->userClass($username, $this->defaultRoles);
+        return new $this->userClass($identifier, $this->defaultRoles);
     }
 
     public function refreshUser(UserInterface $user)
