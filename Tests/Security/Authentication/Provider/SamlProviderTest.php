@@ -127,7 +127,7 @@ class SamlProviderTest extends TestCase
         $token = $this->createMock(SamlToken::class);
         $token
             ->expects(self::once())
-            ->method('getUsername')
+            ->method('getUserIdentifier')
             ->willReturn('admin')
         ;
         $token

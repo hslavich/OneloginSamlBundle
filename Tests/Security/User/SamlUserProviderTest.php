@@ -14,7 +14,7 @@ class SamlUserProviderTest extends TestCase
         $provider = $this->getUserProvider(['ROLE_ADMIN']);
         $user = $provider->loadUserByIdentifier('admin');
 
-        self::assertEquals('admin', $user->getUsername());
+        self::assertEquals('admin', $user->getUserIdentifier());
         self::assertEquals(['ROLE_ADMIN'], $user->getRoles());
     }
 

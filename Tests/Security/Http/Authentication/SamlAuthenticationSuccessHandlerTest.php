@@ -72,7 +72,7 @@ class SamlAuthenticationSuccessHandlerTest extends TestCase
     {
         $token = $this->createMock(SamlToken::class);
         $token
-            ->method('getUsername')
+            ->method('getUserIdentifier')
             ->willReturn('admin')
         ;
         $token
