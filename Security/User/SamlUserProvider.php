@@ -20,6 +20,11 @@ class SamlUserProvider implements UserProviderInterface
     {
         return new $this->userClass($identifier, $this->defaultRoles);
     }
+    
+    public function loadUserByUsername(string $username)
+    {
+        return $this->loadUserByIdentifier($username);
+    }
 
     public function refreshUser(UserInterface $user)
     {
