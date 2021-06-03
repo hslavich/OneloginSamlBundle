@@ -274,16 +274,15 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserFactory implements SamlUserFactoryInterface
 {
-    public function createUser(SamlTokenInterface $token): UserInterface
+    public function createUser($username, array $attributes = []): UserInterface
     {
-        $attributes = $token->getAttributes();
         $user = new User();
         $user->setRoles(['ROLE_USER']);
-        $user->setUsername($token->getUsername());
+        $user->setUsername($username);
         $user->setPassword('notused');
         $user->setEmail($attributes['mail'][0]);
         $user->setName($attributes['cn'][0]);
-
+    
         return $user;
     }
 }
@@ -294,3 +293,13 @@ services:
     my_user_factory:
         class: App\Security\UserFactory
 ```
+
+> For versions prior to 2.1 the `createUser` signature was different:
+> ```php
+> public function createUser(SamlTokenInterface $token): UserInterface
+> {
+>     $username = $token->getUsername();
+>     $attributes = $token->getAttributes();
+>     ...
+> }
+> ```
