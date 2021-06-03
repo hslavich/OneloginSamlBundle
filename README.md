@@ -262,6 +262,8 @@ Fields with '$' references to SAML attribute value.
 
 Or you can create your own User Factory that implements `SamlUserFactoryInterface`
 
+For versions before 2.1 :
+
 ``` php
 <?php
 
@@ -280,6 +282,33 @@ class UserFactory implements SamlUserFactoryInterface
         $user = new User();
         $user->setRoles(['ROLE_USER']);
         $user->setUsername($token->getUsername());
+        $user->setPassword('notused');
+        $user->setEmail($attributes['mail'][0]);
+        $user->setName($attributes['cn'][0]);
+
+        return $user;
+    }
+}
+```
+
+For versions after 2.1 :
+
+```
+<?php
+
+namespace App\Security;
+
+use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+
+class UserFactory implements SamlUserFactoryInterface
+{
+    public function createUser($username,$attributes =[]): UserInterface
+    {
+
+        $user = new User();
+        $user->setRoles(['ROLE_USER']);
+        $user->setUsername($username);
         $user->setPassword('notused');
         $user->setEmail($attributes['mail'][0]);
         $user->setName($attributes['cn'][0]);
