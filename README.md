@@ -298,12 +298,18 @@ For versions after 2.1 :
 
 namespace App\Security;
 
+use App\Entity\User;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserFactory implements SamlUserFactoryInterface
 {
-    public function createUser($username,$attributes =[]): UserInterface
+     /**
+     * @param $username
+     * @param array $attributes
+     * @return UserInterface
+     */
+    public function createUser($username, array $attributes =[]): UserInterface
     {
 
         $user = new User();
