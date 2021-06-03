@@ -28,6 +28,11 @@
         "phpunit/phpunit": "^9.0",
         "symfony/phpunit-bridge": "^5.3"
     },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.x-dev"
+        }
+    },
     "autoload": {
         "psr-4": {
             "Hslavich\\OneloginSamlBundle\\": ""
