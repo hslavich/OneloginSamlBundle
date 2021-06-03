@@ -138,6 +138,10 @@ class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPo
 
                 if ($user instanceof SamlUserInterface) {
                     $user->setSamlAttributes($attributes);
+                    if ($this->entityManager) {
+                        $this->entityManager->persist($user);
+                        $this->entityManager->flush();
+                    }
                 }
 
                 return $user;
