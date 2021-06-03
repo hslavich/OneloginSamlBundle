@@ -54,7 +54,7 @@ class SamlListenerTest extends TestCase
             ->method('authenticate')
             ->with(self::callback(static function (SamlToken $token) use ($sessionIndex) {
                 return $sessionIndex === $token->getAttributes()['sessionIndex']
-                    && 'username_uid' === $token->getUsername();
+                    && 'username_uid' === $token->getUserIdentifier();
             }))
         ;
 

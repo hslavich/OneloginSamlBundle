@@ -20,7 +20,7 @@ class SamlUserFactoryTest extends TestCase
         ];
 
         $token = $this->createMock(SamlToken::class);
-        $token->method('getUsername')->willReturn('admin');
+        $token->method('getUserIdentifier')->willReturn('admin');
         $token->method('getAttributes')->willReturn([
             'mail' => ['email@mail.com'],
             'cn' => ['testname'],
@@ -30,7 +30,7 @@ class SamlUserFactoryTest extends TestCase
         $factory = new SamlUserFactory(TestUser::class, $map);
         $user = $factory->createUser($token);
 
-        self::assertEquals('admin', $user->getUsername());
+        self::assertEquals('admin', $user->getUserIdentifier());
         self::assertEquals('email@mail.com', $user->getEmail());
         self::assertEquals('testname', $user->getName());
         self::assertEquals('testlastname', $user->getLastname());

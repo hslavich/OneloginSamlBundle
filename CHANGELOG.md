@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.2
+
+ * Added persistence SamlUser after calling setSamlAttributes while authentication.
+ * Use TokenInterface:getUserIdentifier() method instead of deprecated getUsername().
+
 ## 2.3.1
 
  * Re-implement UserProviderInterface::loadUserByUsername (see symfony/symfony#41493).

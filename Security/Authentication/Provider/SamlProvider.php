@@ -76,7 +76,7 @@ class SamlProvider implements AuthenticationProviderInterface
     protected function retrieveUser($token)
     {
         try {
-            return $this->userProvider->loadUserByIdentifier($token->getUsername());
+            return $this->userProvider->loadUserByIdentifier($token->getUserIdentifier());
         } catch (UserNotFoundException $e) {
             if ($this->userFactory instanceof SamlUserFactoryInterface) {
                 return $this->generateUser($token);

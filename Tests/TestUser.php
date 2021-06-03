@@ -29,9 +29,14 @@ class TestUser implements UserInterface
         $this->username = $username;
     }
 
-    public function getUsername()
+    public function getUserIdentifier()
     {
         return $this->username;
+    }
+
+    public function getUsername()
+    {
+        return $this->getUserIdentifier();
     }
 
     public function getPassword()
