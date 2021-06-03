@@ -18,7 +18,7 @@ class SamlFactory extends AbstractFactory
         $this->addOption('user_factory');
         $this->addOption('token_factory');
         $this->addOption('persist_user', false);
-        
+
         if (!isset($this->options['success_handler'])) {
             $this->options['success_handler'] = 'hslavich_onelogin_saml.saml_authentication_success_handler';
         }
@@ -82,7 +82,7 @@ class SamlFactory extends AbstractFactory
     protected function createListener($container, $id, $config, $userProvider)
     {
         $listenerId = parent::createListener($container, $id, $config, $userProvider);
-        $this->createLogoutHandler($container, $id, $config);
+        $this->createLogoutHandler($container, $id);
 
         return $listenerId;
     }
@@ -101,17 +101,11 @@ class SamlFactory extends AbstractFactory
         return $entryPointId;
     }
 
-    protected function createLogoutHandler($container, $id, $config)
+    protected function createLogoutHandler($container, $id)
     {
         if ($container->hasDefinition('security.logout_listener.'.$id)) {
             $logoutListener = $container->getDefinition('security.logout_listener.'.$id);
-            $samlListenerId = 'hslavich_onelogin_saml.saml_logout';
-
-            $definitionClassname = $this->getDefinitionClassname();
-            $container
-                ->setDefinition($samlListenerId, new $definitionClassname('saml.security.http.logout'))
-                ->replaceArgument(2, array_intersect_key($config, $this->options));
-            $logoutListener->addMethodCall('addHandler', array(new Reference($samlListenerId)));
+            $logoutListener->addMethodCall('addHandler', array(new Reference('hslavich_onelogin_saml.saml_logout')));
         }
     }
 
