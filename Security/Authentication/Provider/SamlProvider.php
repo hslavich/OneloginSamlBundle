@@ -2,6 +2,8 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\Authentication\Provider;
 
+use Hslavich\OneloginSamlBundle\Event\UserCreatedEvent;
+use Hslavich\OneloginSamlBundle\Event\UserModifiedEvent;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
@@ -11,6 +13,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @deprecated since 2.1
@@ -20,15 +23,12 @@ class SamlProvider implements AuthenticationProviderInterface
     protected $userProvider;
     protected $userFactory;
     protected $tokenFactory;
-    protected $entityManager;
-    protected $options;
+    protected $eventDispatcher;
 
-    public function __construct(UserProviderInterface $userProvider, array $options = array())
+    public function __construct(UserProviderInterface $userProvider, ?EventDispatcherInterface $eventDispatcher)
     {
         $this->userProvider = $userProvider;
-        $this->options = array_merge(array(
-            'persist_user' => false
-        ), $options);
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function setUserFactory(SamlUserFactoryInterface $userFactory)
@@ -41,11 +41,6 @@ class SamlProvider implements AuthenticationProviderInterface
         $this->tokenFactory = $tokenFactory;
     }
 
-    public function setEntityManager($entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
-
     public function authenticate(TokenInterface $token)
     {
         $user = $this->retrieveUser($token);
@@ -53,6 +48,9 @@ class SamlProvider implements AuthenticationProviderInterface
         if ($user) {
             if ($user instanceof SamlUserInterface) {
                 $user->setSamlAttributes($token->getAttributes());
+                if ($this->eventDispatcher) {
+                    $this->eventDispatcher->dispatch(new UserModifiedEvent($user));
+                }
             }
 
             $authenticatedToken = $this->tokenFactory->createToken($user, $token->getAttributes(), $user->getRoles());
@@ -85,10 +83,8 @@ class SamlProvider implements AuthenticationProviderInterface
     protected function generateUser($token)
     {
         $user = $this->userFactory->createUser($token);
-
-        if ($this->options['persist_user'] && $this->entityManager) {
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
+        if ($this->eventDispatcher) {
+            $this->eventDispatcher->dispatch(new UserCreatedEvent($user));
         }
 
         return $user;

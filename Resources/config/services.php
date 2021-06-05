@@ -34,13 +34,30 @@ return static function (ContainerConfigurator $container): void {
             /* 4 */ abstract_arg('failure handler'),
             /* 5 */ abstract_arg('options'),
             /* 6 */ null,  // user factory
-            /* 7 */ service(\Doctrine\ORM\EntityManagerInterface::class)->nullOnInvalid(),
+            /* 7 */ service(\Symfony\Contracts\EventDispatcher\EventDispatcherInterface::class)->nullOnInvalid(),
             /* 8 */ service(\Psr\Log\LoggerInterface::class)->nullOnInvalid(),
         ])
     ;
 
     $services->set(\Hslavich\OneloginSamlBundle\EventListener\Security\SamlLogoutListener::class)
         ->tag('kernel.event_listener', ['event' => \Symfony\Component\Security\Http\Event\LogoutEvent::class])
+    ;
+
+    $services->set(\Hslavich\OneloginSamlBundle\EventListener\User\UserCreatedListener::class)
+        ->tag('kernel.event_listener', ['event' => \Hslavich\OneloginSamlBundle\Event\UserCreatedEvent::class])
+        ->tag('hslavich.saml_user_listener')
+        ->args([
+            service(\Doctrine\ORM\EntityManagerInterface::class)->nullOnInvalid(),
+            abstract_arg('persist_user'),
+        ])
+    ;
+    $services->set(\Hslavich\OneloginSamlBundle\EventListener\User\UserModifiedListener::class)
+        ->tag('kernel.event_listener', ['event' => \Hslavich\OneloginSamlBundle\Event\UserModifiedEvent::class])
+        ->tag('hslavich.saml_user_listener')
+        ->args([
+            service(\Doctrine\ORM\EntityManagerInterface::class)->nullOnInvalid(),
+            abstract_arg('persist_user'),
+        ])
     ;
 
     $deprecatedAliases = [

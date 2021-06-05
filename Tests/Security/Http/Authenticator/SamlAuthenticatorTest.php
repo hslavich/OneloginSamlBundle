@@ -5,13 +5,19 @@ declare(strict_types=1);
 namespace Hslavich\OneloginSamlBundle\Tests\Security\Http\Authenticator;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Hslavich\OneloginSamlBundle\Event\UserCreatedEvent;
+use Hslavich\OneloginSamlBundle\Event\UserModifiedEvent;
+use Hslavich\OneloginSamlBundle\EventListener\User\UserCreatedListener;
+use Hslavich\OneloginSamlBundle\EventListener\User\UserModifiedListener;
 use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\SamlAuthenticator;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
+use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider;
 use Hslavich\OneloginSamlBundle\Tests\TestUser;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Rule\InvokedCount;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -43,7 +49,10 @@ class SamlAuthenticatorTest extends TestCase
             $this->createMock(\OneLogin\Saml2\Auth::class),
             $this->createMock(AuthenticationSuccessHandlerInterface::class),
             $this->createMock(AuthenticationFailureHandlerInterface::class),
-            ['require_previous_session' => true]
+            ['require_previous_session' => true],
+            null,
+            null,
+            null
         );
 
         $this->expectException(SessionUnavailableException::class);
@@ -76,7 +85,10 @@ class SamlAuthenticatorTest extends TestCase
             $auth,
             $this->createMock(AuthenticationSuccessHandlerInterface::class),
             $this->createMock(AuthenticationFailureHandlerInterface::class),
-            ['require_previous_session' => false]
+            ['require_previous_session' => false],
+            null,
+            null,
+            null
         );
 
         $this->expectException(AuthenticationException::class);
@@ -100,7 +112,10 @@ class SamlAuthenticatorTest extends TestCase
             $this->getErrorlessAuth(false),
             $this->createMock(AuthenticationSuccessHandlerInterface::class),
             $this->createMock(AuthenticationFailureHandlerInterface::class),
-            ['require_previous_session' => false]
+            ['require_previous_session' => false],
+            null,
+            null,
+            null
         );
 
         $this->expectException(UserNotFoundException::class);
@@ -126,7 +141,10 @@ class SamlAuthenticatorTest extends TestCase
             $this->getErrorlessAuth(false),
             $this->createMock(AuthenticationSuccessHandlerInterface::class),
             $this->createMock(AuthenticationFailureHandlerInterface::class),
-            ['require_previous_session' => false]
+            ['require_previous_session' => false],
+            null,
+            null,
+            null
         );
 
         $this->expectException(AuthenticationException::class);
@@ -155,7 +173,10 @@ class SamlAuthenticatorTest extends TestCase
             $this->getErrorlessAuth(false),
             $this->createMock(AuthenticationSuccessHandlerInterface::class),
             $this->createMock(AuthenticationFailureHandlerInterface::class),
-            ['require_previous_session' => false]
+            ['require_previous_session' => false],
+            null,
+            null,
+            null
         );
 
         $passport = $authenticator->authenticate($this->createRequestWithSession());
@@ -179,7 +200,10 @@ class SamlAuthenticatorTest extends TestCase
         $userFactory
             ->expects(self::once())
             ->method('createUser')
-            ->with('uname', ['sessionIndex' => 'sess_index'])
+            ->with('uname', [
+                'sessionIndex' => 'sess_index',
+                'foo' => 'bar',
+            ])
             ->willReturn($user)
         ;
 
@@ -194,24 +218,74 @@ class SamlAuthenticatorTest extends TestCase
             ->method('flush')
         ;
 
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(UserCreatedEvent::class, new UserCreatedListener($entityManager, true));
+
         $authenticator = new SamlAuthenticator(
             $this->createMock(HttpUtils::class),
             $userProvider,
             $this->getErrorlessAuth(false),
             $this->createMock(AuthenticationSuccessHandlerInterface::class),
             $this->createMock(AuthenticationFailureHandlerInterface::class),
-            [
-                'require_previous_session' => false,
-                'persist_user' => true,
-            ],
+            ['require_previous_session' => false],
             $userFactory,
-            $entityManager
+            $eventDispatcher,
+            null
         );
 
         $passport = $authenticator->authenticate($this->createRequestWithSession());
 
         self::assertInstanceOf(UserPassportInterface::class, $passport);
         self::assertEquals($user, $passport->getUser());
+    }
+
+    public function testAuthenticationWithSamlAttributesInjection(): void
+    {
+        $user = $this->createMock(SamlUserInterface::class);
+        $user
+            ->expects(self::once())
+            ->method('setSamlAttributes')
+            ->with(self::equalTo([
+                'foo' => 'bar',
+                'sessionIndex' => 'sess_index',
+            ]))
+        ;
+
+        $userProvider = $this->createMock(SamlUserProvider::class);
+        $userProvider
+            ->expects(self::once())
+            ->method('loadUserByIdentifier')
+            ->willReturn($user)
+        ;
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager
+            ->expects(self::once())
+            ->method('persist')
+            ->with($user)
+        ;
+        $entityManager
+            ->expects(self::once())
+            ->method('flush')
+        ;
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(UserModifiedEvent::class, new UserModifiedListener($entityManager, true));
+
+        $authenticator = new SamlAuthenticator(
+            $this->createMock(HttpUtils::class),
+            $userProvider,
+            $this->getErrorlessAuth(false),
+            $this->createMock(AuthenticationSuccessHandlerInterface::class),
+            $this->createMock(AuthenticationFailureHandlerInterface::class),
+            ['require_previous_session' => false],
+            null,
+            $eventDispatcher,
+            null
+        );
+
+        $passport = $authenticator->authenticate($this->createRequestWithSession());
+        $passport->getUser();
     }
 
     private function createSamlAuthenticatorForSupports(InvokedCount $checkRequestExpects, ?bool $checkRequestPathReturn = null): SamlAuthenticator
@@ -232,7 +306,10 @@ class SamlAuthenticatorTest extends TestCase
             $this->createMock(\OneLogin\Saml2\Auth::class),
             $this->createMock(AuthenticationSuccessHandlerInterface::class),
             $this->createMock(AuthenticationFailureHandlerInterface::class),
-            ['check_path' => '']
+            ['check_path' => ''],
+            null,
+            null,
+            null
         );
     }
 
@@ -270,6 +347,11 @@ class SamlAuthenticatorTest extends TestCase
                 ->expects(self::once())
                 ->method('getNameId')
                 ->willReturn('uname')
+            ;
+            $auth
+                ->expects(self::once())
+                ->method('getAttributes')
+                ->willReturn(['foo' => 'bar'])
             ;
         }
 
