@@ -231,15 +231,9 @@ security:
                 username_attribute: uid
                 # User factory service
                 user_factory: my_user_factory
-                # Persist new user. Doctrine is required.
-                persist_user: true
             logout:
             path: saml_logout
 ```
-
-> In order for the user to be persisted, you must use a user provider that throws `UsernameNotFoundException` (e.g.
-> `EntityUserProvider` as used in the example above). The `SamlUserProvider` does not throw this exception which will
-> cause an empty user to be returned when a matching user cannot be found.
 
 Create the user factory service editing `services.yaml`:
 
@@ -303,3 +297,34 @@ services:
 >     ...
 > }
 > ```
+
+Persist user on creation and SAML attributes injection (Optional)
+-----------------------------------------------------------------
+
+> Symfony EventDispatcher component and Doctrine ORM are required.
+
+Edit firewall settings in `security.yaml`:
+
+``` yml
+security:
+    # ...
+
+    firewalls:
+        # ...
+
+        default:
+            saml:
+                # ...
+                persist_user: true
+```
+
+> In order for the user to be persisted, you must use a user provider that throws `UserNotFoundException` (e.g.
+> `EntityUserProvider` as used in the example above). The `SamlUserProvider` does not throw this exception which will
+> cause an empty user to be returned when a matching user cannot be found.
+
+To use non-default entity manager specify it name by `hslavich_onelogin_saml.entityManagerName` config option.
+
+User persistence is performing by event listeners `Hslavich\OneloginSamlBundle\EventListener\User\UserCreatedListener`
+and `Hslavich\OneloginSamlBundle\EventListener\User\UserModifiedListener` that can be decorated if necessary to override
+the default behavior. Also, you can make your own listeners for `Hslavich\OneloginSamlBundle\Event\UserCreatedEvent`
+and `Hslavich\OneloginSamlBundle\Event\UserModifiedEvent` events.

@@ -3,11 +3,13 @@
 namespace Hslavich\OneloginSamlBundle\Tests\DependencyInjection\Security\Factory;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-use Symfony\Component\DependencyInjection\Reference;
 use Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory\SamlFactory;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SamlFactoryTest extends TestCase
 {
@@ -49,7 +51,7 @@ class SamlFactoryTest extends TestCase
                 'user_factory' => 'my_user_factory',
                 'token_factory' => 'my_token_factory',
                 'persist_user' => true,
-            ]
+            ],
         ];
 
         $tests[] = [
@@ -61,7 +63,7 @@ class SamlFactoryTest extends TestCase
                 'user_factory' => null,
                 'token_factory' => null,
                 'persist_user' => false,
-            ]
+            ],
         ];
 
         return $tests;
@@ -88,7 +90,7 @@ class SamlFactoryTest extends TestCase
         $providerDefinition = $container->getDefinition('security.authentication.provider.saml.test_firewall');
         self::assertEquals([
             new Reference('my_user_provider'),
-            ['persist_user' => false]
+            new Reference(EventDispatcherInterface::class, ContainerInterface::NULL_ON_INVALID_REFERENCE),
         ], $providerDefinition->getArguments());
     }
 }

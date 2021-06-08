@@ -12,8 +12,10 @@ use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\SecurityF
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Security\Http\HttpUtils;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInterface
 {
@@ -76,15 +78,14 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
         trigger_deprecation('hslavich/oneloginsaml-bundle', '2.1', 'Usage of security authentication listener is deprecated, option "security.enable_authenticator_manager" should be set to true.');
 
         $authProviderId = $this->createAuthProvider($container, $id, $config, $userProviderId);
-
         $listenerId = $this->createListener($container, $id, $config);
+
+        $this->setUserPersistence($container, $config);
 
         // add remember-me aware tag if requested
         if ($config['remember_me']) {
-            $container
-                ->getDefinition($listenerId)
-                ->addTag('security.remember_me_aware', ['id' => $id, 'provider' => $userProviderId])
-            ;
+            $listenerDefinition = $container->getDefinition($listenerId);
+            $listenerDefinition->addTag('security.remember_me_aware', ['id' => $id, 'provider' => $userProviderId]);
         }
 
         $entryPointId = $this->createEntryPoint($container, $id, $config);
@@ -106,7 +107,6 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
     {
         $authenticatorId = 'security.authenticator.saml.'.$firewallName;
         $authenticator = (new ChildDefinition(SamlAuthenticator::class))
-            ->addTag('hslavich.saml_authenticator')
             ->replaceArgument(0, new Reference(HttpUtils::class))
             ->replaceArgument(1, new Reference($userProviderId))
             ->replaceArgument(3, new Reference($this->createAuthenticationSuccessHandler($container, $firewallName, $config)))
@@ -120,6 +120,8 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
 
         $container->setDefinition($authenticatorId, $authenticator);
 
+        $this->setUserPersistence($container, $config);
+
         return $authenticatorId;
     }
 
@@ -127,12 +129,9 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
     {
         $providerId = 'security.authentication.provider.saml.'.$id;
         $definition = $container->setDefinition($providerId, new ChildDefinition(SamlProvider::class))
-            ->addTag('hslavich.saml_provider')
             ->setArguments([
                 new Reference($userProviderId),
-                [
-                    'persist_user' => $config['persist_user'],
-                ],
+                new Reference(EventDispatcherInterface::class, ContainerInterface::NULL_ON_INVALID_REFERENCE),
             ])
         ;
 
@@ -218,5 +217,13 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
     protected function getFailureHandlerId(string $id): string
     {
         return 'security.authentication.failure_handler.'.$id.'.'.str_replace('-', '_', $this->getKey());
+    }
+
+    protected function setUserPersistence(ContainerBuilder $container, array $config): void
+    {
+        foreach (array_keys($container->findTaggedServiceIds('hslavich.saml_user_listener')) as $id) {
+            $listenerDefinition = $container->getDefinition($id);
+            $listenerDefinition->replaceArgument(1, $config['persist_user']);
+        }
     }
 }

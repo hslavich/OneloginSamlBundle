@@ -6,7 +6,7 @@ use Hslavich\OneloginSamlBundle\Event\UserModifiedEvent;
 
 class UserModifiedListener extends AbstractUserListener
 {
-    public function onUserModified(UserModifiedEvent $event)
+    public function __invoke(UserModifiedEvent $event)
     {
         $this->handleEvent($event);
     }

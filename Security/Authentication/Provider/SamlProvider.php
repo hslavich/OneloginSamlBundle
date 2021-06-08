@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @deprecated since 2.1
@@ -24,7 +25,7 @@ class SamlProvider implements AuthenticationProviderInterface
     protected $tokenFactory;
     protected $eventDispatcher;
 
-    public function __construct(UserProviderInterface $userProvider, $eventDispatcher)
+    public function __construct(UserProviderInterface $userProvider, ?EventDispatcherInterface $eventDispatcher)
     {
         $this->userProvider = $userProvider;
         $this->eventDispatcher = $eventDispatcher;
@@ -47,13 +48,8 @@ class SamlProvider implements AuthenticationProviderInterface
         if ($user) {
             if ($user instanceof SamlUserInterface) {
                 $user->setSamlAttributes($token->getAttributes());
-
                 if ($this->eventDispatcher) {
-                    if (class_exists('\Symfony\Contracts\EventDispatcher\Event')) {
-                        $this->eventDispatcher->dispatch(new UserModifiedEvent($user), UserModifiedEvent::NAME);
-                    } else {
-                        $this->eventDispatcher->dispatch(UserModifiedEvent::NAME, new UserModifiedEvent($user));
-                    }
+                    $this->eventDispatcher->dispatch(new UserModifiedEvent($user));
                 }
             }
 
@@ -87,13 +83,8 @@ class SamlProvider implements AuthenticationProviderInterface
     protected function generateUser($token)
     {
         $user = $this->userFactory->createUser($token);
-
         if ($this->eventDispatcher) {
-            if (class_exists('\Symfony\Contracts\EventDispatcher\Event')) {
-                $this->eventDispatcher->dispatch(new UserCreatedEvent($user), UserCreatedEvent::NAME);
-            } else {
-                $this->eventDispatcher->dispatch(UserCreatedEvent::NAME, new UserCreatedEvent($user));
-            }
+            $this->eventDispatcher->dispatch(new UserCreatedEvent($user));
         }
 
         return $user;

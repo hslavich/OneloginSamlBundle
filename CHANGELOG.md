@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.4.0
+
+ * Added events for user creation and modification.
+
 ## 2.3.3
 
  * Reverted BC break (persistence SamlUser after calling setSamlAttributes).

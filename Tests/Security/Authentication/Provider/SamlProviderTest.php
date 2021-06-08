@@ -108,7 +108,7 @@ class SamlProviderTest extends TestCase
         ;
 
         $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addListener(UserModifiedEvent::NAME, [new UserModifiedListener($entityManager, true), 'onUserModified']);
+        $eventDispatcher->addListener(UserModifiedEvent::class, new UserModifiedListener($entityManager, true));
 
         $provider = $this->getProvider($user, null, $eventDispatcher);
         $provider->authenticate($this->getSamlToken());
@@ -142,7 +142,7 @@ class SamlProviderTest extends TestCase
         ;
 
         $eventDispatcher = new EventDispatcher();
-        $eventDispatcher->addListener(UserCreatedEvent::NAME, [new UserCreatedListener($entityManager, true), 'onUserCreated']);
+        $eventDispatcher->addListener(UserCreatedEvent::class, new UserCreatedListener($entityManager, true));
 
         $provider = $this->getProvider(null, $userFactory, $eventDispatcher);
         $provider->authenticate($this->getSamlToken());

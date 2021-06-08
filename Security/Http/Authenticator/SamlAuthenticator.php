@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Hslavich\OneloginSamlBundle\Security\Http\Authenticator;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Hslavich\OneloginSamlBundle\Event\UserCreatedEvent;
+use Hslavich\OneloginSamlBundle\Event\UserModifiedEvent;
 use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Passport\SamlPassport;
 use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Passport\SamlPassportInterface;
 use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Token\SamlToken;
@@ -28,6 +29,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 use Symfony\Component\Security\Http\HttpUtils;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPointInterface
 {
@@ -38,7 +40,7 @@ class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPo
     private $failureHandler;
     private $options;
     private $userFactory;
-    private $entityManager;
+    private $eventDispatcher;
     private $logger;
 
     public function __construct(
@@ -48,9 +50,9 @@ class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPo
         AuthenticationSuccessHandlerInterface $successHandler,
         AuthenticationFailureHandlerInterface $failureHandler,
         array $options,
-        ?SamlUserFactoryInterface $userFactory = null,
-        ?EntityManagerInterface $entityManager = null,
-        ?LoggerInterface $logger = null
+        ?SamlUserFactoryInterface $userFactory,
+        ?EventDispatcherInterface $eventDispatcher,
+        ?LoggerInterface $logger
     ) {
         $this->httpUtils = $httpUtils;
         $this->userProvider = $userProvider;
@@ -59,7 +61,7 @@ class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPo
         $this->failureHandler = $failureHandler;
         $this->options = $options;
         $this->userFactory = $userFactory;
-        $this->entityManager = $entityManager;
+        $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
     }
 
@@ -138,6 +140,9 @@ class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPo
 
                 if ($user instanceof SamlUserInterface) {
                     $user->setSamlAttributes($attributes);
+                    if ($this->eventDispatcher) {
+                        $this->eventDispatcher->dispatch(new UserModifiedEvent($user));
+                    }
                 }
 
                 return $user;
@@ -179,9 +184,8 @@ class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPo
     {
         $user = $this->userFactory->createUser($username, $attributes);
 
-        if ($this->options['persist_user'] && $this->entityManager) {
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
+        if ($this->eventDispatcher) {
+            $this->eventDispatcher->dispatch(new UserCreatedEvent($user));
         }
 
         return $user;
