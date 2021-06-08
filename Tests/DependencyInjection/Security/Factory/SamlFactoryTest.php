@@ -4,6 +4,7 @@ namespace Hslavich\OneloginSamlBundle\Tests\DependencyInjection\Security\Provide
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Reference;
 use Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory\SamlFactory;
 use Hslavich\OneloginSamlBundle\Tests\TestUser;
@@ -85,7 +86,7 @@ class SamlFactoryTest extends \PHPUnit_Framework_TestCase
         $providerDefinition = $container->getDefinition('security.authentication.provider.saml.test_firewall');
         $this->assertEquals(array(
             'index_0' => new Reference('my_user_provider'),
-            0 => array('persist_user' => false)
+            'index_1' => new Reference('event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE)
         ), $providerDefinition->getArguments());
     }
 }

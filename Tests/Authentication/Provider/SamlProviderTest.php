@@ -2,8 +2,13 @@
 
 namespace Hslavich\OneloginSamlBundle\Tests\Authentication\Provider;
 
+use Hslavich\OneloginSamlBundle\Event\UserCreatedEvent;
+use Hslavich\OneloginSamlBundle\Event\UserModifiedEvent;
+use Hslavich\OneloginSamlBundle\EventListener\User\UserCreatedListener;
+use Hslavich\OneloginSamlBundle\EventListener\User\UserModifiedListener;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactory;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 class SamlProviderTest extends \PHPUnit_Framework_TestCase
@@ -72,7 +77,14 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
         $user->expects($this->once())->method('getRoles')->willReturn(array());
         $user->expects($this->once())->method('setSamlAttributes')->with($this->equalTo(array('foo' => 'bar')));
 
-        $provider = $this->getProvider($user);
+        $entityManager = $this->createMock('Doctrine\ORM\EntityManagerInterface', array('persist', 'flush'));
+        $entityManager->expects($this->once())->method('persist')->with($this->equalTo($user));
+        $entityManager->expects($this->once())->method('flush');
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(UserModifiedEvent::NAME, [new UserModifiedListener($entityManager, true), 'onUserModified']);
+
+        $provider = $this->getProvider($user, null, $eventDispatcher);
         $provider->authenticate($this->getSamlToken());
     }
 
@@ -86,8 +98,12 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
 
         $entityManager = $this->createMock('Doctrine\ORM\EntityManagerInterface', array('persist', 'flush'));
         $entityManager->expects($this->once())->method('persist')->with($this->equalTo($user));
+        $entityManager->expects($this->once())->method('flush');
 
-        $provider = $this->getProvider(null, $userFactory, $entityManager, true);
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(UserCreatedEvent::NAME, [new UserCreatedListener($entityManager, true), 'onUserCreated']);
+
+        $provider = $this->getProvider(null, $userFactory, $eventDispatcher);
         $provider->authenticate($this->getSamlToken());
 
     }
@@ -101,7 +117,7 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
         return $token;
     }
 
-    protected function getProvider($user = null, $userFactory = null, $entityManager = null, $persist = false)
+    protected function getProvider($user = null, $userFactory = null, $eventDispatcher = null)
     {
         $userProvider = $this->createMock('Symfony\Component\Security\Core\User\UserProviderInterface');
         if ($user) {
@@ -110,15 +126,11 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
             $userProvider->method('loadUserByUsername')->will($this->throwException(new UsernameNotFoundException()));
         }
 
-        $provider = new SamlProvider($userProvider, array('persist_user' => $persist));
+        $provider = new SamlProvider($userProvider, $eventDispatcher);
         $provider->setTokenFactory(new SamlTokenFactory());
 
         if ($userFactory) {
             $provider->setUserFactory($userFactory);
-        }
-
-        if ($entityManager) {
-            $provider->setEntityManager($entityManager);
         }
 
         return $provider;

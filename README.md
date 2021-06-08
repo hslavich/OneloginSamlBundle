@@ -213,8 +213,6 @@ firewalls:
             username_attribute: uid
             # User factory service
             user_factory: my_user_factory
-            # Persist new user. Doctrine is required.
-            persist_user: true
         logout:
             path: /saml/logout
 ```
@@ -271,3 +269,29 @@ services:
     my_user_factory:
         class: AppBundle\Security\UserFactory
 ```
+
+Persist user on creation and SAML attributes injection (Optional)
+-----------------------------------------------------------------
+
+> Symfony DependencyInjection component and Doctrine ORM are required.
+
+Edit firewall settings in `security.yaml`:
+
+``` yml
+security:
+    # ...
+
+    firewalls:
+        # ...
+
+        default:
+            saml:
+                # ...
+                persist_user: true
+```
+
+To use non-default entity manager specify it name by `hslavich_onelogin_saml.security.entityManagerName` config option.
+
+User persistence is performing by event listeners `Hslavich\OneloginSamlBundle\EventListener\User\UserCreatedListener`
+and `Hslavich\OneloginSamlBundle\EventListener\User\UserModifiedListener` that can be decorated if necessary to override
+the default behavior. Also, you can make your own listeners for `saml_user.created` and `saml_user.modified` events.
