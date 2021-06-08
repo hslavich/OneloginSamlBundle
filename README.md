@@ -273,7 +273,7 @@ services:
 Persist user on creation and SAML attributes injection (Optional)
 -----------------------------------------------------------------
 
-> Symfony DependencyInjection component and Doctrine ORM are required.
+> Symfony EventDispatcher component and Doctrine ORM are required.
 
 Edit firewall settings in `security.yaml`:
 
