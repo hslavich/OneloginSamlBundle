@@ -50,10 +50,6 @@ class SamlProvider implements AuthenticationProviderInterface
         if ($user) {
             if ($user instanceof SamlUserInterface) {
                 $user->setSamlAttributes($token->getAttributes());
-                if ($this->entityManager) {
-                    $this->entityManager->persist($user);
-                    $this->entityManager->flush();
-                }
             }
 
             $authenticatedToken = $this->tokenFactory->createToken($user, $token->getAttributes(), $user->getRoles());
