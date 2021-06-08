@@ -48,7 +48,7 @@ return static function (ContainerConfigurator $container): void {
         ->tag('hslavich.saml_user_listener')
         ->args([
             service(\Doctrine\ORM\EntityManagerInterface::class)->nullOnInvalid(),
-            abstract_arg('persist_user'),
+            false,  // persist_user
         ])
     ;
     $services->set(\Hslavich\OneloginSamlBundle\EventListener\User\UserModifiedListener::class)
@@ -56,7 +56,7 @@ return static function (ContainerConfigurator $container): void {
         ->tag('hslavich.saml_user_listener')
         ->args([
             service(\Doctrine\ORM\EntityManagerInterface::class)->nullOnInvalid(),
-            abstract_arg('persist_user'),
+            false,  // persist_user
         ])
     ;
 
