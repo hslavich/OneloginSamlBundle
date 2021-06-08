@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.3
+
+ * Reverted BC break (persistence SamlUser after calling setSamlAttributes).
+
 ## 2.3.2
 
  * Added persistence SamlUser after calling setSamlAttributes while authentication.
