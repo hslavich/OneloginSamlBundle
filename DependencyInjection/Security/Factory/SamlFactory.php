@@ -3,9 +3,10 @@
 namespace Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory;
 
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AbstractFactory;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\ChildDefinition;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Reference;
 
 class SamlFactory extends AbstractFactory
@@ -46,6 +47,21 @@ class SamlFactory extends AbstractFactory
         return 'hslavich_onelogin_saml.saml_listener';
     }
 
+    public function create(ContainerBuilder $container, $id, $config, $userProviderId, $defaultEntryPointId)
+    {
+        $this->setUserPersistence($container, $config);
+
+        return parent::create($container, $id, $config, $userProviderId, $defaultEntryPointId);
+    }
+
+    protected function setUserPersistence(ContainerBuilder $container, $config)
+    {
+        foreach (array_keys($container->findTaggedServiceIds('hslavich.saml_user_listener')) as $id) {
+            $listenerDefinition = $container->getDefinition($id);
+            $listenerDefinition->replaceArgument(1, $config['persist_user']);
+        }
+    }
+
     /**
      * Subclasses must return the id of a service which implements the
      * AuthenticationProviderInterface.
@@ -63,10 +79,7 @@ class SamlFactory extends AbstractFactory
         $definitionClassname = $this->getDefinitionClassname();
         $definition = $container->setDefinition($providerId, new $definitionClassname('hslavich_onelogin_saml.saml_provider'))
             ->replaceArgument(0, new Reference($userProviderId))
-            ->addArgument(array(
-                 'persist_user' => $config['persist_user']
-            ))
-            ->addTag('hslavich.saml_provider')
+            ->replaceArgument(1, new Reference('event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE))
         ;
 
         if ($config['user_factory']) {

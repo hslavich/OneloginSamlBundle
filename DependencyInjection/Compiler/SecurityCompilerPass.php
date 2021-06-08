@@ -20,10 +20,11 @@ class SecurityCompilerPass implements CompilerPassInterface
         if(!empty($config['security']) && isset($config['security']['entityManagerName'])){
             $emDefinition='doctrine.orm.'.$config['security']['entityManagerName'].'_entity_manager';
         }
-       
+
         if ($container->hasDefinition($emDefinition)) {
-            foreach ($container->findTaggedServiceIds('hslavich.saml_provider') as $id => $tags) {
-                $container->getDefinition($id)->addMethodCall('setEntityManager', array(new Reference($emDefinition)));
+            foreach (array_keys($container->findTaggedServiceIds('hslavich.saml_user_listener')) as $id) {
+                $listenerDefinition = $container->getDefinition($id);
+                $listenerDefinition->replaceArgument(0, new Reference($emDefinition));
             }
         }
     }

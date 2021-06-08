@@ -31,3 +31,15 @@ services:
         class: Hslavich\OneloginSamlBundle\Security\Logout\SamlLogoutHandler
         arguments:
             - "@onelogin_auth"
+
+    hslavich_onelogin_saml.user_created_listener:
+        class: Hslavich\OneloginSamlBundle\EventListener\User\UserCreatedListener
+        arguments: [""]
+        tags:
+            - { name: kernel.event_listener, event: saml_user.created }
+
+    hslavich_onelogin_saml.user_modified_listener:
+        class: Hslavich\OneloginSamlBundle\EventListener\User\UserModifiedListener
+        arguments: [""]
+        tags:
+            - { name: kernel.event_listener, event: saml_user.modified }
