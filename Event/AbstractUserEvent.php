@@ -2,10 +2,9 @@
 
 namespace Hslavich\OneloginSamlBundle\Event;
 
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-abstract class AbstractUserEvent extends Event
+abstract class AbstractUserEvent extends \Symfony\Contracts\EventDispatcher\Event
 {
     private $user;
 

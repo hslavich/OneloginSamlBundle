@@ -3,6 +3,10 @@
 namespace Hslavich\OneloginSamlBundle\Tests\Security\Authentication\Provider;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Hslavich\OneloginSamlBundle\Event\UserCreatedEvent;
+use Hslavich\OneloginSamlBundle\Event\UserModifiedEvent;
+use Hslavich\OneloginSamlBundle\EventListener\User\UserCreatedListener;
+use Hslavich\OneloginSamlBundle\EventListener\User\UserModifiedListener;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactory;
@@ -10,9 +14,11 @@ use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SamlProviderTest extends TestCase
 {
@@ -90,7 +96,21 @@ class SamlProviderTest extends TestCase
             ->with(self::equalTo(['foo' => 'bar']))
         ;
 
-        $provider = $this->getProvider($user);
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager
+            ->expects(self::once())
+            ->method('persist')
+            ->with(self::equalTo($user))
+        ;
+        $entityManager
+            ->expects(self::once())
+            ->method('flush')
+        ;
+
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(UserModifiedEvent::NAME, [new UserModifiedListener($entityManager, true), 'onUserModified']);
+
+        $provider = $this->getProvider($user, null, $eventDispatcher);
         $provider->authenticate($this->getSamlToken());
     }
 
@@ -116,8 +136,15 @@ class SamlProviderTest extends TestCase
             ->method('persist')
             ->with(self::equalTo($user))
         ;
+        $entityManager
+            ->expects(self::once())
+            ->method('flush')
+        ;
 
-        $provider = $this->getProvider(null, $userFactory, $entityManager, true);
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(UserCreatedEvent::NAME, [new UserCreatedListener($entityManager, true), 'onUserCreated']);
+
+        $provider = $this->getProvider(null, $userFactory, $eventDispatcher);
         $provider->authenticate($this->getSamlToken());
 
     }
@@ -138,7 +165,7 @@ class SamlProviderTest extends TestCase
         return $token;
     }
 
-    protected function getProvider($user = null, $userFactory = null, $entityManager = null, $persist = false): SamlProvider
+    protected function getProvider($user = null, $userFactory = null, EventDispatcherInterface $eventDispatcher = null): SamlProvider
     {
         $userProvider = $this->createMock(SamlUserProvider::class);
         if ($user) {
@@ -153,15 +180,11 @@ class SamlProviderTest extends TestCase
             ;
         }
 
-        $provider = new SamlProvider($userProvider, ['persist_user' => $persist]);
+        $provider = new SamlProvider($userProvider, $eventDispatcher);
         $provider->setTokenFactory(new SamlTokenFactory());
 
         if ($userFactory) {
             $provider->setUserFactory($userFactory);
-        }
-
-        if ($entityManager) {
-            $provider->setEntityManager($entityManager);
         }
 
         return $provider;
