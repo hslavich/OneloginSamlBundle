@@ -301,7 +301,7 @@ services:
 Persist user on creation and SAML attributes injection (Optional)
 -----------------------------------------------------------------
 
-> Doctrine ORM is required.
+> Symfony EventDispatcher component and Doctrine ORM are required.
 
 Edit firewall settings in `security.yaml`:
 
@@ -318,7 +318,7 @@ security:
                 persist_user: true
 ```
 
-> In order for the user to be persisted, you must use a user provider that throws `UsernameNotFoundException` (e.g.
+> In order for the user to be persisted, you must use a user provider that throws `UserNotFoundException` (e.g.
 > `EntityUserProvider` as used in the example above). The `SamlUserProvider` does not throw this exception which will
 > cause an empty user to be returned when a matching user cannot be found.
 

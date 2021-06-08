@@ -21,6 +21,11 @@ class SecurityCompilerPass implements CompilerPassInterface
         }
     }
 
+    private function processConfiguration(ConfigurationInterface $configuration, array $configs): array
+    {
+        return (new Processor())->processConfiguration($configuration, $configs);
+    }
+
     private function setEntityManagerForUserListeners(ContainerBuilder $container, $entityManagerName): void
     {
         $emDefinition = 'doctrine.orm.'.$entityManagerName.'_entity_manager';
@@ -32,10 +37,5 @@ class SecurityCompilerPass implements CompilerPassInterface
             $listenerDefinition = $container->getDefinition($id);
             $listenerDefinition->replaceArgument(0, new Reference($emDefinition));
         }
-    }
-
-    private function processConfiguration(ConfigurationInterface $configuration, array $configs): array
-    {
-        return (new Processor())->processConfiguration($configuration, $configs);
     }
 }
