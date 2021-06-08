@@ -36,10 +36,12 @@ services:
         class: Hslavich\OneloginSamlBundle\EventListener\User\UserCreatedListener
         arguments: [""]
         tags:
+            - { name: hslavich.saml_user_listener }
             - { name: kernel.event_listener, event: saml_user.created }
 
     hslavich_onelogin_saml.user_modified_listener:
         class: Hslavich\OneloginSamlBundle\EventListener\User\UserModifiedListener
         arguments: [""]
         tags:
+            - { name: hslavich.saml_user_listener }
             - { name: kernel.event_listener, event: saml_user.modified }
