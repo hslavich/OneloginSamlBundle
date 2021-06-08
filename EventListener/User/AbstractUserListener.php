@@ -9,7 +9,7 @@ abstract class AbstractUserListener
     protected $entryManager;
     protected $needPersist;
 
-    public function __construct($entryManager, $needPersist)
+    public function __construct($entryManager, $needPersist = false)
     {
         $this->entryManager = $entryManager;
         $this->needPersist = $needPersist;
