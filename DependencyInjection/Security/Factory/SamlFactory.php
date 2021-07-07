@@ -2,6 +2,8 @@
 
 namespace Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory;
 
+use Hslavich\OneloginSamlBundle\Event\UserCreatedEvent;
+use Hslavich\OneloginSamlBundle\Event\UserModifiedEvent;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AbstractFactory;
 use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -49,17 +51,26 @@ class SamlFactory extends AbstractFactory
 
     public function create(ContainerBuilder $container, $id, $config, $userProviderId, $defaultEntryPointId)
     {
-        $this->setUserPersistence($container, $config);
+        $this->createUserListeners($container, $id, $config);
 
         return parent::create($container, $id, $config, $userProviderId, $defaultEntryPointId);
     }
 
-    protected function setUserPersistence(ContainerBuilder $container, $config)
+    protected function createUserListeners(ContainerBuilder $container, $id, $config)
     {
-        foreach (array_keys($container->findTaggedServiceIds('hslavich.saml_user_listener')) as $id) {
-            $listenerDefinition = $container->getDefinition($id);
-            $listenerDefinition->replaceArgument(1, $config['persist_user']);
-        }
+        $definitionClassname = $this->getDefinitionClassname();
+
+        $container->setDefinition('hslavich_onelogin_saml.user_created_listener'.$id, new $definitionClassname('hslavich_onelogin_saml.user_created_listener'))
+            ->replaceArgument(1, $config['persist_user'])
+            ->addTag('hslavich.saml_user_listener')
+            ->addTag('kernel.event_listener', ['event' => UserCreatedEvent::NAME, 'method' => 'onUserCreated'])
+        ;
+
+        $container->setDefinition('hslavich_onelogin_saml.user_modified_listener'.$id, new $definitionClassname('hslavich_onelogin_saml.user_modified_listener'))
+            ->replaceArgument(1, $config['persist_user'])
+            ->addTag('hslavich.saml_user_listener')
+            ->addTag('kernel.event_listener', ['event' => UserModifiedEvent::NAME, 'method' => 'onUserModified'])
+        ;
     }
 
     /**
