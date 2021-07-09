@@ -10,7 +10,7 @@ abstract class AbstractUserListener
     protected $entryManager;
     protected $needPersist;
 
-    public function __construct(EntityManagerInterface $entryManager, bool $needPersist)
+    public function __construct(?EntityManagerInterface $entryManager, bool $needPersist)
     {
         $this->entryManager = $entryManager;
         $this->needPersist = $needPersist;
