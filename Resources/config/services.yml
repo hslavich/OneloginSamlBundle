@@ -34,14 +34,10 @@ services:
 
     hslavich_onelogin_saml.user_created_listener:
         class: Hslavich\OneloginSamlBundle\EventListener\User\UserCreatedListener
+        abstract: true
         arguments: ["", ""]
-        tags:
-            - { name: kernel.event_listener, event: saml_user.created, method: onUserCreated }
-            - { name: hslavich.saml_user_listener }
 
     hslavich_onelogin_saml.user_modified_listener:
         class: Hslavich\OneloginSamlBundle\EventListener\User\UserModifiedListener
+        abstract: true
         arguments: ["", ""]
-        tags:
-            - { name: kernel.event_listener, event: saml_user.modified, method: onUserModified }
-            - { name: hslavich.saml_user_listener }
