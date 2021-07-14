@@ -2,6 +2,10 @@
 
 namespace Hslavich\OneloginSamlBundle\DependencyInjection\Security\Factory;
 
+use Hslavich\OneloginSamlBundle\Event\UserCreatedEvent;
+use Hslavich\OneloginSamlBundle\Event\UserModifiedEvent;
+use Hslavich\OneloginSamlBundle\EventListener\User\UserCreatedListener;
+use Hslavich\OneloginSamlBundle\EventListener\User\UserModifiedListener;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Provider\SamlProvider;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlTokenFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\Firewall\SamlListener;
@@ -80,7 +84,7 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
         $authProviderId = $this->createAuthProvider($container, $id, $config, $userProviderId);
         $listenerId = $this->createListener($container, $id, $config);
 
-        $this->setUserPersistence($container, $config);
+        $this->createUserListeners($container, $id, $config);
 
         // add remember-me aware tag if requested
         if ($config['remember_me']) {
@@ -120,7 +124,7 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
 
         $container->setDefinition($authenticatorId, $authenticator);
 
-        $this->setUserPersistence($container, $config);
+        $this->createUserListeners($container, $firewallName, $config);
 
         return $authenticatorId;
     }
@@ -219,11 +223,18 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
         return 'security.authentication.failure_handler.'.$id.'.'.str_replace('-', '_', $this->getKey());
     }
 
-    protected function setUserPersistence(ContainerBuilder $container, array $config): void
+    protected function createUserListeners(ContainerBuilder $container, string $firewallName, array $config): void
     {
-        foreach (array_keys($container->findTaggedServiceIds('hslavich.saml_user_listener')) as $id) {
-            $listenerDefinition = $container->getDefinition($id);
-            $listenerDefinition->replaceArgument(1, $config['persist_user']);
-        }
+        $container->setDefinition('hslavich_onelogin_saml.user_created_listener.'.$firewallName, new ChildDefinition(UserCreatedListener::class))
+            ->replaceArgument(1, $config['persist_user'])
+            ->addTag('hslavich.saml_user_listener')
+            ->addTag('kernel.event_listener', ['event' => UserCreatedEvent::class])
+        ;
+
+        $container->setDefinition('hslavich_onelogin_saml.user_modified_listener.'.$firewallName, new ChildDefinition(UserModifiedListener::class))
+            ->replaceArgument(1, $config['persist_user'])
+            ->addTag('hslavich.saml_user_listener')
+            ->addTag('kernel.event_listener', ['event' => UserModifiedEvent::class])
+        ;
     }
 }

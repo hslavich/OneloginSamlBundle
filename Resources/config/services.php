@@ -44,16 +44,14 @@ return static function (ContainerConfigurator $container): void {
     ;
 
     $services->set(\Hslavich\OneloginSamlBundle\EventListener\User\UserCreatedListener::class)
-        ->tag('kernel.event_listener', ['event' => \Hslavich\OneloginSamlBundle\Event\UserCreatedEvent::class])
-        ->tag('hslavich.saml_user_listener')
+        ->abstract()
         ->args([
             service(\Doctrine\ORM\EntityManagerInterface::class)->nullOnInvalid(),
             false,  // persist_user
         ])
     ;
     $services->set(\Hslavich\OneloginSamlBundle\EventListener\User\UserModifiedListener::class)
-        ->tag('kernel.event_listener', ['event' => \Hslavich\OneloginSamlBundle\Event\UserModifiedEvent::class])
-        ->tag('hslavich.saml_user_listener')
+        ->abstract()
         ->args([
             service(\Doctrine\ORM\EntityManagerInterface::class)->nullOnInvalid(),
             false,  // persist_user
