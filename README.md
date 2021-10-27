@@ -85,6 +85,9 @@ hslavich_onelogin_saml:
         support:
             givenName: 'Support User'
             emailAddress: 'supportuser@example.com'
+        administrative:
+            givenName: 'Administrative User'
+            emailAddress: 'administrativeuser@example.com'
     organization:
         en:
             name: 'Example'
