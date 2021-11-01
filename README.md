@@ -61,16 +61,19 @@ hslavich_onelogin_saml:
     strict: true
     debug: true    
     security:
-        nameIdEncrypted:       false
-        authnRequestsSigned:   false
-        logoutRequestSigned:   false
-        logoutResponseSigned:  false
-        wantMessagesSigned:    false
-        wantAssertionsSigned:  false
-        wantNameIdEncrypted:   false
+        nameIdEncrypted: false
+        authnRequestsSigned: false
+        logoutRequestSigned: false
+        logoutResponseSigned: false
+        wantMessagesSigned: false
+        wantAssertionsSigned: false
+        wantNameIdEncrypted: false
         requestedAuthnContext: true
         signMetadata: false
         wantXMLValidation: true
+        relaxDestinationValidation: false
+        destinationStrictlyMatches: true
+        rejectUnsolicitedResponsesWithInResponseTo: false
         signatureAlgorithm: 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
         digestAlgorithm: 'http://www.w3.org/2001/04/xmlenc#sha256'
     contactPerson:
@@ -80,6 +83,9 @@ hslavich_onelogin_saml:
         support:
             givenName: 'Support User'
             emailAddress: 'supportuser@example.com'
+        administrative:
+            givenName: 'Administrative User'
+            emailAddress: 'administrativeuser@example.com'
     organization:
         en:
             name: 'Example'

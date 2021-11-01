@@ -26,7 +26,7 @@ class Configuration implements ConfigurationInterface
             $treeBuilder = new TreeBuilder();
             $rootNode = $treeBuilder->root('hslavich_saml_sp');
         }
-        
+
         $rootNode
             ->children()
                 ->scalarNode('baseurl')->end()
@@ -121,6 +121,12 @@ class Configuration implements ConfigurationInterface
                         ->end()
                         ->booleanNode('signMetadata')->end()
                         ->booleanNode('wantXMLValidation')->end()
+                        ->booleanNode('relaxDestinationValidation')->end()
+                        ->booleanNode('allowRepeatAttributeName')->end()
+                        ->booleanNode('destinationStrictlyMatches')
+                            ->defaultTrue()
+                        ->end()
+                        ->booleanNode('rejectUnsolicitedResponsesWithInResponseTo')->end()
                         ->booleanNode('lowercaseUrlencoding')->end()
                         ->scalarNode('signatureAlgorithm')->end()
                         ->scalarNode('digestAlgorithm')->end()
@@ -136,6 +142,12 @@ class Configuration implements ConfigurationInterface
                             ->end()
                         ->end()
                         ->arrayNode('support')
+                            ->children()
+                                ->scalarNode('givenName')->end()
+                                ->scalarNode('emailAddress')->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('administrative')
                             ->children()
                                 ->scalarNode('givenName')->end()
                                 ->scalarNode('emailAddress')->end()
