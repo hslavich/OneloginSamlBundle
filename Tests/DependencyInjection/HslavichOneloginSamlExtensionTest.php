@@ -90,6 +90,8 @@ class HslavichOneloginSamlExtensionTest extends TestCase
         self::assertEquals('techuser@example.com', $settings['contactPerson']['technical']['emailAddress']);
         self::assertEquals('Support User', $settings['contactPerson']['support']['givenName']);
         self::assertEquals('supportuser@example.com', $settings['contactPerson']['support']['emailAddress']);
+        self::assertEquals('Administrative User', $settings['contactPerson']['administrative']['givenName']);
+        self::assertEquals('administrativeuser@example.com', $settings['contactPerson']['administrative']['emailAddress']);
     }
 
     public function testLoadArrayRequestedAuthnContext(): void
