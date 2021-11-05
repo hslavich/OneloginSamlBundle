@@ -8,5 +8,5 @@ use Symfony\Component\Security\Http\Authenticator\Passport\UserPassportInterface
 
 interface SamlPassportInterface extends UserPassportInterface
 {
-    public function getAttributes(): array;
+
 }
