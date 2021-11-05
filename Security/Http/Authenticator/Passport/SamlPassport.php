@@ -9,17 +9,12 @@ use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPasspor
 
 class SamlPassport extends SelfValidatingPassport implements SamlPassportInterface
 {
-    private $attributes;
-
     public function __construct(UserBadge $userBadge, array $attributes, array $badges = [])
     {
         parent::__construct($userBadge, $badges);
 
-        $this->attributes = $attributes;
-    }
-
-    public function getAttributes(): array
-    {
-        return $this->attributes;
+        foreach($attributes as $name => $value) {
+            $this->setAttribute($name, $value);
+        }
     }
 }
