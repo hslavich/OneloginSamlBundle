@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.7.0
+
+ * Symfony 5.4 support
+ * Removed SamlPassport class in favor of use of SamlAttributesBadge.
+
+## 2.6.0
+
+ * Fixed invalid target_path for non-main firewall.
+
+## 2.5.0
+
+ * Added ability to specify administrative contact person info into config.
+
 ## 2.4.0
 
  * Added events for user creation and modification.
