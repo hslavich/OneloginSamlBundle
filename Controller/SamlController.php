@@ -13,21 +13,21 @@ class SamlController extends AbstractController
     {
         $session = $request->getSession();
         $authErrorKey = Security::AUTHENTICATION_ERROR;
+        $error = null;
 
         if ($request->attributes->has($authErrorKey)) {
             $error = $request->attributes->get($authErrorKey);
         } elseif (null !== $session && $session->has($authErrorKey)) {
             $error = $session->get($authErrorKey);
             $session->remove($authErrorKey);
-        } else {
-            $error = null;
         }
 
-        if ($error) {
+        if ($error instanceof \Exception) {
             throw new \RuntimeException($error->getMessage());
         }
 
-        $this->get('onelogin_auth')->login($session->get('_security.main.target_path'));
+        $firewallName = array_slice(explode('.', trim($request->attributes->get('_firewall_context'))), -1)[0];
+        $this->get('onelogin_auth')->login($session->get('_security.'.$firewallName.'.target_path'));
     }
 
     public function metadataAction()
