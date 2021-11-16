@@ -6,6 +6,10 @@ services:
         arguments: [ "%hslavich_onelogin_saml.settings%"]
         public: true
 
+    hslavich_onelogin_saml.saml_controller:
+        class: Hslavich\OneloginSamlBundle\Controller\SamlController
+        tags: ["controller.service_arguments"]
+
     hslavich_onelogin_saml.user_provider:
         class: Hslavich\OneloginSamlBundle\Security\User\SamlUserProvider
 
