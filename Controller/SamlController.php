@@ -19,11 +19,12 @@ class SamlController extends AbstractController
     public function loginAction(Request $request)
     {
         $authErrorKey = Security::AUTHENTICATION_ERROR;
-        $session = $targetPath = null;
+        $session = $targetPath = $error = null;
 
         if ($request->hasSession()) {
             $session = $request->getSession();
-            $targetPath = $session->get('_security.main.target_path');
+            $firewallName = array_slice(explode('.', trim($request->attributes->get('_firewall_context'))), -1)[0];
+            $targetPath = $session->get('_security.'.$firewallName.'.target_path');
         }
 
         if ($request->attributes->has($authErrorKey)) {
@@ -31,11 +32,9 @@ class SamlController extends AbstractController
         } elseif (null !== $session && $session->has($authErrorKey)) {
             $error = $session->get($authErrorKey);
             $session->remove($authErrorKey);
-        } else {
-            $error = null;
         }
 
-        if ($error) {
+        if ($error instanceof \Exception) {
             throw new \RuntimeException($error->getMessage());
         }
 
