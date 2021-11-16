@@ -14,6 +14,7 @@ class SecurityCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
         $configs = $container->getExtensionConfig('hslavich_onelogin_saml');
+        $configs = $container->getParameterBag()->resolveValue($configs);
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
         $emDefinition='doctrine.orm.default_entity_manager';
