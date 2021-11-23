@@ -21,5 +21,9 @@ class HslavichOneloginSamlExtension extends Extension
         $loader->load('services.php');
 
         $container->setParameter('hslavich_onelogin_saml.settings', $config);
+
+        if (!empty($config['entityManagerName'])) {
+            $container->setParameter('hslavich_onelogin_saml.entity_manager', $config['entityManagerName']);
+        }
     }
 }
