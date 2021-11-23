@@ -229,8 +229,6 @@ security:
                 property: username
 
     firewalls:
-        enable_authenticator_manager: true
-    
         default:
             provider: saml_provider
             saml:
@@ -238,7 +236,7 @@ security:
                 # User factory service
                 user_factory: my_user_factory
             logout:
-            path: saml_logout
+                path: saml_logout
 ```
 
 Create the user factory service editing `services.yaml`:
