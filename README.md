@@ -1,12 +1,13 @@
 # OneloginSamlBundle
 OneLogin SAML Bundle for Symfony. (https://github.com/onelogin/php-saml)
 
-[![Latest Stable Version](https://poser.pugx.org/hslavich/oneloginsaml-bundle/v)](//packagist.org/packages/hslavich/oneloginsaml-bundle) [![Latest Unstable Version](https://poser.pugx.org/hslavich/oneloginsaml-bundle/v/unstable)](//packagist.org/packages/hslavich/oneloginsaml-bundle) [![Total Downloads](https://poser.pugx.org/hslavich/oneloginsaml-bundle/downloads)](//packagist.org/packages/hslavich/oneloginsaml-bundle)  [![License](https://poser.pugx.org/hslavich/oneloginsaml-bundle/license)](//packagist.org/packages/hslavich/oneloginsaml-bundle)
+[![Latest Stable Version](https://poser.pugx.org/hslavich/oneloginsaml-bundle/v)](//packagist.org/packages/hslavich/oneloginsaml-bundle)
+[![Latest Unstable Version](https://poser.pugx.org/hslavich/oneloginsaml-bundle/v/unstable)](//packagist.org/packages/hslavich/oneloginsaml-bundle)
+[![Total Downloads](https://poser.pugx.org/hslavich/oneloginsaml-bundle/downloads)](//packagist.org/packages/hslavich/oneloginsaml-bundle)
+[![License](https://poser.pugx.org/hslavich/oneloginsaml-bundle/license)](//packagist.org/packages/hslavich/oneloginsaml-bundle)
 
 [![Build Status](https://travis-ci.org/hslavich/OneloginSamlBundle.svg?branch=master)](https://travis-ci.org/hslavich/OneloginSamlBundle)
 [![Coverage Status](https://coveralls.io/repos/github/hslavich/OneloginSamlBundle/badge.svg?branch=master)](https://coveralls.io/github/hslavich/OneloginSamlBundle?branch=master)
-
-[![SensioLabsInsight](https://insight.symfony.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa/big.png)](https://insight.symfony.com/projects/d74ae361-ef8d-437e-b8d6-a8627491ccfa)
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/hslavich)
 
@@ -14,21 +15,11 @@ Installation
 ------------
 
 Install with composer
-``` json
-"require": {
-    "hslavich/oneloginsaml-bundle": "^2.0"
-}
-```
-
-> Using of `dev-master` version deprecated, use a specific version instead (i.e. 2.0).<br>
-> In the future `master` branch will be removed (approximately in the fall '21).
-
-Run composer update
 ``` bash
-composer update hslavich/oneloginsaml-bundle
+composer require hslavich/oneloginsaml-bundle
 ```
 
-Enable the bundle in `config/bundles.php`
+Enable the bundle in `config/bundles.php` (if you don't use Symfony Flex)
 ``` php
 return [
     // ...
@@ -239,6 +230,10 @@ security:
                 path: saml_logout
 ```
 
+> In order for a user to be provisioned, you must use a user provider that throws `UsernameNotFoundException` (e.g.
+> `EntityUserProvider` as used in the example above). The `SamlUserProvider` does not throw this exception which will
+> cause an empty user to be returned when a matching user cannot be found.
+
 Create the user factory service editing `services.yaml`:
 
 ``` yml
@@ -321,10 +316,6 @@ security:
                 # ...
                 persist_user: true
 ```
-
-> In order for the user to be persisted, you must use a user provider that throws `UserNotFoundException` (e.g.
-> `EntityUserProvider` as used in the example above). The `SamlUserProvider` does not throw this exception which will
-> cause an empty user to be returned when a matching user cannot be found.
 
 To use non-default entity manager specify it name by `hslavich_onelogin_saml.entityManagerName` config option.
 
