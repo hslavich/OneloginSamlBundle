@@ -2,6 +2,7 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\User;
 
+use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -20,7 +21,7 @@ class SamlUserProvider implements UserProviderInterface
     {
         return new $this->userClass($identifier, $this->defaultRoles);
     }
-    
+
     public function loadUserByUsername(string $username)
     {
         return $this->loadUserByIdentifier($username);
@@ -28,6 +29,10 @@ class SamlUserProvider implements UserProviderInterface
 
     public function refreshUser(UserInterface $user)
     {
+        if (!$user instanceof $this->userClass) {
+            throw new UnsupportedUserException();
+        }
+
         return $user;
     }
 
