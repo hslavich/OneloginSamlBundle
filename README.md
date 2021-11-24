@@ -11,6 +11,9 @@ OneLogin SAML Bundle for Symfony. (https://github.com/onelogin/php-saml)
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/hslavich)
 
+> This bundle supports Symfony 5 and earlier. <br>
+> For newer Symfony versions you can use [nbgrp/onelogin-saml-bundle](https://github.com/nbgrp/onelogin-saml-bundle).
+
 Installation
 ------------
 
