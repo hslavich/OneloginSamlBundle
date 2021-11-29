@@ -102,6 +102,11 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
         return 'pre_auth';
     }
 
+    public function getPriority(): int
+    {
+        return -10;
+    }
+
     public function getKey(): string
     {
         return 'saml';

@@ -6,8 +6,7 @@ namespace Hslavich\OneloginSamlBundle\Security\Http\Authenticator;
 
 use Hslavich\OneloginSamlBundle\Event\UserCreatedEvent;
 use Hslavich\OneloginSamlBundle\Event\UserModifiedEvent;
-use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Passport\SamlPassport;
-use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Passport\SamlPassportInterface;
+use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Passport\Badge\SamlAttributesBadge;
 use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Token\SamlToken;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
@@ -26,7 +25,9 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerI
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 use Symfony\Component\Security\Http\HttpUtils;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -76,7 +77,7 @@ class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPo
         return new RedirectResponse($this->httpUtils->generateUri($request, $this->options['login_path']));
     }
 
-    public function authenticate(Request $request): PassportInterface
+    public function authenticate(Request $request): Passport
     {
         if (!$request->hasSession()) {
             throw new SessionUnavailableException('This authentication method requires a session.');
@@ -101,11 +102,23 @@ class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPo
 
     public function createAuthenticatedToken(PassportInterface $passport, string $firewallName): TokenInterface
     {
-        if (!$passport instanceof SamlPassportInterface) {
-            throw new LogicException(sprintf('Passport should be an instance of "%s".', SamlPassportInterface::class));
+        if (!$passport instanceof Passport) {
+            throw new LogicException(sprintf('Passport should be an instance of "%s".', Passport::class));
         }
 
-        return new SamlToken($passport->getUser(), $firewallName, $passport->getUser()->getRoles(), $passport->getAttributes());
+        return $this->createToken($passport, $firewallName);
+    }
+
+    public function createToken(Passport $passport, string $firewallName): TokenInterface
+    {
+        if (!$passport->hasBadge(SamlAttributesBadge::class)) {
+            throw new LogicException(sprintf('Passport should contains a "%s" badge.', SamlAttributesBadge::class));
+        }
+
+        /** @var SamlAttributesBadge $badge */
+        $badge = $passport->getBadge(SamlAttributesBadge::class);
+
+        return new SamlToken($passport->getUser(), $firewallName, $passport->getUser()->getRoles(), $badge->getAttributes());
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
@@ -118,7 +131,7 @@ class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPo
         return $this->failureHandler->onAuthenticationFailure($request, $exception);
     }
 
-    protected function createPassport(): PassportInterface
+    protected function createPassport(): Passport
     {
         $attributes = $this->extractAttributes();
         $username = $this->extractUsername($attributes);
@@ -149,7 +162,7 @@ class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPo
             }
         );
 
-        return new SamlPassport($userBadge, $attributes);
+        return new SelfValidatingPassport($userBadge, [new SamlAttributesBadge($attributes)]);
     }
 
     protected function extractAttributes(): array
