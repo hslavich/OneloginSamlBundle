@@ -10,6 +10,14 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class SamlUserProviderTest extends TestCase
 {
+    public function testUnsupportedUserClassName(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The $userClass argument must be a class implementing the Symfony\\Component\\Security\\Core\\User\\UserInterface interface.');
+
+        new SamlUserProvider(\stdClass::class, ['ROLE_ADMIN']);
+    }
+
     public function testLoadByUsername(): void
     {
         $provider = $this->getUserProvider(['ROLE_ADMIN']);
