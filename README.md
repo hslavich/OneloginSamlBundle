@@ -233,7 +233,7 @@ security:
                 path: saml_logout
 ```
 
-> In order for a user to be provisioned, you must use a user provider that throws `UsernameNotFoundException` (e.g.
+> In order for a user to be provisioned, you must use a user provider that throws `UserNotFoundException` (e.g.
 > `EntityUserProvider` as used in the example above). The `SamlUserProvider` does not throw this exception which will
 > cause an empty user to be returned when a matching user cannot be found.
 
