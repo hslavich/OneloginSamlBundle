@@ -23,7 +23,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
-use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
+use Symfony\Component\Security\Http\Authenticator\InteractiveAuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
@@ -32,7 +32,7 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 use Symfony\Component\Security\Http\HttpUtils;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPointInterface
+class SamlAuthenticator implements InteractiveAuthenticatorInterface, AuthenticationEntryPointInterface
 {
     private $httpUtils;
     private $userProvider;
@@ -129,6 +129,11 @@ class SamlAuthenticator implements AuthenticatorInterface, AuthenticationEntryPo
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
         return $this->failureHandler->onAuthenticationFailure($request, $exception);
+    }
+
+    public function isInteractive(): bool
+    {
+        return true;
     }
 
     protected function createPassport(): Passport
