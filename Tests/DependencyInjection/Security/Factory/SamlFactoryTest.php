@@ -86,7 +86,8 @@ class SamlFactoryTest extends \PHPUnit_Framework_TestCase
         $providerDefinition = $container->getDefinition('security.authentication.provider.saml.test_firewall');
         $this->assertEquals(array(
             'index_0' => new Reference('my_user_provider'),
-            'index_1' => new Reference('event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE)
+            'index_1' => new Reference('event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE),
+            'index_2' => new Reference('security.user_checker.test_firewall')
         ), $providerDefinition->getArguments());
     }
 }

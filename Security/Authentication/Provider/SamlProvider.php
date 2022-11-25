@@ -12,6 +12,7 @@ use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProvid
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class SamlProvider implements AuthenticationProviderInterface
@@ -20,11 +21,13 @@ class SamlProvider implements AuthenticationProviderInterface
     protected $userFactory;
     protected $tokenFactory;
     protected $eventDispatcher;
+    protected $userChecker;
 
-    public function __construct(UserProviderInterface $userProvider, $eventDispatcher)
+    public function __construct(UserProviderInterface $userProvider, $eventDispatcher, $userChecker)
     {
         $this->userProvider = $userProvider;
         $this->eventDispatcher = $eventDispatcher;
+        $this->userChecker = $userChecker;
     }
 
     public function setUserFactory(SamlUserFactoryInterface $userFactory)
@@ -71,14 +74,28 @@ class SamlProvider implements AuthenticationProviderInterface
     protected function retrieveUser($token)
     {
         try {
-            return $this->userProvider->loadUserByUsername($token->getUsername());
+            $user = $this->userProvider->loadUserByUsername($token->getUsername());
+
+            return $this->checkUser($user);
         } catch (UsernameNotFoundException $e) {
             if ($this->userFactory instanceof SamlUserFactoryInterface) {
-                return $this->generateUser($token);
+                $user = $this->generateUser($token);
+
+                return $this->checkUser($user);
             }
 
             throw $e;
         }
+    }
+
+    protected function checkUser($user)
+    {
+        if ($user && $this->userChecker instanceof UserCheckerInterface) {
+            $this->userChecker->checkPreAuth($user);
+            $this->userChecker->checkPostAuth($user);
+        }
+
+        return $user;
     }
 
     protected function generateUser($token)

@@ -91,6 +91,7 @@ class SamlFactory extends AbstractFactory
         $definition = $container->setDefinition($providerId, new $definitionClassname('hslavich_onelogin_saml.saml_provider'))
             ->replaceArgument(0, new Reference($userProviderId))
             ->replaceArgument(1, new Reference('event_dispatcher', ContainerInterface::NULL_ON_INVALID_REFERENCE))
+            ->replaceArgument(2, new Reference('security.user_checker.'.$id))
         ;
 
         if ($config['user_factory']) {
