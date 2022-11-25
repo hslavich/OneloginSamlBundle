@@ -49,6 +49,36 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
         $provider->authenticate($this->getSamlToken());
     }
 
+    public function testAuthenticateCheckerInvalidUser()
+    {
+        $user = $this->createMock('Symfony\Component\Security\Core\User\UserInterface');
+
+        $userChecker = $this->createMock('Symfony\Component\Security\Core\User\UserCheckerInterface');
+        $exception = new \Exception('This user is valid in SSO but invalid in app');
+        $userChecker->expects($this->once())->method('checkPreAuth')->willThrowException($exception);
+
+        $provider = $this->getProvider($user, null, null, $userChecker);
+
+        $this->expectExceptionMessage('This user is valid in SSO but invalid in app');
+
+        $provider->authenticate($this->getSamlToken());
+    }
+
+    public function testAuthenticateUserCheckerPostAuth()
+    {
+        $user = $this->createMock('Symfony\Component\Security\Core\User\UserInterface');
+        $user->expects($this->once())->method('getRoles')->willReturn(array());
+
+        $userChecker = $this->createMock('Symfony\Component\Security\Core\User\UserCheckerInterface');
+        $userChecker->expects($this->once())->method('checkPostAuth');
+
+        $provider = $this->getProvider($user, null, null, $userChecker);
+
+        $token = $provider->authenticate($this->getSamlToken());
+
+        $this->assertSame($user, $token->getUser());
+    }
+
     public function testAuthenticateWithUserFactory()
     {
         $user = $this->createMock('Symfony\Component\Security\Core\User\UserInterface');
@@ -117,7 +147,7 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
         return $token;
     }
 
-    protected function getProvider($user = null, $userFactory = null, $eventDispatcher = null)
+    protected function getProvider($user = null, $userFactory = null, $eventDispatcher = null, $userChecker = null)
     {
         $userProvider = $this->createMock('Symfony\Component\Security\Core\User\UserProviderInterface');
         if ($user) {
@@ -126,7 +156,7 @@ class SamlProviderTest extends \PHPUnit_Framework_TestCase
             $userProvider->method('loadUserByUsername')->will($this->throwException(new UsernameNotFoundException()));
         }
 
-        $provider = new SamlProvider($userProvider, $eventDispatcher);
+        $provider = new SamlProvider($userProvider, $eventDispatcher, $userChecker);
         $provider->setTokenFactory(new SamlTokenFactory());
 
         if ($userFactory) {
