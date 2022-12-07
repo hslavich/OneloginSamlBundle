@@ -6,16 +6,21 @@ namespace Hslavich\OneloginSamlBundle\Security\Http\Authenticator;
 
 use Hslavich\OneloginSamlBundle\Event\UserCreatedEvent;
 use Hslavich\OneloginSamlBundle\Event\UserModifiedEvent;
+use Hslavich\OneloginSamlBundle\Idp\IdpResolverInterface;
+use Hslavich\OneloginSamlBundle\OneLogin\AuthRegistryInterface;
 use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Passport\Badge\SamlAttributesBadge;
 use Hslavich\OneloginSamlBundle\Security\Http\Authenticator\Token\SamlToken;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserFactoryInterface;
 use Hslavich\OneloginSamlBundle\Security\User\SamlUserInterface;
+use OneLogin\Saml2\Auth;
+use OneLogin\Saml2\Utils;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\AuthenticationServiceException;
 use Symfony\Component\Security\Core\Exception\LogicException;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
@@ -34,36 +39,46 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SamlAuthenticator implements InteractiveAuthenticatorInterface, AuthenticationEntryPointInterface
 {
-    private $httpUtils;
-    private $userProvider;
-    private $oneLoginAuth;
-    private $successHandler;
-    private $failureHandler;
-    private $options;
-    private $userFactory;
-    private $eventDispatcher;
-    private $logger;
+    private HttpUtils $httpUtils;
+    private UserProviderInterface $userProvider;
+    private AuthenticationSuccessHandlerInterface $successHandler;
+    private AuthenticationFailureHandlerInterface $failureHandler;
+    private array $options;
+    private ?SamlUserFactoryInterface $userFactory;
+    private ?EventDispatcherInterface $eventDispatcher;
+    private ?LoggerInterface $logger;
+
+    private AuthRegistryInterface $authRegistry;
+    private IdpResolverInterface $idpResolver;
+    private bool $useProxyVars;
+    private string $idpParameterName;
 
     public function __construct(
         HttpUtils $httpUtils,
         UserProviderInterface $userProvider,
-        \OneLogin\Saml2\Auth $oneLoginAuth,
+        IdpResolverInterface $idpResolver,
+        AuthRegistryInterface $authRegistry,
         AuthenticationSuccessHandlerInterface $successHandler,
         AuthenticationFailureHandlerInterface $failureHandler,
         array $options,
         ?SamlUserFactoryInterface $userFactory,
         ?EventDispatcherInterface $eventDispatcher,
-        ?LoggerInterface $logger
+        ?LoggerInterface $logger,
+        ?bool $useProxyVars,
+        ?string $idpParameterName
     ) {
         $this->httpUtils = $httpUtils;
         $this->userProvider = $userProvider;
-        $this->oneLoginAuth = $oneLoginAuth;
+        $this->idpResolver = $idpResolver;
+        $this->authRegistry = $authRegistry;
         $this->successHandler = $successHandler;
         $this->failureHandler = $failureHandler;
         $this->options = $options;
         $this->userFactory = $userFactory;
         $this->eventDispatcher = $eventDispatcher;
         $this->logger = $logger;
+        $this->useProxyVars = $useProxyVars;
+        $this->idpParameterName = $idpParameterName;
     }
 
     public function supports(Request $request): ?bool
@@ -74,7 +89,13 @@ class SamlAuthenticator implements InteractiveAuthenticatorInterface, Authentica
 
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
-        return new RedirectResponse($this->httpUtils->generateUri($request, $this->options['login_path']));
+        $uri = $this->httpUtils->generateUri($request, (string) $this->options['login_path']);
+        $idp = $this->idpResolver->resolve($request);
+        if ($idp) {
+            $uri .= '?'.$this->idpParameterName.'='.$idp;
+        }
+        
+        return new RedirectResponse($uri);
     }
 
     public function authenticate(Request $request): Passport
@@ -87,17 +108,20 @@ class SamlAuthenticator implements InteractiveAuthenticatorInterface, Authentica
             throw new SessionUnavailableException('Your session has timed out, or you have disabled cookies.');
         }
 
-        $this->oneLoginAuth->processResponse();
+        $oneLoginAuth = $this->getOneLoginAuth($request);
+        Utils::setProxyVars($this->useProxyVars);
 
-        if ($this->oneLoginAuth->getErrors()) {
-            $errorReason = $this->oneLoginAuth->getLastErrorReason();
+        $oneLoginAuth->processResponse();
+        
+        if ($oneLoginAuth->getErrors()) {
+            $errorReason = $oneLoginAuth->getLastErrorReason() ?? 'Undefined OneLogin auth error.';
             if (null !== $this->logger) {
                 $this->logger->error($errorReason);
             }
             throw new AuthenticationException($errorReason);
         }
 
-        return $this->createPassport();
+        return $this->createPassport($oneLoginAuth);
     }
 
     public function createAuthenticatedToken(PassportInterface $passport, string $firewallName): TokenInterface
@@ -136,10 +160,10 @@ class SamlAuthenticator implements InteractiveAuthenticatorInterface, Authentica
         return true;
     }
 
-    protected function createPassport(): Passport
+    protected function createPassport(Auth $oneLoginAuth): Passport
     {
-        $attributes = $this->extractAttributes();
-        $username = $this->extractUsername($attributes);
+        $attributes = $this->extractAttributes($oneLoginAuth);
+        $username = $this->extractUsername($attributes, $oneLoginAuth);
 
         $userBadge = new UserBadge(
             $username,
@@ -170,19 +194,20 @@ class SamlAuthenticator implements InteractiveAuthenticatorInterface, Authentica
         return new SelfValidatingPassport($userBadge, [new SamlAttributesBadge($attributes)]);
     }
 
-    protected function extractAttributes(): array
+    protected function extractAttributes(Auth $oneLoginAuth): array
     {
         if (isset($this->options['use_attribute_friendly_name']) && $this->options['use_attribute_friendly_name']) {
-            $attributes = $this->oneLoginAuth->getAttributesWithFriendlyName();
+            $attributes = $oneLoginAuth->getAttributesWithFriendlyName();
         } else {
-            $attributes = $this->oneLoginAuth->getAttributes();
+            $attributes = $oneLoginAuth->getAttributes();
         }
-        $attributes['sessionIndex'] = $this->oneLoginAuth->getSessionIndex();
+
+        $attributes['sessionIndex'] = $oneLoginAuth->getSessionIndex();
 
         return $attributes;
     }
 
-    protected function extractUsername(array $attributes): string
+    protected function extractUsername(array $attributes, Auth $oneLoginAuth): string
     {
         if (isset($this->options['username_attribute'])) {
             if (!\array_key_exists($this->options['username_attribute'], $attributes)) {
@@ -195,7 +220,7 @@ class SamlAuthenticator implements InteractiveAuthenticatorInterface, Authentica
             return $attributes[$this->options['username_attribute']][0];
         }
 
-        return $this->oneLoginAuth->getNameId();
+        return $oneLoginAuth->getNameId();
     }
 
     protected function generateUser(string $username, array $attributes): UserInterface
@@ -207,5 +232,23 @@ class SamlAuthenticator implements InteractiveAuthenticatorInterface, Authentica
         }
 
         return $user;
+    }
+
+    private function getOneLoginAuth(Request $request): Auth
+    {
+        try {
+            $idp = $this->idpResolver->resolve($request);
+            $authService = $idp
+                ? $this->authRegistry->getService($idp)
+                : $this->authRegistry->getDefaultService();
+        } catch (\RuntimeException $exception) {
+            if (null !== $this->logger) {
+                $this->logger->error($exception->getMessage());
+            }
+
+            throw new AuthenticationServiceException($exception->getMessage());
+        }
+
+        return $authService;
     }
 }

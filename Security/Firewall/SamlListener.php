@@ -2,11 +2,15 @@
 
 namespace Hslavich\OneloginSamlBundle\Security\Firewall;
 
+use Hslavich\OneloginSamlBundle\Idp\IdpResolverInterface;
+use Hslavich\OneloginSamlBundle\OneLogin\AuthRegistryInterface;
 use Hslavich\OneloginSamlBundle\Security\Authentication\Token\SamlToken;
+use OneLogin\Saml2\Auth;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\AuthenticationServiceException;
 use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
 
 /**
@@ -14,17 +18,17 @@ use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
  */
 class SamlListener extends AbstractAuthenticationListener
 {
-    /**
-     * @var \OneLogin\Saml2\Auth
-     */
-    protected $oneLoginAuth;
+    private AuthRegistryInterface $authRegistry;
+    private IdpResolverInterface $idpResolver;
 
-    /**
-     * @param \OneLogin\Saml2\Auth $oneLoginAuth
-     */
-    public function setOneLoginAuth(\OneLogin\Saml2\Auth $oneLoginAuth)
+    public function setAuthRegistry(AuthRegistryInterface $authRegistry)
     {
-        $this->oneLoginAuth = $oneLoginAuth;
+        $this->authRegistry = $authRegistry;
+    }
+
+    public function setIdpResolver(IdpResolverInterface $idpResolver)
+    {
+        $this->idpResolver = $idpResolver;
     }
 
     /**
@@ -38,20 +42,22 @@ class SamlListener extends AbstractAuthenticationListener
      */
     protected function attemptAuthentication(Request $request)
     {
-        $this->oneLoginAuth->processResponse();
-        if ($this->oneLoginAuth->getErrors()) {
+        $oneLoginAuth = $this->getOneLoginAuth($request);
+
+        $oneLoginAuth->processResponse();
+        if ($oneLoginAuth->getErrors()) {
             if (null !== $this->logger) {
-                $this->logger->error($this->oneLoginAuth->getLastErrorReason());
+                $this->logger->error($oneLoginAuth->getLastErrorReason());
             }
-            throw new AuthenticationException($this->oneLoginAuth->getLastErrorReason());
+            throw new AuthenticationException($oneLoginAuth->getLastErrorReason());
         }
 
         if (isset($this->options['use_attribute_friendly_name']) && $this->options['use_attribute_friendly_name']) {
-            $attributes = $this->oneLoginAuth->getAttributesWithFriendlyName();
+            $attributes = $oneLoginAuth->getAttributesWithFriendlyName();
         } else {
-            $attributes = $this->oneLoginAuth->getAttributes();
+            $attributes = $oneLoginAuth->getAttributes();
         }
-        $attributes['sessionIndex'] = $this->oneLoginAuth->getSessionIndex();
+        $attributes['sessionIndex'] = $oneLoginAuth->getSessionIndex();
         $token = new SamlToken();
         $token->setAttributes($attributes);
 
@@ -65,10 +71,28 @@ class SamlListener extends AbstractAuthenticationListener
 
             $username = $attributes[$this->options['username_attribute']][0];
         } else {
-            $username = $this->oneLoginAuth->getNameId();
+            $username = $oneLoginAuth->getNameId();
         }
         $token->setUser($username);
 
         return $this->authenticationManager->authenticate($token);
+    }
+
+    private function getOneLoginAuth(Request $request): Auth
+    {
+        try {
+            $idp = $this->idpResolver->resolve($request);
+            $authService = $idp
+                ? $this->authRegistry->getService($idp)
+                : $this->authRegistry->getDefaultService();
+        } catch (\RuntimeException $exception) {
+            if (null !== $this->logger) {
+                $this->logger->error($exception->getMessage());
+            }
+
+            throw new AuthenticationServiceException($exception->getMessage());
+        }
+
+        return $authService;
     }
 }

@@ -3,3 +3,4 @@ phpunit.xml
 /vendor/
 /build/
 .phpunit.result.cache
+/.idea/

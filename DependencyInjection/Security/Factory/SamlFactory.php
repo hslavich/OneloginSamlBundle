@@ -23,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInterface
 {
-    protected $options = [
+    protected array $options = [
         'check_path' => 'saml_acs',
         'use_forward' => false,
         'require_previous_session' => false,
@@ -37,7 +37,7 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
         'success_handler' => SamlAuthenticationSuccessHandler::class,
     ];
 
-    protected $defaultSuccessHandlerOptions = [
+    protected array $defaultSuccessHandlerOptions = [
         'always_use_default_target_path' => false,
         'default_target_path' => '/',
         'login_path' => 'saml_login',
@@ -45,7 +45,7 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
         'use_referer' => false,
     ];
 
-    protected $defaultFailureHandlerOptions = [
+    protected array $defaultFailureHandlerOptions = [
         'failure_path' => null,
         'failure_forward' => false,
         'login_path' => 'saml_login',
@@ -118,13 +118,15 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
         $authenticator = (new ChildDefinition(SamlAuthenticator::class))
             ->replaceArgument(0, new Reference(HttpUtils::class))
             ->replaceArgument(1, new Reference($userProviderId))
-            ->replaceArgument(3, new Reference($this->createAuthenticationSuccessHandler($container, $firewallName, $config)))
-            ->replaceArgument(4, new Reference($this->createAuthenticationFailureHandler($container, $firewallName, $config)))
-            ->replaceArgument(5, array_intersect_key($config, $this->options))
+            ->replaceArgument(4, new Reference($this->createAuthenticationSuccessHandler($container, $firewallName,
+                $config)))
+            ->replaceArgument(5, new Reference($this->createAuthenticationFailureHandler($container, $firewallName,
+                $config)))
+            ->replaceArgument(6, array_intersect_key($config, $this->options))
         ;
 
         if ($config['user_factory']) {
-            $authenticator->replaceArgument(6, new Reference($config['user_factory']));
+            $authenticator->replaceArgument(7, new Reference($config['user_factory']));
         }
 
         $container->setDefinition($authenticatorId, $authenticator);
