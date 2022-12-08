@@ -1,5 +1,5 @@
 {
-    "name": "hslavich/oneloginsaml-bundle",
+    "name": "karolornoch/oneloginsaml-bundle",
     "type": "symfony-bundle",
     "description": "OneLogin SAML Bundle for Symfony2",
     "keywords": [
@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "onelogin/php-saml": "^3.0",
+        "karolornoch/php-saml": "3.1.1",
         "symfony/framework-bundle": "~2.3 || ~3.0 || ^4.0",
         "symfony/security-bundle": "~2.3 || ~3.0 || ^4.0"
     },
