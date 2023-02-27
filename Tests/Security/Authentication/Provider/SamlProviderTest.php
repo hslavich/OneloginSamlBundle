@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
+use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -149,6 +150,36 @@ class SamlProviderTest extends TestCase
 
     }
 
+    public function testAuthenticateCheckerInvalidUser()
+    {
+        $user = $this->createMock('Symfony\Component\Security\Core\User\UserInterface');
+
+        $userChecker = $this->createMock('Symfony\Component\Security\Core\User\UserCheckerInterface');
+        $exception = new \Exception('This user is valid in SSO but invalid in app');
+        $userChecker->expects($this->once())->method('checkPreAuth')->willThrowException($exception);
+
+        $provider = $this->getProvider($user, null, null, $userChecker);
+
+        $this->expectExceptionMessage('This user is valid in SSO but invalid in app');
+
+        $provider->authenticate($this->getSamlToken());
+    }
+
+    public function testAuthenticateUserCheckerPostAuth()
+    {
+        $user = $this->createMock('Symfony\Component\Security\Core\User\UserInterface');
+        $user->expects($this->once())->method('getRoles')->willReturn(array());
+
+        $userChecker = $this->createMock('Symfony\Component\Security\Core\User\UserCheckerInterface');
+        $userChecker->expects($this->once())->method('checkPostAuth');
+
+        $provider = $this->getProvider($user, null, null, $userChecker);
+
+        $token = $provider->authenticate($this->getSamlToken());
+
+        $this->assertSame($user, $token->getUser());
+    }
+
     protected function getSamlToken(): SamlToken
     {
         $token = $this->createMock(SamlToken::class);
@@ -165,8 +196,12 @@ class SamlProviderTest extends TestCase
         return $token;
     }
 
-    protected function getProvider($user = null, $userFactory = null, EventDispatcherInterface $eventDispatcher = null): SamlProvider
-    {
+    protected function getProvider(
+        $user = null,
+        $userFactory = null,
+        EventDispatcherInterface $eventDispatcher = null,
+        UserCheckerInterface $userChecker = null
+    ): SamlProvider {
         $userProvider = $this->createMock(SamlUserProvider::class);
         if ($user) {
             $userProvider
@@ -185,6 +220,10 @@ class SamlProviderTest extends TestCase
 
         if ($userFactory) {
             $provider->setUserFactory($userFactory);
+        }
+
+        if ($userChecker) {
+            $provider->setUserChecker($userChecker);
         }
 
         return $provider;

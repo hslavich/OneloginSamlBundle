@@ -12,6 +12,7 @@ use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProvid
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
+use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -24,6 +25,8 @@ class SamlProvider implements AuthenticationProviderInterface
     protected $userFactory;
     protected $tokenFactory;
     protected $eventDispatcher;
+
+    protected $userChecker;
 
     public function __construct(UserProviderInterface $userProvider, ?EventDispatcherInterface $eventDispatcher)
     {
@@ -39,6 +42,11 @@ class SamlProvider implements AuthenticationProviderInterface
     public function setTokenFactory(SamlTokenFactoryInterface $tokenFactory)
     {
         $this->tokenFactory = $tokenFactory;
+    }
+
+    public function setUserChecker(UserCheckerInterface $userChecker)
+    {
+        $this->userChecker = $userChecker;
     }
 
     public function authenticate(TokenInterface $token)
@@ -70,10 +78,14 @@ class SamlProvider implements AuthenticationProviderInterface
     protected function retrieveUser($token)
     {
         try {
-            return $this->userProvider->loadUserByIdentifier($token->getUserIdentifier());
+            $user = $this->userProvider->loadUserByIdentifier($token->getUserIdentifier());
+
+            return $this->checkUser($user);
         } catch (UserNotFoundException $e) {
             if ($this->userFactory instanceof SamlUserFactoryInterface) {
-                return $this->generateUser($token);
+                $user = $this->generateUser($token);
+
+                return $this->checkUser($user);
             }
 
             throw $e;
@@ -85,6 +97,17 @@ class SamlProvider implements AuthenticationProviderInterface
         $user = $this->userFactory->createUser($token);
         if ($this->eventDispatcher) {
             $this->eventDispatcher->dispatch(new UserCreatedEvent($user));
+        }
+
+        return $user;
+    }
+
+    protected function checkUser($user)
+    {
+        if ($this->userChecker instanceof UserCheckerInterface) {
+            $this->userChecker->checkPreAuth($user);
+            $this->userChecker->checkPostAuth($user);
+
         }
 
         return $user;

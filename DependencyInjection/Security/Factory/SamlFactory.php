@@ -35,6 +35,7 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
         'token_factory' => null,
         'persist_user' => false,
         'success_handler' => SamlAuthenticationSuccessHandler::class,
+        'user_checker' => null,
     ];
 
     protected $defaultSuccessHandlerOptions = [
@@ -150,6 +151,10 @@ class SamlFactory implements SecurityFactoryInterface, AuthenticatorFactoryInter
 
         $factoryId = $config['token_factory'] ?: SamlTokenFactoryInterface::class;
         $definition->addMethodCall('setTokenFactory', [new Reference($factoryId)]);
+
+        if ($config['user_checker']) {
+            $definition->addMethodCall('setUserChecker', [new Reference($config['user_checker'])]);
+        }
 
         return $providerId;
     }
